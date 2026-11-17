@@ -1,9 +1,15 @@
 //! Raw TCP listener for the virtual printer.
 //!
 //! Accepts any number of simultaneous connections. Each connection owns a
-//! `phantompos-core` [`Parser`]: every chunk read from the socket is fed to it
-//! and the decoded commands go to an [`EventSink`]. Interpreting ESC/POS is
-//! the job of `phantompos-core`; this module never looks inside the data.
+//! `phantompos-core` [`Parser`] and [`ReceiptBuilder`]: every chunk read from
+//! the socket is fed to them, and the decoded commands, receipts and drawer
+//! kicks go to an [`EventSink`]. Interpreting ESC/POS is the job of
+//! `phantompos-core`; this module only routes the builder's [`Effect`]s.
+//!
+//! Event order per read: `commands:received`, then `receipt:completed` /
+//! `drawer:kicked` in stream order, then `receipt:updated` if the receipt in
+//! progress changed (at most one per read). On disconnect: the flushed
+//! commands, the pending receipt (if any) and `connection:changed`.
 //!
 //! The listener is independent of Tauri so it can be tested with a plain
 //! channel as the sink. The Tauri glue lives in `lib.rs`.
@@ -15,7 +21,10 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use std::time::Duration;
 
-use phantompos_core::{DecodedCommand, Parser, ParserConfig};
+use phantompos_core::{
+    DecodedCommand, DrawerKick, Effect, PaperProfile, Parser, ParserConfig, Receipt,
+    ReceiptBuilder, ReceiptConfig,
+};
 use serde::Serialize;
 use tokio::io::AsyncReadExt;
 use tokio::net::{TcpListener, TcpStream};
@@ -87,12 +96,50 @@ pub struct CommandsReceived {
     pub commands: Vec<DecodedCommand>,
 }
 
+/// Payload of the `receipt:updated` event: the receipt in progress on a
+/// connection (`cut` is always `null`), sent when it changed and is not empty.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReceiptUpdated {
+    pub connection_id: u64,
+    pub peer: String,
+    pub receipt: Receipt,
+}
+
+/// Payload of the `receipt:completed` event: a receipt closed by a cut, or by
+/// the end of the connection (`cut: null`).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReceiptCompleted {
+    /// Unique and increasing across the app run, in closing order.
+    pub id: u64,
+    pub connection_id: u64,
+    pub peer: String,
+    pub receipt: Receipt,
+}
+
+/// Payload of the `drawer:kicked` event.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DrawerKicked {
+    pub connection_id: u64,
+    pub peer: String,
+    /// Drawer kick-out connector pin: 2 or 5.
+    pub pin: u8,
+    pub on_ms: u32,
+    pub off_ms: u32,
+}
+
 /// Return value of the `get_state` command.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StateSnapshot {
     pub listener: ListenerStatus,
     pub connections: ConnectionsSnapshot,
+    /// Paper for receipts started from now on.
+    pub paper: PaperProfile,
+    /// Set by a drawer kick, cleared by the `close_drawer` command.
+    pub drawer_open: bool,
 }
 
 /// Something that happened in the listener and must reach the UI.
@@ -101,11 +148,15 @@ pub enum ListenerEvent {
     Status(ListenerStatus),
     Connections(ConnectionsSnapshot),
     Commands(CommandsReceived),
+    ReceiptUpdated(ReceiptUpdated),
+    ReceiptCompleted(ReceiptCompleted),
+    DrawerKicked(DrawerKicked),
 }
 
-/// Receives listener events. Implementations must not block for long: status
-/// and connection events are emitted while the state lock is held, so that
-/// the order of events always matches the order of state changes.
+/// Receives listener events. Implementations must not block for long: status,
+/// connection, receipt-completed and drawer events are emitted while the state
+/// lock is held, so that the order of events always matches the order of
+/// state changes (and receipt ids reach the UI in increasing order).
 pub trait EventSink: Send + Sync + 'static {
     fn emit(&self, event: ListenerEvent);
 }
@@ -136,6 +187,10 @@ pub struct ListenerState {
 struct Inner {
     status: ListenerStatus,
     peers: BTreeMap<u64, SocketAddr>,
+    paper: PaperProfile,
+    drawer_open: bool,
+    /// Id of the next completed receipt.
+    next_receipt_id: u64,
 }
 
 impl Inner {
@@ -157,6 +212,9 @@ impl ListenerState {
                     port: settings.port,
                 },
                 peers: BTreeMap::new(),
+                paper: PaperProfile::default(),
+                drawer_open: false,
+                next_receipt_id: 1,
             }),
             next_connection_id: AtomicU64::new(1),
         }
@@ -171,7 +229,55 @@ impl ListenerState {
         StateSnapshot {
             listener: inner.status.clone(),
             connections: inner.connections(),
+            paper: inner.paper,
+            drawer_open: inner.drawer_open,
         }
+    }
+
+    /// Paper for receipts started from now on.
+    pub fn paper(&self) -> PaperProfile {
+        self.lock().paper
+    }
+
+    /// Selects the paper for receipts started from now on. Receipts already
+    /// in progress keep theirs.
+    pub fn set_paper(&self, paper: PaperProfile) {
+        self.lock().paper = paper;
+    }
+
+    /// Marks the cash drawer as closed (the user closed it in the UI).
+    pub fn close_drawer(&self) {
+        self.lock().drawer_open = false;
+    }
+
+    fn complete_receipt(
+        &self,
+        connection_id: u64,
+        peer: &str,
+        receipt: Receipt,
+        sink: &dyn EventSink,
+    ) {
+        let mut inner = self.lock();
+        let id = inner.next_receipt_id;
+        inner.next_receipt_id = id.saturating_add(1);
+        sink.emit(ListenerEvent::ReceiptCompleted(ReceiptCompleted {
+            id,
+            connection_id,
+            peer: peer.to_owned(),
+            receipt,
+        }));
+    }
+
+    fn kick_drawer(&self, connection_id: u64, peer: &str, kick: DrawerKick, sink: &dyn EventSink) {
+        let mut inner = self.lock();
+        inner.drawer_open = true;
+        sink.emit(ListenerEvent::DrawerKicked(DrawerKicked {
+            connection_id,
+            peer: peer.to_owned(),
+            pin: kick.pin,
+            on_ms: kick.on_ms,
+            off_ms: kick.off_ms,
+        }));
     }
 
     /// The state stays consistent even if a holder panicked, so a poisoned
@@ -265,43 +371,92 @@ pub async fn run(state: Arc<ListenerState>, sink: Arc<dyn EventSink>) {
     }
 }
 
-/// Per-connection state: the parser and what is needed to report its output.
+/// Per-connection state: the parser, the receipt builder and what is needed
+/// to report their output.
 ///
 /// Dropping it ends the connection, whether the task returned (EOF, read
 /// error) or was aborted (listener shutdown): the parser is finished and its
-/// remaining commands are emitted first, then the connection is removed from
-/// the shared state. So the last `commands:received` of a connection always
-/// precedes the `connection:changed` that reports it gone.
+/// remaining commands are emitted first, then the pending receipt is
+/// completed, then the connection is removed from the shared state. So the
+/// last `commands:received` and `receipt:completed` of a connection always
+/// precede the `connection:changed` that reports it gone.
 struct Connection {
     id: u64,
     peer: String,
     parser: Parser,
+    builder: ReceiptBuilder,
     state: Arc<ListenerState>,
     sink: Arc<dyn EventSink>,
 }
 
 impl Connection {
-    fn emit_commands(&self, commands: Vec<DecodedCommand>) {
+    fn new(id: u64, peer: String, state: Arc<ListenerState>, sink: Arc<dyn EventSink>) -> Self {
+        let builder = ReceiptBuilder::new(ReceiptConfig {
+            paper: state.paper(),
+            ..ReceiptConfig::default()
+        });
+        Self {
+            id,
+            peer,
+            parser: Parser::new(ParserConfig::default()),
+            builder,
+            state,
+            sink,
+        }
+    }
+
+    /// Applies a batch of commands to the receipt builder and emits, in
+    /// order: the commands, the effects, and the in-progress receipt if it
+    /// changed.
+    fn process(&mut self, commands: Vec<DecodedCommand>) {
         if commands.is_empty() {
             return;
         }
+        // The paper setting is read here; the builder applies it only to
+        // receipts that have not started yet.
+        self.builder.set_paper(self.state.paper());
+        let effects = self.builder.apply_all(&commands);
         self.sink.emit(ListenerEvent::Commands(CommandsReceived {
             connection_id: self.id,
             peer: self.peer.clone(),
             commands,
         }));
+        for effect in effects {
+            match effect {
+                Effect::ReceiptCompleted(receipt) => {
+                    self.state
+                        .complete_receipt(self.id, &self.peer, receipt, self.sink.as_ref());
+                }
+                Effect::DrawerKick(kick) => {
+                    self.state
+                        .kick_drawer(self.id, &self.peer, kick, self.sink.as_ref());
+                }
+            }
+        }
     }
 
     fn feed(&mut self, chunk: &[u8]) {
         let commands = self.parser.feed(chunk);
-        self.emit_commands(commands);
+        self.process(commands);
+        if let Some(receipt) = self.builder.take_update() {
+            self.sink
+                .emit(ListenerEvent::ReceiptUpdated(ReceiptUpdated {
+                    connection_id: self.id,
+                    peer: self.peer.clone(),
+                    receipt,
+                }));
+        }
     }
 }
 
 impl Drop for Connection {
     fn drop(&mut self) {
         let tail = self.parser.finish();
-        self.emit_commands(tail);
+        self.process(tail);
+        if let Some(receipt) = self.builder.finish() {
+            self.state
+                .complete_receipt(self.id, &self.peer, receipt, self.sink.as_ref());
+        }
         self.state.remove_connection(self.id, self.sink.as_ref());
     }
 }
@@ -313,13 +468,7 @@ async fn serve_connection(
     sink: Arc<dyn EventSink>,
 ) {
     let id = state.add_connection(peer, sink.as_ref());
-    let mut connection = Connection {
-        id,
-        peer: peer.to_string(),
-        parser: Parser::new(ParserConfig::default()),
-        state,
-        sink,
-    };
+    let mut connection = Connection::new(id, peer.to_string(), state, sink);
     let mut buffer = vec![0_u8; READ_BUFFER_SIZE];
 
     loop {
@@ -376,17 +525,30 @@ mod tests {
             .expect("event channel closed")
     }
 
+    /// Next event that is not about receipts or the drawer, for tests that
+    /// only look at the command log and connections.
+    async fn next_log_event(events: &mut UnboundedReceiver<ListenerEvent>) -> ListenerEvent {
+        loop {
+            match next_event(events).await {
+                ListenerEvent::ReceiptUpdated(_)
+                | ListenerEvent::ReceiptCompleted(_)
+                | ListenerEvent::DrawerKicked(_) => {}
+                other => return other,
+            }
+        }
+    }
+
     async fn next_connections(
         events: &mut UnboundedReceiver<ListenerEvent>,
     ) -> ConnectionsSnapshot {
-        match next_event(events).await {
+        match next_log_event(events).await {
             ListenerEvent::Connections(snapshot) => snapshot,
             other => panic!("expected a connections event, got {other:?}"),
         }
     }
 
     async fn next_commands(events: &mut UnboundedReceiver<ListenerEvent>) -> CommandsReceived {
-        match next_event(events).await {
+        match next_log_event(events).await {
             ListenerEvent::Commands(received) => received,
             other => panic!("expected a commands event, got {other:?}"),
         }
@@ -473,8 +635,269 @@ mod tests {
         let state = ListenerState::new(ListenerSettings::default());
         assert_eq!(
             json(&state.snapshot()),
-            r#"{"listener":{"state":"stopped","address":"127.0.0.1","port":9100},"connections":{"active":0,"peers":[]}}"#
+            r#"{"listener":{"state":"stopped","address":"127.0.0.1","port":9100},"connections":{"active":0,"peers":[]},"paper":"80mm","drawerOpen":false}"#
         );
+        state.set_paper(PaperProfile::Mm58);
+        state.lock().drawer_open = true;
+        assert_eq!(
+            json(&state.snapshot()),
+            r#"{"listener":{"state":"stopped","address":"127.0.0.1","port":9100},"connections":{"active":0,"peers":[]},"paper":"58mm","drawerOpen":true}"#
+        );
+    }
+
+    /// The receipt of `bytes` rendered on 80 mm, closed by a cut or the end.
+    fn one_receipt(bytes: &[u8]) -> Receipt {
+        let mut builder = ReceiptBuilder::new(ReceiptConfig::default());
+        builder.apply_all(&parse_default(bytes));
+        builder.finish().expect("non-empty receipt")
+    }
+
+    #[test]
+    fn receipt_and_drawer_payloads_match_the_frontend_contract() {
+        let receipt_json = concat!(
+            r#"{"paper":"80mm","width":576,"height":30,"cut":null,"elements":[{"type":"line","y":0,"height":24,"baseline":21,"advance":30,"alignment":"left","contentWidth":24,"spans":["#,
+            r#"{"text":"Hi","x":0,"y":0,"width":24,"columns":2,"charWidth":12,"charHeight":24,"style":{"font":"a","bold":false,"underline":"off","reverse":false,"widthMultiplier":1,"heightMultiplier":1}}"#,
+            r#"]}]}"#
+        );
+        let updated = ReceiptUpdated {
+            connection_id: 3,
+            peer: "127.0.0.1:5000".into(),
+            receipt: one_receipt(b"Hi\n"),
+        };
+        assert_eq!(
+            json(&updated),
+            format!(r#"{{"connectionId":3,"peer":"127.0.0.1:5000","receipt":{receipt_json}}}"#)
+        );
+        let mut cut = one_receipt(b"Hi\n");
+        cut.cut = Some(phantompos_core::CutMode::Partial);
+        let completed = ReceiptCompleted {
+            id: 9,
+            connection_id: 3,
+            peer: "127.0.0.1:5000".into(),
+            receipt: cut,
+        };
+        assert_eq!(
+            json(&completed),
+            format!(
+                r#"{{"id":9,"connectionId":3,"peer":"127.0.0.1:5000","receipt":{}}}"#,
+                receipt_json.replace(r#""cut":null"#, r#""cut":"partial""#)
+            )
+        );
+        let kicked = DrawerKicked {
+            connection_id: 3,
+            peer: "127.0.0.1:5000".into(),
+            pin: 5,
+            on_ms: 100,
+            off_ms: 200,
+        };
+        assert_eq!(
+            json(&kicked),
+            r#"{"connectionId":3,"peer":"127.0.0.1:5000","pin":5,"onMs":100,"offMs":200}"#
+        );
+    }
+
+    async fn connect(running: &mut Running) -> (TcpStream, String) {
+        let client = TcpStream::connect(("127.0.0.1", running.port))
+            .await
+            .expect("connect");
+        let addr = client.local_addr().expect("client address").to_string();
+        assert!(matches!(
+            next_event(&mut running.events).await,
+            ListenerEvent::Connections(_)
+        ));
+        (client, addr)
+    }
+
+    /// Short names of events, for order checks.
+    fn kind(event: &ListenerEvent) -> &'static str {
+        match event {
+            ListenerEvent::Status(_) => "status",
+            ListenerEvent::Connections(_) => "connections",
+            ListenerEvent::Commands(_) => "commands",
+            ListenerEvent::ReceiptUpdated(_) => "updated",
+            ListenerEvent::ReceiptCompleted(_) => "completed",
+            ListenerEvent::DrawerKicked(_) => "drawer",
+        }
+    }
+
+    /// Events until (and including) the next `connection:changed`.
+    async fn events_until_disconnect(
+        events: &mut UnboundedReceiver<ListenerEvent>,
+    ) -> Vec<ListenerEvent> {
+        let mut out = Vec::new();
+        loop {
+            let event = next_event(events).await;
+            let done = matches!(event, ListenerEvent::Connections(_));
+            out.push(event);
+            if done {
+                return out;
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn cut_completes_the_receipt_and_events_are_ordered() {
+        let mut running = start().await;
+        let (mut client, addr) = connect(&mut running).await;
+
+        // Nothing on paper yet: commands only, no receipt:updated.
+        client.write_all(b"\x1bE\x01").await.expect("write");
+        assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+
+        client
+            .write_all(b"first\n\x1dV\x01second\n")
+            .await
+            .expect("write");
+        let commands = next_commands(&mut running.events).await;
+        assert_eq!(commands.peer, addr);
+        let completed = match next_event(&mut running.events).await {
+            ListenerEvent::ReceiptCompleted(completed) => completed,
+            other => panic!("expected receipt:completed, got {other:?}"),
+        };
+        assert_eq!(completed.connection_id, commands.connection_id);
+        assert_eq!(completed.peer, addr);
+        assert_eq!(
+            completed.receipt.cut,
+            Some(phantompos_core::CutMode::Partial)
+        );
+        assert_eq!(completed.receipt.height, 30);
+        let updated = match next_event(&mut running.events).await {
+            ListenerEvent::ReceiptUpdated(updated) => updated,
+            other => panic!("expected receipt:updated, got {other:?}"),
+        };
+        assert_eq!(updated.connection_id, commands.connection_id);
+        assert_eq!(updated.receipt.cut, None);
+        assert_eq!(updated.receipt.elements.len(), 1);
+
+        // A full cut with nothing after it: completed, and no update.
+        client.write_all(b"third\n\x1dV\x00").await.expect("write");
+        assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+        let second = match next_event(&mut running.events).await {
+            ListenerEvent::ReceiptCompleted(completed) => completed,
+            other => panic!("expected receipt:completed, got {other:?}"),
+        };
+        assert!(second.id > completed.id);
+        assert_eq!(second.receipt.cut, Some(phantompos_core::CutMode::Full));
+        assert_eq!(second.receipt.elements.len(), 2, "second + third");
+
+        // Nothing pending: the disconnect emits only connection:changed.
+        drop(client);
+        let tail = events_until_disconnect(&mut running.events).await;
+        assert_eq!(tail.iter().map(kind).collect::<Vec<_>>(), ["connections"]);
+        running.task.abort();
+    }
+
+    #[tokio::test]
+    async fn pending_content_is_completed_before_the_disconnect() {
+        let mut running = start().await;
+        let (mut client, _) = connect(&mut running).await;
+
+        client.write_all(b"line\n").await.expect("write");
+        assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+        assert_eq!(kind(&next_event(&mut running.events).await), "updated");
+        client.write_all(b"no LF").await.expect("write");
+        drop(client);
+
+        let tail = events_until_disconnect(&mut running.events).await;
+        assert_eq!(
+            tail.iter().map(kind).collect::<Vec<_>>(),
+            ["commands", "completed", "connections"]
+        );
+        let ListenerEvent::ReceiptCompleted(completed) = &tail[1] else {
+            panic!("expected receipt:completed");
+        };
+        assert_eq!(completed.receipt.cut, None);
+        assert_eq!(completed.receipt.elements.len(), 2);
+        running.task.abort();
+    }
+
+    #[tokio::test]
+    async fn receipts_from_several_connections_get_increasing_ids() {
+        let mut running = start().await;
+        let (first, _) = connect(&mut running).await;
+        let (second, _) = connect(&mut running).await;
+        let mut clients = [first, second];
+        let mut ids = Vec::new();
+        for (index, text) in [(0, "a"), (1, "b"), (0, "c")] {
+            clients[index]
+                .write_all(format!("{text}\n\x1dV\x00").as_bytes())
+                .await
+                .expect("write");
+            assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+            match next_event(&mut running.events).await {
+                ListenerEvent::ReceiptCompleted(completed) => ids.push(completed.id),
+                other => panic!("expected receipt:completed, got {other:?}"),
+            }
+        }
+        assert!(ids.windows(2).all(|w| w[0] < w[1]), "{ids:?}");
+        running.task.abort();
+    }
+
+    #[tokio::test]
+    async fn drawer_kick_opens_the_drawer() {
+        let mut running = start().await;
+        let (mut client, addr) = connect(&mut running).await;
+        assert!(!running.state.snapshot().drawer_open);
+
+        // Pin 5, t1 = 50 (100 ms), t2 = 100 (200 ms); then an invalid pin.
+        client
+            .write_all(b"\x1bp\x01\x32\x64\x1bp\x07\x01\x01")
+            .await
+            .expect("write");
+        assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+        match next_event(&mut running.events).await {
+            ListenerEvent::DrawerKicked(kicked) => {
+                assert_eq!(kicked.peer, addr);
+                assert_eq!((kicked.pin, kicked.on_ms, kicked.off_ms), (5, 100, 200));
+            }
+            other => panic!("expected drawer:kicked, got {other:?}"),
+        }
+        assert!(running.state.snapshot().drawer_open);
+        running.state.close_drawer();
+        assert!(!running.state.snapshot().drawer_open);
+
+        // The invalid pin produced nothing; the disconnect has no receipt.
+        drop(client);
+        let tail = events_until_disconnect(&mut running.events).await;
+        assert_eq!(tail.iter().map(kind).collect::<Vec<_>>(), ["connections"]);
+        running.task.abort();
+    }
+
+    #[tokio::test]
+    async fn paper_change_applies_to_the_next_receipt_only() {
+        let mut running = start().await;
+        assert_eq!(running.state.snapshot().paper, PaperProfile::Mm80);
+        let (mut client, _) = connect(&mut running).await;
+
+        client
+            .write_all(b"started on 80 mm\n")
+            .await
+            .expect("write");
+        assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+        assert_eq!(kind(&next_event(&mut running.events).await), "updated");
+
+        running.state.set_paper(PaperProfile::Mm58);
+        assert_eq!(running.state.snapshot().paper, PaperProfile::Mm58);
+        client
+            .write_all(b"more\n\x1dV\x00next\n")
+            .await
+            .expect("write");
+        assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+        match next_event(&mut running.events).await {
+            ListenerEvent::ReceiptCompleted(completed) => {
+                assert_eq!(completed.receipt.paper, PaperProfile::Mm80);
+                assert_eq!(completed.receipt.width, 576);
+            }
+            other => panic!("expected receipt:completed, got {other:?}"),
+        }
+        match next_event(&mut running.events).await {
+            ListenerEvent::ReceiptUpdated(updated) => {
+                assert_eq!(updated.receipt.paper, PaperProfile::Mm58);
+                assert_eq!(updated.receipt.width, 384);
+            }
+            other => panic!("expected receipt:updated, got {other:?}"),
+        }
+        running.task.abort();
     }
 
     #[tokio::test]
@@ -516,7 +939,7 @@ mod tests {
         drop(client);
 
         let closed = loop {
-            match next_event(&mut running.events).await {
+            match next_log_event(&mut running.events).await {
                 ListenerEvent::Commands(batch) => batches.push(batch),
                 ListenerEvent::Connections(snapshot) => break snapshot,
                 other => panic!("unexpected event {other:?}"),

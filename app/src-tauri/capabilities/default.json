@@ -1,11 +1,13 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Permissions for the main window: listen to backend events and read the listener state.",
+  "description": "Permissions for the main window: listen to backend events, read the state, select the paper and close the drawer.",
   "windows": ["main"],
   "permissions": [
     "core:event:allow-listen",
     "core:event:allow-unlisten",
-    "allow-get-state"
+    "allow-get-state",
+    "allow-set-paper",
+    "allow-close-drawer"
   ]
 }
