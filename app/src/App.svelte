@@ -2,392 +2,161 @@
   import { onMount } from "svelte";
   import {
     connectBackend,
-    formatAddress,
     runningInTauri,
+    type BackendConnector,
+    type BackendHandlers,
     type ConnectionsStatus,
     type ListenerStatus,
   } from "./lib/backend";
-  import { ByteLog } from "./lib/byteLog.svelte";
-  import { copyText } from "./lib/clipboard";
+  import { CommandLog } from "./lib/commandLog.svelte";
+  import CommandLogPanel from "./lib/components/CommandLog.svelte";
+  import CommandLogRail from "./lib/components/CommandLogRail.svelte";
+  import Header from "./lib/components/Header.svelte";
+  import RollView from "./lib/components/RollView.svelte";
+  import SidePanel from "./lib/components/SidePanel.svelte";
   import { messages } from "./lib/messages";
+  import { printerStatus } from "./lib/status";
 
   const t = messages;
-  const inTauri = runningInTauri();
 
+  let hasBackend = $state(runningInTauri());
   let listener = $state<ListenerStatus | null>(null);
   let connections = $state<ConnectionsStatus>({ active: 0, peers: [] });
   let backendError = $state<string | null>(null);
-  let copyFeedback = $state<string | null>(null);
+  /** Bumped (at most every ACTIVITY_MS) when commands arrive. */
+  let activity = $state(0);
 
-  const log = new ByteLog();
+  const log = new CommandLog();
+  const status = $derived(printerStatus(hasBackend, listener, backendError));
 
-  // Auto-scroll: follow new entries only while the user is at the bottom.
-  let scroller: HTMLElement | undefined = $state();
-  let followTail = $state(true);
-  const STICKY_THRESHOLD_PX = 32;
+  // Layout ------------------------------------------------------------------
+  const PANEL_MIN = 380;
+  const ROLL_MIN = 260;
+  const STORE_OPEN = "phantompos.commandLog.open";
+  const STORE_WIDTH = "phantompos.commandLog.width";
 
-  const address = $derived(
-    listener ? formatAddress(listener.address, listener.port) : null,
+  let viewportWidth = $state(window.innerWidth);
+  let logOpen = $state(readStored(STORE_OPEN) !== "false");
+  let logWidth = $state(
+    Number(readStored(STORE_WIDTH)) ||
+      Math.round(Math.min(680, Math.max(460, window.innerWidth * 0.5))),
   );
-  // Suggest loopback in the empty-state hint even when bound to 0.0.0.0.
-  const hintHost = $derived(
-    !listener || listener.address === "0.0.0.0" || listener.address === "::"
-      ? "127.0.0.1"
-      : listener.address,
-  );
-  const hintPort = $derived(listener?.port ?? 9100);
+  const panelMax = $derived(Math.max(PANEL_MIN, viewportWidth - ROLL_MIN));
+  /** Below this width the log stacks bytes under each command. */
+  const COMPACT_BELOW = 520;
+  const logCompact = $derived(Math.min(logWidth, panelMax) < COMPACT_BELOW);
+
+  $effect(() => writeStored(STORE_OPEN, String(logOpen)));
+  $effect(() => writeStored(STORE_WIDTH, String(logWidth)));
+
+  function readStored(key: string): string | null {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+  function writeStored(key: string, value: string): void {
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      // Storage unavailable: the layout simply isn't remembered.
+    }
+  }
+
+  // Backend -----------------------------------------------------------------
+  const ACTIVITY_MS = 150;
+  let lastActivity = 0;
+
+  const handlers: BackendHandlers = {
+    onListenerStatus: (next) => (listener = next),
+    onConnectionsChanged: (next) => (connections = next),
+    onCommandsReceived: (batch) => {
+      log.push(batch);
+      const now = performance.now();
+      if (now - lastActivity >= ACTIVITY_MS) {
+        lastActivity = now;
+        activity++;
+      }
+    },
+    onInitialState: (state) => {
+      listener = state.listener;
+      connections = state.connections;
+      backendError = null;
+    },
+    onError: (error) => {
+      backendError = `${t.header.stateUnavailable}: ${String(error)}`;
+    },
+  };
 
   onMount(() => {
-    if (!inTauri) return;
-    const disconnect = connectBackend({
-      onListenerStatus: (status) => (listener = status),
-      onConnectionsChanged: (status) => (connections = status),
-      onBytesReceived: (chunk) => log.push(chunk),
-      onInitialState: (state) => {
-        listener = state.listener;
-        connections = state.connections;
-        backendError = null;
-      },
-      onError: (error) => {
-        backendError = `${t.header.stateUnavailable}: ${String(error)}`;
-      },
-    });
+    let disconnect: (() => void) | undefined;
+    let disposed = false;
+    const attach = (connect: BackendConnector): void => {
+      if (!disposed) disconnect = connect(handlers);
+    };
+
+    if (hasBackend) {
+      attach(connectBackend);
+    } else if (import.meta.env.DEV && new URLSearchParams(location.search).has("demo")) {
+      // Development-only mock backend (`pnpm dev`, then open /?demo). The
+      // branch is statically false in production builds, so the module is
+      // never bundled.
+      hasBackend = true;
+      void import("./lib/dev/demoBackend").then((demo) => attach(demo.connectDemo));
+    }
+
     return () => {
-      disconnect();
+      disposed = true;
+      disconnect?.();
       log.dispose();
     };
   });
-
-  $effect(() => {
-    // Re-run whenever the rendered entries change; effects run after the DOM
-    // has been updated, so scrollHeight already includes the new rows.
-    void log.entries;
-    if (followTail && scroller) scroller.scrollTop = scroller.scrollHeight;
-  });
-
-  function onScroll(): void {
-    if (!scroller) return;
-    const distance =
-      scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight;
-    followTail = distance <= STICKY_THRESHOLD_PX;
-  }
-
-  function jumpToLatest(): void {
-    followTail = true;
-    if (scroller) scroller.scrollTop = scroller.scrollHeight;
-  }
-
-  function clearLog(): void {
-    log.clear();
-    followTail = true;
-  }
-
-  let copyTimer: ReturnType<typeof setTimeout> | undefined;
-  async function copyAddress(): Promise<void> {
-    if (!address) return;
-    const ok = await copyText(address);
-    copyFeedback = ok ? t.header.copied : t.header.copyFailed;
-    clearTimeout(copyTimer);
-    copyTimer = setTimeout(() => (copyFeedback = null), 1500);
-  }
-
-  function formatTime(date: Date): string {
-    const hh = String(date.getHours()).padStart(2, "0");
-    const mm = String(date.getMinutes()).padStart(2, "0");
-    const ss = String(date.getSeconds()).padStart(2, "0");
-    const ms = String(date.getMilliseconds()).padStart(3, "0");
-    return `${hh}:${mm}:${ss}.${ms}`;
-  }
 </script>
 
-<div class="app">
-  <header class="header">
-    <span class="brand">{t.appName}</span>
+<svelte:window bind:innerWidth={viewportWidth} />
 
-    {#if !inTauri}
-      <span class="status status-error">
-        <span class="dot" aria-hidden="true"></span>
-        <span class="status-label">{t.header.notTauri}</span>
-      </span>
-      <span class="detail">{t.header.notTauriDetail}</span>
-    {:else if backendError}
-      <span class="status status-error">
-        <span class="dot" aria-hidden="true"></span>
-        <span class="status-label">{t.header.error}</span>
-      </span>
-      <span class="detail error-text" title={backendError}>{backendError}</span>
-    {:else if !listener}
-      <span class="status status-pending">
-        <span class="dot" aria-hidden="true"></span>
-        <span class="status-label">{t.header.starting}</span>
-      </span>
-    {:else if listener.state === "error"}
-      <span class="status status-error">
-        <span class="dot" aria-hidden="true"></span>
-        <span class="status-label">{t.header.error}</span>
-      </span>
-      <span class="detail error-text" title={listener.message}>
-        {listener.message ?? address}
-      </span>
-    {:else}
-      <span
-        class="status"
-        class:status-ok={listener.state === "listening"}
-        class:status-stopped={listener.state === "stopped"}
-      >
-        <span class="dot" aria-hidden="true"></span>
-        <span class="status-label">
-          {listener.state === "listening" ? t.header.listening : t.header.stopped}
-        </span>
-      </span>
-      <code class="address">{address}</code>
-      <button
-        type="button"
-        class="btn btn-small"
-        title={t.header.copyTitle}
-        onclick={copyAddress}
-      >
-        {copyFeedback ?? t.header.copy}
-      </button>
-    {/if}
+<div class="shell">
+  <Header
+    {status}
+    {connections}
+    {activity}
+    {logOpen}
+    onToggleLog={() => (logOpen = !logOpen)}
+  />
 
-    <span class="spacer"></span>
+  <div class="workspace">
+    <RollView {status} stats={log.stats} />
 
-    {#if inTauri}
-      <span class="connections" title={connections.peers.join("\n")}>
-        {t.header.connections(connections.active)}
-      </span>
-    {/if}
-  </header>
-
-  <section class="log">
-    <div class="log-toolbar">
-      <h1 class="log-title">{t.log.title}</h1>
-      <span class="spacer"></span>
-      {#if !followTail && log.entries.length > 0}
-        <button type="button" class="btn btn-small" onclick={jumpToLatest}>
-          {t.log.jumpToLatest}
-        </button>
-      {/if}
-      <button
-        type="button"
-        class="btn btn-small"
-        onclick={clearLog}
-        disabled={log.entries.length === 0}
-      >
-        {t.log.clear}
-      </button>
-    </div>
-
-    <div class="log-scroll" bind:this={scroller} onscroll={onScroll}>
-      {#if log.entries.length === 0}
-        <div class="empty">
-          <p class="empty-title">{t.log.emptyTitle}</p>
-          <p>{t.log.emptyHint}</p>
-          <code class="empty-command">{t.log.emptyCommand(hintHost, hintPort)}</code>
-        </div>
-      {:else}
-        {#if log.dropped > 0}
-          <p class="truncated">{t.log.truncated(log.dropped)}</p>
-        {/if}
-        {#each log.entries as entry (entry.key)}
-          <article class="entry">
-            <div class="entry-meta">
-              <time>{formatTime(entry.receivedAt)}</time>
-              <span class="peer">{entry.peer}</span>
-              <span class="conn">{t.log.connectionLabel(entry.connectionId)}</span>
-              <span class="count">{t.log.byteCount(entry.byteCount)}</span>
-            </div>
-            <pre class="dump">{entry.dump}</pre>
-          </article>
-        {/each}
-      {/if}
-    </div>
-  </section>
+    <SidePanel
+      id="command-log"
+      label={t.log.title}
+      resizeLabel={t.log.resize}
+      open={logOpen}
+      bind:width={logWidth}
+      minWidth={PANEL_MIN}
+      maxWidth={panelMax}
+    >
+      {#snippet rail()}
+        <CommandLogRail {log} onExpand={() => (logOpen = true)} />
+      {/snippet}
+      <CommandLogPanel {log} compact={logCompact} onCollapse={() => (logOpen = false)} />
+    </SidePanel>
+  </div>
 </div>
 
 <style>
-  .app {
+  .shell {
     display: flex;
     flex-direction: column;
     height: 100vh;
-  }
-
-  .header {
-    flex: none;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 1rem;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
     min-width: 0;
   }
 
-  .brand {
-    font-weight: 600;
-  }
-
-  .status {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    white-space: nowrap;
-  }
-
-  .dot {
-    width: 0.6rem;
-    height: 0.6rem;
-    border-radius: 50%;
-    background: var(--muted);
-  }
-
-  .status-ok .dot {
-    background: var(--ok);
-  }
-
-  .status-error .dot {
-    background: var(--error);
-  }
-
-  .status-pending .dot {
-    background: var(--warn);
-  }
-
-  .address {
-    font-family: var(--mono);
-  }
-
-  .detail {
-    color: var(--muted);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
-  }
-
-  .error-text {
-    color: var(--error);
-  }
-
-  .connections {
-    color: var(--muted);
-    white-space: nowrap;
-  }
-
-  .spacer {
-    flex: 1;
-  }
-
-  .log {
+  .workspace {
     flex: 1;
     display: flex;
-    flex-direction: column;
     min-height: 0;
-  }
-
-  .log-toolbar {
-    flex: none;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 1rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .log-title {
-    margin: 0;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--muted);
-  }
-
-  .log-scroll {
-    flex: 1;
-    overflow: auto;
-    padding: 0.5rem 1rem 1rem;
-  }
-
-  .empty {
-    max-width: 36rem;
-    margin: 3rem auto;
-    text-align: center;
-    color: var(--muted);
-  }
-
-  .empty-title {
-    font-size: 1.1rem;
-    color: var(--text);
-  }
-
-  .empty-command {
-    display: inline-block;
-    margin-top: 0.25rem;
-    padding: 0.4rem 0.75rem;
-    border-radius: 6px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    font-family: var(--mono);
-    color: var(--text);
-    user-select: all;
-  }
-
-  .truncated {
-    margin: 0 0 0.5rem;
-    font-size: 0.8rem;
-    color: var(--muted);
-  }
-
-  .entry {
-    padding: 0.4rem 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .entry-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    font-size: 0.8rem;
-    color: var(--muted);
-    font-family: var(--mono);
-  }
-
-  .entry-meta .count {
-    color: var(--text);
-  }
-
-  .dump {
-    margin: 0.25rem 0 0;
-    font-family: var(--mono);
-    font-size: 0.8rem;
-    line-height: 1.35;
-    white-space: pre;
-    overflow-x: auto;
-  }
-
-  .btn {
-    font: inherit;
-    color: var(--text);
-    background: var(--button);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 0.25rem 0.75rem;
-    cursor: pointer;
-  }
-
-  .btn:hover:not(:disabled) {
-    background: var(--button-hover);
-  }
-
-  .btn:disabled {
-    opacity: 0.5;
-    cursor: default;
-  }
-
-  .btn-small {
-    font-size: 0.8rem;
-    padding: 0.15rem 0.6rem;
+    min-width: 0;
   }
 </style>

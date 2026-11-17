@@ -3,7 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <title>PhantomPOS</title>
+    <style>
+      /* Paint the themed background before the app mounts (no white flash). */
+      html { background: #eef0f3; }
+      @media (prefers-color-scheme: dark) { html { background: #0a0b0d; } }
+    </style>
   </head>
   <body>
     <div id="app"></div>

@@ -26,15 +26,33 @@ export interface ConnectionsStatus {
   peers: string[];
 }
 
+/** Scalar parameter of a decoded command. */
+export type CommandParam = string | number | boolean | null;
+
 /**
- * Payload of `bytes:received`: one socket read chunk.
- *
- * Provisional for stage 1; stage 2 replaces it with `commands:received`.
+ * A decoded ESC/POS command. `type` is the camelCase variant name produced by
+ * `phantompos-core`; the remaining fields are its parameters. Only `text`
+ * (with `text`) and `unknown` (with an optional `reason`) are guaranteed; the
+ * UI renders every other variant generically.
  */
-export interface BytesReceived {
+export interface CommandBody {
+  type: string;
+  [param: string]: CommandParam | undefined;
+}
+
+export interface DecodedCommand {
+  /** Offset of the first byte within the connection's byte stream. */
+  offset: number;
+  /** The raw bytes this command was decoded from. */
+  bytes: number[];
+  command: CommandBody;
+}
+
+/** Payload of `commands:received`: one batch of decoded commands. */
+export interface CommandsReceived {
   connectionId: number;
   peer: string;
-  bytes: number[];
+  commands: DecodedCommand[];
 }
 
 /** Result of the `get_state` command. */
@@ -50,7 +68,7 @@ export interface BackendState {
 export const EVENTS = {
   listenerStatus: "listener:status",
   connectionChanged: "connection:changed",
-  bytesReceived: "bytes:received",
+  commandsReceived: "commands:received",
 } as const;
 
 export const COMMANDS = {
@@ -73,19 +91,22 @@ export function getState(): Promise<BackendState> {
 export interface BackendHandlers {
   onListenerStatus(status: ListenerStatus): void;
   onConnectionsChanged(connections: ConnectionsStatus): void;
-  onBytesReceived(chunk: BytesReceived): void;
+  onCommandsReceived(batch: CommandsReceived): void;
   /** Called with the initial snapshot once all listeners are registered. */
   onInitialState(state: BackendState): void;
   /** Called if the initial snapshot or a listener registration fails. */
   onError(error: unknown): void;
 }
 
+/** Connects a set of handlers to a backend; returns a synchronous cleanup. */
+export type BackendConnector = (handlers: BackendHandlers) => () => void;
+
 /**
  * Subscribes to all backend events and then fetches the initial state, so no
  * event emitted in between is missed. Returns a synchronous cleanup function
  * that is safe to call at any time, even before the subscriptions resolve.
  */
-export function connectBackend(handlers: BackendHandlers): () => void {
+export const connectBackend: BackendConnector = (handlers) => {
   let disposed = false;
   const unlisteners: UnlistenFn[] = [];
 
@@ -103,8 +124,8 @@ export function connectBackend(handlers: BackendHandlers): () => void {
         listen<ConnectionsStatus>(EVENTS.connectionChanged, (e) => {
           if (!disposed) handlers.onConnectionsChanged(e.payload);
         }).then(track),
-        listen<BytesReceived>(EVENTS.bytesReceived, (e) => {
-          if (!disposed) handlers.onBytesReceived(e.payload);
+        listen<CommandsReceived>(EVENTS.commandsReceived, (e) => {
+          if (!disposed) handlers.onCommandsReceived(e.payload);
         }).then(track),
       ]);
       if (disposed) return;
@@ -119,7 +140,7 @@ export function connectBackend(handlers: BackendHandlers): () => void {
     disposed = true;
     for (const unlisten of unlisteners.splice(0)) unlisten();
   };
-}
+};
 
 /** Formats `address:port`, bracketing IPv6 literals. */
 export function formatAddress(address: string, port: number): string {
