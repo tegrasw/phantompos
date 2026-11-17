@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><defs>
+<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#293036"/><stop offset="1" stop-color="#101315"/></linearGradient>
+<radialGradient id="glow" cx="0.5" cy="0.56" r="0.5"><stop offset="0" stop-color="#3ad6b4" stop-opacity="0.26"/><stop offset="1" stop-color="#3ad6b4" stop-opacity="0"/></radialGradient>
+<linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0.03"/><stop offset="1" stop-color="#000000" stop-opacity="0.25"/></linearGradient>
+<linearGradient id="teal" x1="0" y1="276" x2="0" y2="812" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#6cf0d2"/><stop offset="1" stop-color="#1fb293"/></linearGradient><linearGradient id="slot" x1="0" y1="216" x2="0" y2="336" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#4a555c"/><stop offset="1" stop-color="#2c3338"/></linearGradient>
+<clipPath id="tile"><rect width="1024" height="1024" rx="230"/></clipPath>
+<filter id="tileShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#000000" flood-opacity="0.32"/></filter>
+<filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.35"/></filter>
+</defs>
+<g transform="translate(100 100) scale(0.804688)">
+<rect width="1024" height="1024" rx="230" fill="url(#bg)" filter="url(#tileShadow)"/>
+<g clip-path="url(#tile)"><rect width="1024" height="1024" fill="url(#glow)"/></g>
+<rect x="3" y="3" width="1018" height="1018" rx="227" fill="none" stroke="url(#rim)" stroke-width="6"/>
+<path fill="url(#slot)" filter="url(#soft)" d="M236 216h552a60 60 0 0 1 60 60v0a60 60 0 0 1 -60 60h-552a60 60 0 0 1 -60 -60v0a60 60 0 0 1 60 -60Z"/>
+<path fill="#0a0d0f" d="M266 266h492a10 10 0 0 1 10 10v0a10 10 0 0 1 -10 10h-492a10 10 0 0 1 -10 -10v0a10 10 0 0 1 10 -10Z"/>
+<path fill="url(#teal)" fill-rule="evenodd" filter="url(#soft)" d="M322 276L702 276L702.00 798.00Q702 812 694.14 800.42L671.86 767.58Q664 756 656.14 767.58L633.86 800.42Q626 812 618.14 800.42L595.86 767.58Q588 756 580.14 767.58L557.86 800.42Q550 812 542.14 800.42L519.86 767.58Q512 756 504.14 767.58L481.86 800.42Q474 812 466.14 800.42L443.86 767.58Q436 756 428.14 767.58L405.86 800.42Q398 812 390.14 800.42L367.86 767.58Q360 756 352.14 767.58L329.86 800.42Q322 812 322.00 798.00ZM424 496a26 26 0 0 1 52 0v52a26 26 0 0 1 -52 0ZM548 496a26 26 0 0 1 52 0v52a26 26 0 0 1 -52 0Z"/>
+</g></svg>

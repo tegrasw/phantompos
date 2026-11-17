@@ -1,0 +1,71 @@
+{
+  "fill-specializations" : [
+    {
+      "value" : {
+        "linear-gradient" : [
+          "srgb:0.16078,0.18824,0.21176,1.00000",
+          "srgb:0.06275,0.07451,0.08235,1.00000"
+        ]
+      }
+    },
+    {
+      "appearance" : "dark",
+      "value" : {
+        "linear-gradient" : [
+          "srgb:0.10980,0.13333,0.14902,1.00000",
+          "srgb:0.03529,0.04314,0.04706,1.00000"
+        ]
+      }
+    }
+  ],
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "glass" : true,
+          "image-name" : "paper.svg",
+          "name" : "paper"
+        }
+      ],
+      "name" : "Paper",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.2
+      }
+    },
+    {
+      "layers" : [
+        {
+          "glass" : false,
+          "image-name" : "slit.svg",
+          "name" : "slit"
+        },
+        {
+          "glass" : true,
+          "image-name" : "slot.svg",
+          "name" : "slot"
+        }
+      ],
+      "name" : "Printer",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "squares" : [
+      "macOS"
+    ]
+  }
+}

@@ -14,6 +14,7 @@ Current stage: **2 (text and formatting) done**; stage 3 (roll, cut, drawer) not
 | `app/src-tauri/` | `phantompos`: Tauri shell, TCP listener (`src/listener.rs`), events, commands. |
 | `app/src/` | UI: Svelte 5 + TypeScript + Vite. Only `src/lib/backend.ts` talks to Tauri. |
 | `.github/workflows/` | `ci.yml` (PRs and main; skipped for documentation-only changes), `release.yml` (tags `v*`). |
+| `design/icon/` | Logo and icon sources: `AppIcon.icon` (Icon Composer, Liquid Glass), flat masters, `mark.svg`, `build.sh`. |
 | `docs/backlog.md` | Out-of-scope ideas. Never implement them. |
 | `docs/release-signing.md` | Apple secrets needed by `release.yml` and how to obtain them. |
 
@@ -115,6 +116,40 @@ includes visual design work, not just function.
 - Verify visually (both themes, 1200x800 and 720x480) and attach screenshots to
   the stage report. Screenshots of the real window are blank while the Mac
   screen is locked.
+
+## Logo and icons
+
+The mark is a ghost made of receipt paper coming out of a printer slot. Sources
+live in `design/icon/`; everything in `app/src-tauri/icons/` is generated.
+
+| Source | Becomes |
+| --- | --- |
+| `AppIcon.icon` (layers in `Assets/*.svg`, look in `icon.json`) | `icons/Assets.car`: the macOS 26+ Liquid Glass icon (asset `AppIcon`) |
+| `icon-macos.svg` (tile on Apple's 824/1024 grid) | `icons/icon.icns`: fallback for macOS before 26 |
+| `icon-full.svg` (near full-bleed tile) | `icons/icon.ico` and the PNGs (Windows, Linux) |
+| `mark.svg` (24x24, `currentColor`) | copied by hand into `app/src/lib/components/AppMark.svelte` |
+
+```bash
+design/icon/build.sh            # regenerate app/src-tauri/icons/ (macOS, Xcode 26+)
+design/icon/build.sh previews   # render all six appearances to design/icon/preview/ (ignored by git)
+open design/icon/AppIcon.icon   # edit in Icon Composer
+```
+
+- The layer shapes are repeated in `icon-macos.svg`, `icon-full.svg` and
+  `mark.svg`; change them together.
+- `bundle.icon` lists the precompiled `Assets.car`, not the `.icon`: the
+  bundler's own actool call fails on Xcode 27 and some 26.x
+  (tauri-apps/tauri#16386, #15315). The bundler copies the `.car` to
+  `Contents/Resources` and sets `CFBundleIconName` before signing. Once that is
+  fixed upstream the `.icon` can be listed directly.
+- If actool reports `Bad file descriptor`, a failed bundler run left a broken
+  `ibtoold` daemon behind: `killall ibtoold` and run `build.sh` again.
+- `Assets.car` and `icon.icns` are not byte-reproducible; commit them only
+  when the artwork changed.
+- `icon.json` has no public schema; edit it in Icon Composer or check the
+  result with `build.sh previews`.
+- `tauri icon` knows nothing about `.icon`; `build.sh` runs it twice (one
+  master per platform family) and drops the iOS/Android output.
 
 ## Conventions
 
