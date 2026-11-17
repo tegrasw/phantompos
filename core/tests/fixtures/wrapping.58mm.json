@@ -1,0 +1,1120 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        116,
+        0
+      ],
+      "command": {
+        "codePage": "cp437",
+        "page": 0,
+        "type": "setCodePage"
+      },
+      "offset": 2
+    },
+    {
+      "bytes": [
+        76,
+        111,
+        114,
+        101,
+        109,
+        32,
+        105,
+        112,
+        115,
+        117,
+        109,
+        32,
+        100,
+        111,
+        108,
+        111,
+        114,
+        32,
+        115,
+        105,
+        116,
+        32,
+        97,
+        109,
+        101,
+        116,
+        44,
+        32,
+        99,
+        111,
+        110,
+        115,
+        101,
+        99,
+        116,
+        101,
+        116,
+        117,
+        114,
+        32,
+        97,
+        100,
+        105,
+        112,
+        105,
+        115,
+        99,
+        105,
+        110,
+        103,
+        32,
+        101,
+        108,
+        105,
+        116,
+        44,
+        32,
+        115,
+        101,
+        100,
+        32,
+        100,
+        111,
+        32,
+        101,
+        105,
+        117,
+        115,
+        109,
+        111,
+        100,
+        32,
+        116,
+        101,
+        109,
+        112,
+        111,
+        114,
+        32,
+        105,
+        110,
+        99,
+        105,
+        100,
+        105,
+        100,
+        117,
+        110,
+        116,
+        32,
+        117,
+        116,
+        32,
+        108,
+        97,
+        98,
+        111,
+        114,
+        101,
+        32,
+        101,
+        116,
+        32,
+        100,
+        111,
+        108,
+        111,
+        114,
+        101,
+        32,
+        109,
+        97,
+        103,
+        110,
+        97,
+        32,
+        97,
+        108,
+        105,
+        113,
+        117,
+        97,
+        46
+      ],
+      "command": {
+        "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "type": "text"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 128
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 129
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 132
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        32
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": true,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 135
+    },
+    {
+      "bytes": [
+        76,
+        111,
+        114,
+        101,
+        109,
+        32,
+        105,
+        112,
+        115,
+        117,
+        109,
+        32,
+        100,
+        111,
+        108,
+        111,
+        114,
+        32,
+        115,
+        105,
+        116,
+        32,
+        97,
+        109,
+        101,
+        116,
+        44,
+        32,
+        99,
+        111,
+        110,
+        115,
+        101,
+        99,
+        116,
+        101,
+        116,
+        117,
+        114,
+        32,
+        97,
+        100,
+        105,
+        112,
+        105,
+        115,
+        99,
+        105,
+        110,
+        103,
+        32,
+        101,
+        108,
+        105,
+        116,
+        44,
+        32,
+        115,
+        101,
+        100,
+        32,
+        100,
+        111,
+        32,
+        101,
+        105,
+        117,
+        115,
+        109,
+        111,
+        100,
+        32,
+        116,
+        101,
+        109,
+        112,
+        111,
+        114,
+        32,
+        105,
+        110,
+        99,
+        105,
+        100,
+        105,
+        100,
+        117,
+        110,
+        116,
+        32,
+        117,
+        116,
+        32,
+        108,
+        97,
+        98,
+        111,
+        114,
+        101,
+        32,
+        101,
+        116,
+        32,
+        100,
+        111,
+        108,
+        111,
+        114,
+        101,
+        32,
+        109,
+        97,
+        103,
+        110,
+        97,
+        32,
+        97,
+        108,
+        105,
+        113,
+        117,
+        97,
+        46
+      ],
+      "command": {
+        "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "type": "text"
+      },
+      "offset": 138
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 261
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 262
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 265
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 268
+    },
+    {
+      "bytes": [
+        27,
+        77,
+        1
+      ],
+      "command": {
+        "font": "b",
+        "type": "setFont"
+      },
+      "offset": 271
+    },
+    {
+      "bytes": [
+        76,
+        111,
+        114,
+        101,
+        109,
+        32,
+        105,
+        112,
+        115,
+        117,
+        109,
+        32,
+        100,
+        111,
+        108,
+        111,
+        114,
+        32,
+        115,
+        105,
+        116,
+        32,
+        97,
+        109,
+        101,
+        116,
+        44,
+        32,
+        99,
+        111,
+        110,
+        115,
+        101,
+        99,
+        116,
+        101,
+        116,
+        117,
+        114,
+        32,
+        97,
+        100,
+        105,
+        112,
+        105,
+        115,
+        99,
+        105,
+        110,
+        103,
+        32,
+        101,
+        108,
+        105,
+        116,
+        44,
+        32,
+        115,
+        101,
+        100,
+        32,
+        100,
+        111,
+        32,
+        101,
+        105,
+        117,
+        115,
+        109,
+        111,
+        100,
+        32,
+        116,
+        101,
+        109,
+        112,
+        111,
+        114,
+        32,
+        105,
+        110,
+        99,
+        105,
+        100,
+        105,
+        100,
+        117,
+        110,
+        116,
+        32,
+        117,
+        116,
+        32,
+        108,
+        97,
+        98,
+        111,
+        114,
+        101,
+        32,
+        101,
+        116,
+        32,
+        100,
+        111,
+        108,
+        111,
+        114,
+        101,
+        32,
+        109,
+        97,
+        103,
+        110,
+        97,
+        32,
+        97,
+        108,
+        105,
+        113,
+        117,
+        97,
+        46
+      ],
+      "command": {
+        "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "type": "text"
+      },
+      "offset": 274
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 397
+    },
+    {
+      "bytes": [
+        27,
+        77,
+        0
+      ],
+      "command": {
+        "font": "a",
+        "type": "setFont"
+      },
+      "offset": 398
+    },
+    {
+      "bytes": [
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120
+      ],
+      "command": {
+        "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "type": "text"
+      },
+      "offset": 401
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 449
+    }
+  ],
+  "paper": "58mm",
+  "receipt": {
+    "elements": [
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 384,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 32,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "Lorem ipsum dolor sit amet, cons",
+            "width": 384,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 0
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 384,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 32,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "ectetur adipiscing elit, sed do ",
+            "width": 384,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 30
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 384,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 32,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "eiusmod tempor incididunt ut lab",
+            "width": 384,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 60
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 324,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 27,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "ore et dolore magna aliqua.",
+            "width": 324,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 90
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 384,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 24,
+            "columns": 16,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 2
+            },
+            "text": "Lorem ipsum dolo",
+            "width": 384,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 120
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 384,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 24,
+            "columns": 16,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 2
+            },
+            "text": "r sit amet, cons",
+            "width": 384,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 150
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 384,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 24,
+            "columns": 16,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 2
+            },
+            "text": "ectetur adipisci",
+            "width": 384,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 180
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 384,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 24,
+            "columns": 16,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 2
+            },
+            "text": "ng elit, sed do ",
+            "width": 384,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 210
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 384,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 24,
+            "columns": 16,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 2
+            },
+            "text": "eiusmod tempor i",
+            "width": 384,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 240
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 384,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 24,
+            "columns": 16,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 2
+            },
+            "text": "ncididunt ut lab",
+            "width": 384,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 270
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 384,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 24,
+            "columns": 16,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 2
+            },
+            "text": "ore et dolore ma",
+            "width": 384,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 300
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 264,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 24,
+            "columns": 11,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 2
+            },
+            "text": "gna aliqua.",
+            "width": 264,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 330
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 16,
+        "contentWidth": 378,
+        "height": 17,
+        "spans": [
+          {
+            "charHeight": 17,
+            "charWidth": 9,
+            "columns": 42,
+            "style": {
+              "bold": false,
+              "font": "b",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "Lorem ipsum dolor sit amet, consectetur ad",
+            "width": 378,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 360
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 16,
+        "contentWidth": 378,
+        "height": 17,
+        "spans": [
+          {
+            "charHeight": 17,
+            "charWidth": 9,
+            "columns": 42,
+            "style": {
+              "bold": false,
+              "font": "b",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "ipiscing elit, sed do eiusmod tempor incid",
+            "width": 378,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 390
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 16,
+        "contentWidth": 351,
+        "height": 17,
+        "spans": [
+          {
+            "charHeight": 17,
+            "charWidth": 9,
+            "columns": 39,
+            "style": {
+              "bold": false,
+              "font": "b",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "idunt ut labore et dolore magna aliqua.",
+            "width": 351,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 420
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 384,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 32,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "width": 384,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 450
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 192,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 16,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "xxxxxxxxxxxxxxxx",
+            "width": 192,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 480
+      }
+    ],
+    "height": 510,
+    "paper": "58mm",
+    "width": 384
+  }
+}

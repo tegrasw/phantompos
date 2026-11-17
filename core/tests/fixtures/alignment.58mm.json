@@ -1,0 +1,341 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        0
+      ],
+      "command": {
+        "alignment": "left",
+        "type": "setAlignment"
+      },
+      "offset": 2
+    },
+    {
+      "bytes": [
+        27,
+        116,
+        0
+      ],
+      "command": {
+        "codePage": "cp437",
+        "page": 0,
+        "type": "setCodePage"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        108,
+        101,
+        102,
+        116
+      ],
+      "command": {
+        "text": "left",
+        "type": "text"
+      },
+      "offset": 8
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 12
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        1
+      ],
+      "command": {
+        "alignment": "center",
+        "type": "setAlignment"
+      },
+      "offset": 13
+    },
+    {
+      "bytes": [
+        99,
+        101,
+        110,
+        116,
+        101,
+        114
+      ],
+      "command": {
+        "text": "center",
+        "type": "text"
+      },
+      "offset": 16
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 22
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        2
+      ],
+      "command": {
+        "alignment": "right",
+        "type": "setAlignment"
+      },
+      "offset": 23
+    },
+    {
+      "bytes": [
+        114,
+        105,
+        103,
+        104,
+        116
+      ],
+      "command": {
+        "text": "right",
+        "type": "text"
+      },
+      "offset": 26
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 31
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 32
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 35
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        32
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": true,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 38
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        1
+      ],
+      "command": {
+        "alignment": "center",
+        "type": "setAlignment"
+      },
+      "offset": 41
+    },
+    {
+      "bytes": [
+        119,
+        105,
+        100,
+        101,
+        32,
+        99,
+        101,
+        110,
+        116,
+        101,
+        114
+      ],
+      "command": {
+        "text": "wide center",
+        "type": "text"
+      },
+      "offset": 44
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 55
+    }
+  ],
+  "paper": "58mm",
+  "receipt": {
+    "elements": [
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 48,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 4,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "left",
+            "width": 48,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 0
+      },
+      {
+        "advance": 30,
+        "alignment": "center",
+        "baseline": 21,
+        "contentWidth": 72,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 6,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "center",
+            "width": 72,
+            "x": 156,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 30
+      },
+      {
+        "advance": 30,
+        "alignment": "right",
+        "baseline": 21,
+        "contentWidth": 60,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 5,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "right",
+            "width": 60,
+            "x": 324,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 60
+      },
+      {
+        "advance": 30,
+        "alignment": "center",
+        "baseline": 21,
+        "contentWidth": 264,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 24,
+            "columns": 11,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 2
+            },
+            "text": "wide center",
+            "width": 264,
+            "x": 60,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 90
+      }
+    ],
+    "height": 120,
+    "paper": "58mm",
+    "width": 384
+  }
+}

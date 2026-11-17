@@ -1,0 +1,9 @@
+-underline n=3 ignored
+Mfont n=5 ignored
+Mfont C not drawn
+!ˆsize n=0x88 ignored
+aalign n=3 ignored
+tcpage 99 €‡ decodes as CP437
+Eÿbold n=255 (LSB 1)
+Eþbold n=254 (LSB 0)
+RESC R 12 logged only

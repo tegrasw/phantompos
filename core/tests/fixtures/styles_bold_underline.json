@@ -1,0 +1,359 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        116,
+        0
+      ],
+      "command": {
+        "codePage": "cp437",
+        "page": 0,
+        "type": "setCodePage"
+      },
+      "offset": 2
+    },
+    {
+      "bytes": [
+        110,
+        111,
+        114,
+        109,
+        97,
+        108,
+        32
+      ],
+      "command": {
+        "text": "normal ",
+        "type": "text"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        27,
+        69,
+        1
+      ],
+      "command": {
+        "enabled": true,
+        "type": "setBold"
+      },
+      "offset": 12
+    },
+    {
+      "bytes": [
+        98,
+        111,
+        108,
+        100
+      ],
+      "command": {
+        "text": "bold",
+        "type": "text"
+      },
+      "offset": 15
+    },
+    {
+      "bytes": [
+        27,
+        69,
+        0
+      ],
+      "command": {
+        "enabled": false,
+        "type": "setBold"
+      },
+      "offset": 19
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 22
+    },
+    {
+      "bytes": [
+        27,
+        45,
+        1
+      ],
+      "command": {
+        "mode": "oneDot",
+        "type": "setUnderline"
+      },
+      "offset": 23
+    },
+    {
+      "bytes": [
+        117,
+        110,
+        100,
+        101,
+        114,
+        108,
+        105,
+        110,
+        101,
+        32,
+        49,
+        32,
+        100,
+        111,
+        116
+      ],
+      "command": {
+        "text": "underline 1 dot",
+        "type": "text"
+      },
+      "offset": 26
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 41
+    },
+    {
+      "bytes": [
+        27,
+        45,
+        2
+      ],
+      "command": {
+        "mode": "twoDots",
+        "type": "setUnderline"
+      },
+      "offset": 42
+    },
+    {
+      "bytes": [
+        117,
+        110,
+        100,
+        101,
+        114,
+        108,
+        105,
+        110,
+        101,
+        32,
+        50,
+        32,
+        100,
+        111,
+        116,
+        115
+      ],
+      "command": {
+        "text": "underline 2 dots",
+        "type": "text"
+      },
+      "offset": 45
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 61
+    },
+    {
+      "bytes": [
+        27,
+        45,
+        0
+      ],
+      "command": {
+        "mode": "off",
+        "type": "setUnderline"
+      },
+      "offset": 62
+    },
+    {
+      "bytes": [
+        110,
+        111,
+        32,
+        117,
+        110,
+        100,
+        101,
+        114,
+        108,
+        105,
+        110,
+        101
+      ],
+      "command": {
+        "text": "no underline",
+        "type": "text"
+      },
+      "offset": 65
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 77
+    }
+  ],
+  "paper": "80mm",
+  "receipt": {
+    "elements": [
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 132,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 7,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "normal ",
+            "width": 84,
+            "x": 0,
+            "y": 0
+          },
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 4,
+            "style": {
+              "bold": true,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "bold",
+            "width": 48,
+            "x": 84,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 0
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 180,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 15,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "oneDot",
+              "widthMultiplier": 1
+            },
+            "text": "underline 1 dot",
+            "width": 180,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 30
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 192,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 16,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "twoDots",
+              "widthMultiplier": 1
+            },
+            "text": "underline 2 dots",
+            "width": 192,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 60
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 144,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 12,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "no underline",
+            "width": 144,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 90
+      }
+    ],
+    "height": 120,
+    "paper": "80mm",
+    "width": 576
+  }
+}

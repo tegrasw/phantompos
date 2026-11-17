@@ -1,0 +1,624 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 2
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        32
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": true,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 8
+    },
+    {
+      "bytes": [
+        27,
+        116,
+        0
+      ],
+      "command": {
+        "codePage": "cp437",
+        "page": 0,
+        "type": "setCodePage"
+      },
+      "offset": 11
+    },
+    {
+      "bytes": [
+        68,
+        111,
+        117,
+        98,
+        108,
+        101,
+        32,
+        119,
+        105,
+        100,
+        116,
+        104
+      ],
+      "command": {
+        "text": "Double width",
+        "type": "text"
+      },
+      "offset": 14
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 26
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 27
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 30
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        16
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": true,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 33
+    },
+    {
+      "bytes": [
+        68,
+        111,
+        117,
+        98,
+        108,
+        101,
+        32,
+        104,
+        101,
+        105,
+        103,
+        104,
+        116
+      ],
+      "command": {
+        "text": "Double height",
+        "type": "text"
+      },
+      "offset": 36
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 49
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 50
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 53
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        48
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": true,
+        "doubleWidth": true,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 56
+    },
+    {
+      "bytes": [
+        81,
+        117,
+        97,
+        100
+      ],
+      "command": {
+        "text": "Quad",
+        "type": "text"
+      },
+      "offset": 59
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 63
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 64
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 67
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 70
+    },
+    {
+      "bytes": [
+        29,
+        33,
+        33
+      ],
+      "command": {
+        "height": 2,
+        "type": "setCharacterSize",
+        "width": 3
+      },
+      "offset": 73
+    },
+    {
+      "bytes": [
+        51,
+        120,
+        50
+      ],
+      "command": {
+        "text": "3x2",
+        "type": "text"
+      },
+      "offset": 76
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 79
+    },
+    {
+      "bytes": [
+        29,
+        33,
+        119
+      ],
+      "command": {
+        "height": 8,
+        "type": "setCharacterSize",
+        "width": 8
+      },
+      "offset": 80
+    },
+    {
+      "bytes": [
+        56,
+        120,
+        56
+      ],
+      "command": {
+        "text": "8x8",
+        "type": "text"
+      },
+      "offset": 83
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 86
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 87
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 90
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 93
+    },
+    {
+      "bytes": [
+        110,
+        111,
+        114,
+        109,
+        97,
+        108,
+        32,
+        97,
+        103,
+        97,
+        105,
+        110
+      ],
+      "command": {
+        "text": "normal again",
+        "type": "text"
+      },
+      "offset": 96
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 108
+    }
+  ],
+  "paper": "80mm",
+  "receipt": {
+    "elements": [
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 288,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 24,
+            "columns": 12,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 2
+            },
+            "text": "Double width",
+            "width": 288,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 0
+      },
+      {
+        "advance": 48,
+        "alignment": "left",
+        "baseline": 42,
+        "contentWidth": 156,
+        "height": 48,
+        "spans": [
+          {
+            "charHeight": 48,
+            "charWidth": 12,
+            "columns": 13,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 2,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "Double height",
+            "width": 156,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 30
+      },
+      {
+        "advance": 48,
+        "alignment": "left",
+        "baseline": 42,
+        "contentWidth": 96,
+        "height": 48,
+        "spans": [
+          {
+            "charHeight": 48,
+            "charWidth": 24,
+            "columns": 4,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 2,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 2
+            },
+            "text": "Quad",
+            "width": 96,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 78
+      },
+      {
+        "advance": 48,
+        "alignment": "left",
+        "baseline": 42,
+        "contentWidth": 108,
+        "height": 48,
+        "spans": [
+          {
+            "charHeight": 48,
+            "charWidth": 36,
+            "columns": 3,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 2,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 3
+            },
+            "text": "3x2",
+            "width": 108,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 126
+      },
+      {
+        "advance": 192,
+        "alignment": "left",
+        "baseline": 168,
+        "contentWidth": 288,
+        "height": 192,
+        "spans": [
+          {
+            "charHeight": 192,
+            "charWidth": 96,
+            "columns": 3,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 8,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 8
+            },
+            "text": "8x8",
+            "width": 288,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 174
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 144,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 12,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "normal again",
+            "width": 144,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 366
+      }
+    ],
+    "height": 396,
+    "paper": "80mm",
+    "width": 576
+  }
+}

@@ -1,0 +1,293 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        116,
+        16
+      ],
+      "command": {
+        "codePage": "windows1252",
+        "page": 16,
+        "type": "setCodePage"
+      },
+      "offset": 2
+    },
+    {
+      "bytes": [
+        65,
+        231,
+        227,
+        111,
+        44,
+        32,
+        83,
+        227,
+        111,
+        32,
+        80,
+        97,
+        117,
+        108,
+        111,
+        44,
+        32,
+        99,
+        111,
+        114,
+        97,
+        231,
+        227,
+        111
+      ],
+      "command": {
+        "text": "Ação, São Paulo, coração",
+        "type": "text"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 29
+    },
+    {
+      "bytes": [
+        67,
+        97,
+        102,
+        233,
+        32,
+        233,
+        32,
+        243,
+        116,
+        105,
+        109,
+        111,
+        59,
+        32,
+        224,
+        32,
+        118,
+        105,
+        115,
+        116,
+        97
+      ],
+      "command": {
+        "text": "Café é ótimo; à vista",
+        "type": "text"
+      },
+      "offset": 30
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 51
+    },
+    {
+      "bytes": [
+        49,
+        170,
+        32,
+        118,
+        105,
+        97,
+        44,
+        32,
+        50,
+        186,
+        32,
+        97,
+        110,
+        100,
+        97,
+        114
+      ],
+      "command": {
+        "text": "1ª via, 2º andar",
+        "type": "text"
+      },
+      "offset": 52
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 68
+    },
+    {
+      "bytes": [
+        80,
+        114,
+        101,
+        231,
+        111,
+        58,
+        32,
+        128,
+        32,
+        57,
+        44,
+        57,
+        48
+      ],
+      "command": {
+        "text": "Preço: € 9,90",
+        "type": "text"
+      },
+      "offset": 69
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 82
+    }
+  ],
+  "paper": "80mm",
+  "receipt": {
+    "elements": [
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 288,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 24,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "Ação, São Paulo, coração",
+            "width": 288,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 0
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 252,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 21,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "Café é ótimo; à vista",
+            "width": 252,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 30
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 192,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 16,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "1ª via, 2º andar",
+            "width": 192,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 60
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 156,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 13,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "Preço: € 9,90",
+            "width": 156,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 90
+      }
+    ],
+    "height": 120,
+    "paper": "80mm",
+    "width": 576
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        65,
+        195,
+        167,
+        195,
+        163,
+        111
+      ],
+      "command": {
+        "text": "A├º├úo",
+        "type": "text"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 6
+    }
+  ],
+  "paper": "80mm",
+  "receipt": {
+    "elements": [
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 72,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 6,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "A├º├úo",
+            "width": 72,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 0
+      }
+    ],
+    "height": 30,
+    "paper": "80mm",
+    "width": 576
+  }
+}

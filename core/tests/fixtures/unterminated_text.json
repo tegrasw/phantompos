@@ -1,0 +1,117 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        102,
+        105,
+        114,
+        115,
+        116
+      ],
+      "command": {
+        "text": "first",
+        "type": "text"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        110,
+        111,
+        32,
+        110,
+        101,
+        119,
+        108,
+        105,
+        110,
+        101,
+        32,
+        97,
+        116,
+        32,
+        101,
+        110,
+        100
+      ],
+      "command": {
+        "text": "no newline at end",
+        "type": "text"
+      },
+      "offset": 6
+    }
+  ],
+  "paper": "80mm",
+  "receipt": {
+    "elements": [
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 60,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 5,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "first",
+            "width": 60,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 0
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 204,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 17,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "no newline at end",
+            "width": 204,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 30
+      }
+    ],
+    "height": 60,
+    "paper": "80mm",
+    "width": 576
+  }
+}

@@ -1,0 +1,632 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 2
+    },
+    {
+      "bytes": [
+        112,
+        108,
+        97,
+        105,
+        110
+      ],
+      "command": {
+        "text": "plain",
+        "type": "text"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 10
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        1
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "b",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 11
+    },
+    {
+      "bytes": [
+        102,
+        111,
+        110,
+        116,
+        32,
+        66
+      ],
+      "command": {
+        "text": "font B",
+        "type": "text"
+      },
+      "offset": 14
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 20
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        8
+      ],
+      "command": {
+        "bold": true,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 21
+    },
+    {
+      "bytes": [
+        98,
+        111,
+        108,
+        100
+      ],
+      "command": {
+        "text": "bold",
+        "type": "text"
+      },
+      "offset": 24
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 28
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        56
+      ],
+      "command": {
+        "bold": true,
+        "doubleHeight": true,
+        "doubleWidth": true,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 29
+    },
+    {
+      "bytes": [
+        98,
+        111,
+        108,
+        100,
+        32,
+        113,
+        117,
+        97,
+        100
+      ],
+      "command": {
+        "text": "bold quad",
+        "type": "text"
+      },
+      "offset": 32
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 41
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        137
+      ],
+      "command": {
+        "bold": true,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "b",
+        "type": "setPrintMode",
+        "underline": true
+      },
+      "offset": 42
+    },
+    {
+      "bytes": [
+        66,
+        32,
+        98,
+        111,
+        108,
+        100,
+        32,
+        117,
+        110,
+        100,
+        101,
+        114,
+        108,
+        105,
+        110,
+        101
+      ],
+      "command": {
+        "text": "B bold underline",
+        "type": "text"
+      },
+      "offset": 45
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 61
+    },
+    {
+      "bytes": [
+        27,
+        45,
+        2
+      ],
+      "command": {
+        "mode": "twoDots",
+        "type": "setUnderline"
+      },
+      "offset": 62
+    },
+    {
+      "bytes": [
+        27,
+        45,
+        0
+      ],
+      "command": {
+        "mode": "off",
+        "type": "setUnderline"
+      },
+      "offset": 65
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        128
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": true
+      },
+      "offset": 68
+    },
+    {
+      "bytes": [
+        50,
+        45,
+        100,
+        111,
+        116,
+        32,
+        118,
+        105,
+        97,
+        32,
+        69,
+        83,
+        67,
+        32,
+        33
+      ],
+      "command": {
+        "text": "2-dot via ESC !",
+        "type": "text"
+      },
+      "offset": 71
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 86
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        8
+      ],
+      "command": {
+        "bold": true,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 87
+    },
+    {
+      "bytes": [
+        29,
+        33,
+        16
+      ],
+      "command": {
+        "height": 1,
+        "type": "setCharacterSize",
+        "width": 2
+      },
+      "offset": 90
+    },
+    {
+      "bytes": [
+        98,
+        111,
+        108,
+        100,
+        32,
+        100,
+        111,
+        117,
+        98,
+        108,
+        101,
+        32,
+        119,
+        105,
+        100,
+        116,
+        104
+      ],
+      "command": {
+        "text": "bold double width",
+        "type": "text"
+      },
+      "offset": 93
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 110
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 111
+    },
+    {
+      "bytes": [
+        114,
+        101,
+        115,
+        101,
+        116
+      ],
+      "command": {
+        "text": "reset",
+        "type": "text"
+      },
+      "offset": 114
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 119
+    }
+  ],
+  "paper": "80mm",
+  "receipt": {
+    "elements": [
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 60,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 5,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "plain",
+            "width": 60,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 0
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 16,
+        "contentWidth": 54,
+        "height": 17,
+        "spans": [
+          {
+            "charHeight": 17,
+            "charWidth": 9,
+            "columns": 6,
+            "style": {
+              "bold": false,
+              "font": "b",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "font B",
+            "width": 54,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 30
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 48,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 4,
+            "style": {
+              "bold": true,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "bold",
+            "width": 48,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 60
+      },
+      {
+        "advance": 48,
+        "alignment": "left",
+        "baseline": 42,
+        "contentWidth": 216,
+        "height": 48,
+        "spans": [
+          {
+            "charHeight": 48,
+            "charWidth": 24,
+            "columns": 9,
+            "style": {
+              "bold": true,
+              "font": "a",
+              "heightMultiplier": 2,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 2
+            },
+            "text": "bold quad",
+            "width": 216,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 90
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 16,
+        "contentWidth": 144,
+        "height": 17,
+        "spans": [
+          {
+            "charHeight": 17,
+            "charWidth": 9,
+            "columns": 16,
+            "style": {
+              "bold": true,
+              "font": "b",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "oneDot",
+              "widthMultiplier": 1
+            },
+            "text": "B bold underline",
+            "width": 144,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 138
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 180,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 15,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "twoDots",
+              "widthMultiplier": 1
+            },
+            "text": "2-dot via ESC !",
+            "width": 180,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 168
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 408,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 24,
+            "columns": 17,
+            "style": {
+              "bold": true,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 2
+            },
+            "text": "bold double width",
+            "width": 408,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 198
+      },
+      {
+        "advance": 30,
+        "alignment": "left",
+        "baseline": 21,
+        "contentWidth": 60,
+        "height": 24,
+        "spans": [
+          {
+            "charHeight": 24,
+            "charWidth": 12,
+            "columns": 5,
+            "style": {
+              "bold": false,
+              "font": "a",
+              "heightMultiplier": 1,
+              "reverse": false,
+              "underline": "off",
+              "widthMultiplier": 1
+            },
+            "text": "reset",
+            "width": 60,
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "type": "line",
+        "y": 228
+      }
+    ],
+    "height": 258,
+    "paper": "80mm",
+    "width": 576
+  }
+}
