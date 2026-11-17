@@ -1,0 +1,18 @@
+[workspace]
+resolver = "3"
+members = ["core", "app/src-tauri"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+authors = ["Tegra Software"]
+repository = "https://github.com/tegrasw/phantompos"
+rust-version = "1.100"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
