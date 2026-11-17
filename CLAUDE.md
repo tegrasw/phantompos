@@ -13,7 +13,7 @@ Current stage: **1 (skeleton) done**; stage 2 (text parser) not started.
 | `core/tests/fixtures/` | `.bin` captures + expected `.json` (from stage 2). |
 | `app/src-tauri/` | `phantompos`: Tauri shell, TCP listener (`src/listener.rs`), events, commands. |
 | `app/src/` | UI: Svelte 5 + TypeScript + Vite. Only `src/lib/backend.ts` talks to Tauri. |
-| `.github/workflows/` | `ci.yml` (PRs and main), `release.yml` (tags `v*`). |
+| `.github/workflows/` | `ci.yml` (PRs and main; skipped for documentation-only changes), `release.yml` (tags `v*`). |
 | `docs/backlog.md` | Out-of-scope ideas. Never implement them. |
 | `docs/release-signing.md` | Apple secrets needed by `release.yml` and how to obtain them. |
 

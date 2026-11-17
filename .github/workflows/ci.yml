@@ -1,9 +1,19 @@
 name: CI
 
+# Documentation-only changes do not trigger CI: a run is skipped when every
+# changed file matches paths-ignore.
 on:
   pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'LICENSE'
   push:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'LICENSE'
 
 # Read-only token: CI never writes to the repository and never signs anything.
 permissions:
