@@ -142,6 +142,10 @@ open design/icon/AppIcon.icon   # edit in Icon Composer
   (tauri-apps/tauri#16386, #15315). The bundler copies the `.car` to
   `Contents/Resources` and sets `CFBundleIconName` before signing. Once that is
   fixed upstream the `.icon` can be listed directly.
+- If actool reports `Bad file descriptor`, a failed bundler run left a broken
+  `ibtoold` daemon behind: `killall ibtoold` and run `build.sh` again.
+- `Assets.car` and `icon.icns` are not byte-reproducible; commit them only
+  when the artwork changed.
 - `icon.json` has no public schema; edit it in Icon Composer or check the
   result with `build.sh previews`.
 - `tauri icon` knows nothing about `.icon`; `build.sh` runs it twice (one
