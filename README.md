@@ -1,3 +1,5 @@
+<img src="app/src-tauri/icons/128x128@2x.png" alt="PhantomPOS icon" width="96" height="96">
+
 # PhantomPOS
 
 PhantomPOS is a virtual ESC/POS thermal printer. It is a desktop application that
