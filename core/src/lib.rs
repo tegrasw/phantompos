@@ -7,20 +7,27 @@
 //! Typical use, one parser and one builder per connection:
 //!
 //! ```
-//! use phantompos_core::{Parser, ParserConfig, ReceiptBuilder, ReceiptConfig};
+//! use phantompos_core::{Effect, Parser, ParserConfig, ReceiptBuilder, ReceiptConfig};
 //!
 //! let mut parser = Parser::new(ParserConfig::default());
 //! let mut builder = ReceiptBuilder::new(ReceiptConfig::default());
 //!
-//! // For every socket read:
-//! let batch = parser.feed(b"\x1bE\x01Total\x1bE\x00 9,90\n");
-//! builder.apply_all(&batch); // `batch` also goes to the command log
+//! // For every socket read (`batch` also goes to the command log):
+//! let batch = parser.feed(b"\x1bE\x01Total\x1bE\x00 9,90\n\x1dV\x00Next\n");
+//! for effect in builder.apply_all(&batch) {
+//!     match effect {
+//!         Effect::ReceiptCompleted(receipt) => assert!(receipt.cut.is_some()),
+//!         Effect::DrawerKick(kick) => println!("drawer pin {}", kick.pin),
+//!     }
+//! }
+//! let in_progress = builder.take_update(); // Some(..) when it changed
+//! assert!(in_progress.is_some());
 //!
 //! // When the connection ends:
 //! let tail = parser.finish();
 //! builder.apply_all(&tail);
-//! let receipt = builder.finish();
-//! assert_eq!(receipt.elements.len(), 1);
+//! let last = builder.finish(); // pending content, `cut: None`
+//! assert_eq!(last.map(|r| r.elements.len()), Some(1));
 //! ```
 //!
 //! See `core/README.md` for the JSON contract.
@@ -46,11 +53,13 @@ mod parser;
 mod receipt;
 
 pub use codepage::CodePage;
-pub use command::{Alignment, Command, DecodedCommand, Font, UnderlineMode, UnknownReason};
+pub use command::{
+    Alignment, Command, CutFunction, CutMode, DecodedCommand, Font, UnderlineMode, UnknownReason,
+};
 pub use error::CoreError;
 pub use paper::{FONT_A, FONT_B, FontMetrics, PaperProfile, font_metrics};
 pub use parser::{MAX_TEXT_RUN, Parser, ParserConfig, parse};
 pub use receipt::{
-    DEFAULT_LINE_SPACING, Element, Line, Receipt, ReceiptBuilder, ReceiptConfig, Span, TextStyle,
-    render,
+    DEFAULT_LINE_SPACING, DrawerKick, Effect, Element, Line, Receipt, ReceiptBuilder,
+    ReceiptConfig, RenderOutput, Span, TextStyle, render,
 };

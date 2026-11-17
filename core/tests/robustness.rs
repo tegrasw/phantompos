@@ -39,6 +39,14 @@ fn escpos_biased(rng: &mut Rng) -> Vec<u8> {
         b"t",
         b"R",
         b"V",
+        b"i",
+        b"m",
+        b"p",
+        b"A",
+        b"B",
+        b"b",
+        b"g",
+        b"h",
         b"(",
         b"k",
         b"v0",
@@ -82,9 +90,15 @@ fn check(input: &[u8], rng: &mut Rng) {
         assert_lossless(input, &whole.0);
         let fragmented = common::run_chunked(input, &mut || 1 + rng.below(9), paper);
         assert_eq!(whole, fragmented, "fragmentation changed the result");
+        // Receipts are never empty, and only the last one may lack a cut.
+        let receipts = &whole.1.receipts;
+        for (i, receipt) in receipts.iter().enumerate() {
+            assert!(receipt.height > 0 && !receipt.elements.is_empty());
+            assert!(receipt.cut.is_some() || i + 1 == receipts.len());
+        }
         // Both outputs must serialize.
         serde_json::to_string(&whole.0).expect("commands serialize");
-        serde_json::to_string(&whole.1).expect("receipt serializes");
+        serde_json::to_string(&whole.1).expect("receipts serialize");
     }
 }
 

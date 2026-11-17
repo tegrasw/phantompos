@@ -61,6 +61,31 @@ pub enum Alignment {
     Right,
 }
 
+/// Cutting shape of `GS V`, `ESC i` and `ESC m`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum CutMode {
+    Full,
+    /// Partial cut (one or three points left uncut).
+    Partial,
+}
+
+/// Which `GS V` function a cut command uses (Epson "Function A" to "D").
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum CutFunction {
+    /// Cuts the paper (`m` = 0, 1, 48, 49; also `ESC i` and `ESC m`).
+    A,
+    /// Feeds to the cutting position + `n` and cuts (`m` = 65, 66).
+    B,
+    /// Presets the cutting position + `n`; cuts when it reaches the cutter
+    /// (`m` = 97, 98).
+    C,
+    /// Feeds to the cutting position + `n`, cuts and reverse feeds to the
+    /// print start position (`m` = 103, 104).
+    D,
+}
+
 /// Why a sequence was not recognized.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -134,6 +159,24 @@ pub enum Command {
     },
     /// `ESC R n` - international character set. Logged, no effect.
     SetInternationalCharset { n: u8 },
+    /// `GS V m [n]`, `ESC i`, `ESC m` - paper cut. `feed` is the `n` of
+    /// functions B, C and D (vertical motion units, i.e. dots here) and `null`
+    /// for function A. All three fields are `null` when `m` is out of range
+    /// (the command is then ignored).
+    Cut {
+        mode: Option<CutMode>,
+        function: Option<CutFunction>,
+        feed: Option<u8>,
+    },
+    /// `ESC p m t1 t2` - drawer kick pulse. `pin` is the drawer kick-out
+    /// connector pin (2 or 5), `null` when `m` is out of range (no pulse).
+    /// Times are in milliseconds (`t x 2 ms`); per the reference, when
+    /// `t2 < t1` the OFF time equals the ON time.
+    DrawerKick {
+        pin: Option<u8>,
+        on_ms: u32,
+        off_ms: u32,
+    },
     /// Anything not recognized; the raw bytes are in the envelope.
     Unknown { reason: UnknownReason },
 }

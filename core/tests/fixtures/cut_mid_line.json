@@ -1,0 +1,278 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        98,
+        101,
+        102,
+        111,
+        114,
+        101,
+        32
+      ],
+      "command": {
+        "text": "before ",
+        "type": "text"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        0
+      ],
+      "command": {
+        "feed": null,
+        "function": "a",
+        "mode": "full",
+        "type": "cut"
+      },
+      "offset": 7
+    },
+    {
+      "bytes": [
+        115,
+        97,
+        109,
+        101,
+        32,
+        108,
+        105,
+        110,
+        101
+      ],
+      "command": {
+        "text": "same line",
+        "type": "text"
+      },
+      "offset": 10
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 19
+    },
+    {
+      "bytes": [
+        9
+      ],
+      "command": {
+        "type": "horizontalTab"
+      },
+      "offset": 20
+    },
+    {
+      "bytes": [
+        27,
+        105
+      ],
+      "command": {
+        "feed": null,
+        "function": "a",
+        "mode": "partial",
+        "type": "cut"
+      },
+      "offset": 21
+    },
+    {
+      "bytes": [
+        97,
+        102,
+        116,
+        101,
+        114,
+        32,
+        116,
+        97,
+        98
+      ],
+      "command": {
+        "text": "after tab",
+        "type": "text"
+      },
+      "offset": 23
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 32
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        66,
+        16
+      ],
+      "command": {
+        "feed": 16,
+        "function": "b",
+        "mode": "partial",
+        "type": "cut"
+      },
+      "offset": 33
+    },
+    {
+      "bytes": [
+        110,
+        111,
+        32,
+        76,
+        70,
+        32,
+        98,
+        101,
+        102,
+        111,
+        114,
+        101,
+        32,
+        69,
+        79,
+        70
+      ],
+      "command": {
+        "text": "no LF before EOF",
+        "type": "text"
+      },
+      "offset": 37
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        1
+      ],
+      "command": {
+        "feed": null,
+        "function": "a",
+        "mode": "partial",
+        "type": "cut"
+      },
+      "offset": 53
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": "partial",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 192,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 16,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "before same line",
+              "width": 192,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 204,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 9,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "after tab",
+              "width": 108,
+              "x": 96,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 30
+        },
+        {
+          "advance": 16,
+          "alignment": "left",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 60
+        }
+      ],
+      "height": 76,
+      "paper": "80mm",
+      "width": 576
+    },
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 192,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 16,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "no LF before EOF",
+              "width": 192,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        }
+      ],
+      "height": 30,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

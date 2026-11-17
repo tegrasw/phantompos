@@ -1,0 +1,958 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        71,
+        83,
+        32,
+        86,
+        32,
+        48
+      ],
+      "command": {
+        "text": "GS V 0",
+        "type": "text"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 6
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        0
+      ],
+      "command": {
+        "feed": null,
+        "function": "a",
+        "mode": "full",
+        "type": "cut"
+      },
+      "offset": 7
+    },
+    {
+      "bytes": [
+        71,
+        83,
+        32,
+        86,
+        32,
+        49
+      ],
+      "command": {
+        "text": "GS V 1",
+        "type": "text"
+      },
+      "offset": 10
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 16
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        1
+      ],
+      "command": {
+        "feed": null,
+        "function": "a",
+        "mode": "partial",
+        "type": "cut"
+      },
+      "offset": 17
+    },
+    {
+      "bytes": [
+        71,
+        83,
+        32,
+        86,
+        32,
+        52,
+        56
+      ],
+      "command": {
+        "text": "GS V 48",
+        "type": "text"
+      },
+      "offset": 20
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 27
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        48
+      ],
+      "command": {
+        "feed": null,
+        "function": "a",
+        "mode": "full",
+        "type": "cut"
+      },
+      "offset": 28
+    },
+    {
+      "bytes": [
+        71,
+        83,
+        32,
+        86,
+        32,
+        52,
+        57
+      ],
+      "command": {
+        "text": "GS V 49",
+        "type": "text"
+      },
+      "offset": 31
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 38
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        49
+      ],
+      "command": {
+        "feed": null,
+        "function": "a",
+        "mode": "partial",
+        "type": "cut"
+      },
+      "offset": 39
+    },
+    {
+      "bytes": [
+        71,
+        83,
+        32,
+        86,
+        32,
+        54,
+        53
+      ],
+      "command": {
+        "text": "GS V 65",
+        "type": "text"
+      },
+      "offset": 42
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 49
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        65,
+        24
+      ],
+      "command": {
+        "feed": 24,
+        "function": "b",
+        "mode": "full",
+        "type": "cut"
+      },
+      "offset": 50
+    },
+    {
+      "bytes": [
+        71,
+        83,
+        32,
+        86,
+        32,
+        54,
+        54
+      ],
+      "command": {
+        "text": "GS V 66",
+        "type": "text"
+      },
+      "offset": 54
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 61
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        66,
+        0
+      ],
+      "command": {
+        "feed": 0,
+        "function": "b",
+        "mode": "partial",
+        "type": "cut"
+      },
+      "offset": 62
+    },
+    {
+      "bytes": [
+        71,
+        83,
+        32,
+        86,
+        32,
+        57,
+        55
+      ],
+      "command": {
+        "text": "GS V 97",
+        "type": "text"
+      },
+      "offset": 66
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 73
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        97,
+        10
+      ],
+      "command": {
+        "feed": 10,
+        "function": "c",
+        "mode": "full",
+        "type": "cut"
+      },
+      "offset": 74
+    },
+    {
+      "bytes": [
+        71,
+        83,
+        32,
+        86,
+        32,
+        57,
+        56
+      ],
+      "command": {
+        "text": "GS V 98",
+        "type": "text"
+      },
+      "offset": 78
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 85
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        98,
+        10
+      ],
+      "command": {
+        "feed": 10,
+        "function": "c",
+        "mode": "partial",
+        "type": "cut"
+      },
+      "offset": 86
+    },
+    {
+      "bytes": [
+        71,
+        83,
+        32,
+        86,
+        32,
+        49,
+        48,
+        51
+      ],
+      "command": {
+        "text": "GS V 103",
+        "type": "text"
+      },
+      "offset": 90
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 98
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        103,
+        5
+      ],
+      "command": {
+        "feed": 5,
+        "function": "d",
+        "mode": "full",
+        "type": "cut"
+      },
+      "offset": 99
+    },
+    {
+      "bytes": [
+        71,
+        83,
+        32,
+        86,
+        32,
+        49,
+        48,
+        52
+      ],
+      "command": {
+        "text": "GS V 104",
+        "type": "text"
+      },
+      "offset": 103
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 111
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        104,
+        5
+      ],
+      "command": {
+        "feed": 5,
+        "function": "d",
+        "mode": "partial",
+        "type": "cut"
+      },
+      "offset": 112
+    },
+    {
+      "bytes": [
+        69,
+        83,
+        67,
+        32,
+        105
+      ],
+      "command": {
+        "text": "ESC i",
+        "type": "text"
+      },
+      "offset": 116
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 121
+    },
+    {
+      "bytes": [
+        27,
+        105
+      ],
+      "command": {
+        "feed": null,
+        "function": "a",
+        "mode": "partial",
+        "type": "cut"
+      },
+      "offset": 122
+    },
+    {
+      "bytes": [
+        69,
+        83,
+        67,
+        32,
+        109
+      ],
+      "command": {
+        "text": "ESC m",
+        "type": "text"
+      },
+      "offset": 124
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 129
+    },
+    {
+      "bytes": [
+        27,
+        109
+      ],
+      "command": {
+        "feed": null,
+        "function": "a",
+        "mode": "partial",
+        "type": "cut"
+      },
+      "offset": 130
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": "full",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 72,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 6,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "GS V 0",
+              "width": 72,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        }
+      ],
+      "height": 30,
+      "paper": "80mm",
+      "width": 576
+    },
+    {
+      "cut": "partial",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 72,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 6,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "GS V 1",
+              "width": 72,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        }
+      ],
+      "height": 30,
+      "paper": "80mm",
+      "width": 576
+    },
+    {
+      "cut": "full",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 84,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 7,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "GS V 48",
+              "width": 84,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        }
+      ],
+      "height": 30,
+      "paper": "80mm",
+      "width": 576
+    },
+    {
+      "cut": "partial",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 84,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 7,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "GS V 49",
+              "width": 84,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        }
+      ],
+      "height": 30,
+      "paper": "80mm",
+      "width": 576
+    },
+    {
+      "cut": "full",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 84,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 7,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "GS V 65",
+              "width": 84,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 24,
+          "alignment": "left",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 30
+        }
+      ],
+      "height": 54,
+      "paper": "80mm",
+      "width": 576
+    },
+    {
+      "cut": "partial",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 84,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 7,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "GS V 66",
+              "width": 84,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        }
+      ],
+      "height": 30,
+      "paper": "80mm",
+      "width": 576
+    },
+    {
+      "cut": "full",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 84,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 7,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "GS V 97",
+              "width": 84,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 10,
+          "alignment": "left",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 30
+        }
+      ],
+      "height": 40,
+      "paper": "80mm",
+      "width": 576
+    },
+    {
+      "cut": "partial",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 84,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 7,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "GS V 98",
+              "width": 84,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 10,
+          "alignment": "left",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 30
+        }
+      ],
+      "height": 40,
+      "paper": "80mm",
+      "width": 576
+    },
+    {
+      "cut": "full",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 96,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 8,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "GS V 103",
+              "width": 96,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 5,
+          "alignment": "left",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 30
+        }
+      ],
+      "height": 35,
+      "paper": "80mm",
+      "width": 576
+    },
+    {
+      "cut": "partial",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 96,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 8,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "GS V 104",
+              "width": 96,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 5,
+          "alignment": "left",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 30
+        }
+      ],
+      "height": 35,
+      "paper": "80mm",
+      "width": 576
+    },
+    {
+      "cut": "partial",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 60,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 5,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "ESC i",
+              "width": 60,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        }
+      ],
+      "height": 30,
+      "paper": "80mm",
+      "width": 576
+    },
+    {
+      "cut": "partial",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 60,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 5,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "ESC m",
+              "width": 60,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        }
+      ],
+      "height": 30,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

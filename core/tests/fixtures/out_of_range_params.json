@@ -445,264 +445,268 @@
       "offset": 207
     }
   ],
+  "drawerKicks": [],
   "paper": "80mm",
-  "receipt": {
-    "elements": [
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 252,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 21,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "underline n=3 ignored",
-            "width": 252,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 0
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 192,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 16,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "font n=5 ignored",
-            "width": 192,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 30
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 192,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 16,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "font C not drawn",
-            "width": 192,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 60
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 228,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 19,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "size n=0x88 ignored",
-            "width": 228,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 90
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 204,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 17,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "align n=3 ignored",
-            "width": 204,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 120
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 324,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 27,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "page 99 Çç decodes as CP437",
-            "width": 324,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 150
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 216,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 18,
-            "style": {
-              "bold": true,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "bold n=255 (LSB 1)",
-            "width": 216,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 180
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 216,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 18,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "bold n=254 (LSB 0)",
-            "width": 216,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 210
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 240,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 20,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "ESC R 12 logged only",
-            "width": 240,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 240
-      }
-    ],
-    "height": 270,
-    "paper": "80mm",
-    "width": 576
-  }
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 252,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 21,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "underline n=3 ignored",
+              "width": 252,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 192,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 16,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "font n=5 ignored",
+              "width": 192,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 30
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 192,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 16,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "font C not drawn",
+              "width": 192,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 60
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 228,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 19,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "size n=0x88 ignored",
+              "width": 228,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 90
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 204,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 17,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "align n=3 ignored",
+              "width": 204,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 120
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 324,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 27,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "page 99 Çç decodes as CP437",
+              "width": 324,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 150
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 216,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 18,
+              "style": {
+                "bold": true,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "bold n=255 (LSB 1)",
+              "width": 216,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 180
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 216,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 18,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "bold n=254 (LSB 0)",
+              "width": 216,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 210
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 240,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 20,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "ESC R 12 logged only",
+              "width": 240,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 240
+        }
+      ],
+      "height": 270,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
 }

@@ -1,0 +1,160 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        116,
+        0
+      ],
+      "command": {
+        "codePage": "cp437",
+        "page": 0,
+        "type": "setCodePage"
+      },
+      "offset": 2
+    },
+    {
+      "bytes": [
+        111,
+        112,
+        101,
+        110,
+        32,
+        100,
+        114,
+        97,
+        119,
+        101,
+        114
+      ],
+      "command": {
+        "text": "open drawer",
+        "type": "text"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 16
+    },
+    {
+      "bytes": [
+        27,
+        112,
+        0,
+        50,
+        50
+      ],
+      "command": {
+        "offMs": 100,
+        "onMs": 100,
+        "pin": 2,
+        "type": "drawerKick"
+      },
+      "offset": 17
+    },
+    {
+      "bytes": [
+        27,
+        112,
+        1,
+        50,
+        50
+      ],
+      "command": {
+        "offMs": 100,
+        "onMs": 100,
+        "pin": 5,
+        "type": "drawerKick"
+      },
+      "offset": 22
+    },
+    {
+      "bytes": [
+        27,
+        112,
+        48,
+        25,
+        250
+      ],
+      "command": {
+        "offMs": 500,
+        "onMs": 50,
+        "pin": 2,
+        "type": "drawerKick"
+      },
+      "offset": 27
+    }
+  ],
+  "drawerKicks": [
+    {
+      "offMs": 100,
+      "onMs": 100,
+      "pin": 2
+    },
+    {
+      "offMs": 100,
+      "onMs": 100,
+      "pin": 5
+    },
+    {
+      "offMs": 500,
+      "onMs": 50,
+      "pin": 2
+    }
+  ],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 132,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 11,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "open drawer",
+              "width": 132,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        }
+      ],
+      "height": 30,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

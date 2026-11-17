@@ -1,0 +1,1138 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        116,
+        19
+      ],
+      "command": {
+        "codePage": "cp858",
+        "page": 19,
+        "type": "setCodePage"
+      },
+      "offset": 2
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 8
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        48
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": true,
+        "doubleWidth": true,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 11
+    },
+    {
+      "bytes": [
+        27,
+        69,
+        1
+      ],
+      "command": {
+        "enabled": true,
+        "type": "setBold"
+      },
+      "offset": 14
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        1
+      ],
+      "command": {
+        "alignment": "center",
+        "type": "setAlignment"
+      },
+      "offset": 17
+    },
+    {
+      "bytes": [
+        77,
+        69,
+        82,
+        67,
+        65,
+        68,
+        79,
+        32,
+        66,
+        79,
+        65,
+        32,
+        86,
+        73,
+        83,
+        84,
+        65
+      ],
+      "command": {
+        "text": "MERCADO BOA VISTA",
+        "type": "text"
+      },
+      "offset": 20
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 37
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 38
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 41
+    },
+    {
+      "bytes": [
+        27,
+        33,
+        0
+      ],
+      "command": {
+        "bold": false,
+        "doubleHeight": false,
+        "doubleWidth": false,
+        "font": "a",
+        "type": "setPrintMode",
+        "underline": false
+      },
+      "offset": 44
+    },
+    {
+      "bytes": [
+        27,
+        69,
+        0
+      ],
+      "command": {
+        "enabled": false,
+        "type": "setBold"
+      },
+      "offset": 47
+    },
+    {
+      "bytes": [
+        65,
+        118,
+        46,
+        32,
+        66,
+        114,
+        97,
+        115,
+        105,
+        108,
+        44,
+        32,
+        49,
+        48,
+        48,
+        48,
+        32,
+        45,
+        32,
+        67,
+        101,
+        110,
+        116,
+        114,
+        111
+      ],
+      "command": {
+        "text": "Av. Brasil, 1000 - Centro",
+        "type": "text"
+      },
+      "offset": 50
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 75
+    },
+    {
+      "bytes": [
+        67,
+        78,
+        80,
+        74,
+        32,
+        57,
+        56,
+        46,
+        55,
+        54,
+        53,
+        46,
+        52,
+        51,
+        50,
+        47,
+        48,
+        48,
+        48,
+        49,
+        45,
+        49,
+        48
+      ],
+      "command": {
+        "text": "CNPJ 98.765.432/0001-10",
+        "type": "text"
+      },
+      "offset": 76
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 99
+    },
+    {
+      "bytes": [
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45
+      ],
+      "command": {
+        "text": "--------------------------------",
+        "type": "text"
+      },
+      "offset": 100
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 132
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        0
+      ],
+      "command": {
+        "alignment": "left",
+        "type": "setAlignment"
+      },
+      "offset": 133
+    },
+    {
+      "bytes": [
+        65,
+        114,
+        114,
+        111,
+        122,
+        32,
+        53,
+        32,
+        107,
+        103,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        82,
+        36,
+        32,
+        50,
+        55,
+        44,
+        57,
+        48
+      ],
+      "command": {
+        "text": "Arroz 5 kg             R$ 27,90",
+        "type": "text"
+      },
+      "offset": 136
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 167
+    },
+    {
+      "bytes": [
+        70,
+        101,
+        105,
+        106,
+        198,
+        111,
+        32,
+        49,
+        32,
+        107,
+        103,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        82,
+        36,
+        32,
+        56,
+        44,
+        52,
+        57
+      ],
+      "command": {
+        "text": "Feijão 1 kg             R$ 8,49",
+        "type": "text"
+      },
+      "offset": 168
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 199
+    },
+    {
+      "bytes": [
+        65,
+        135,
+        163,
+        99,
+        97,
+        114,
+        32,
+        49,
+        32,
+        107,
+        103,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        82,
+        36,
+        32,
+        52,
+        44,
+        57,
+        57
+      ],
+      "command": {
+        "text": "Açúcar 1 kg             R$ 4,99",
+        "type": "text"
+      },
+      "offset": 200
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 231
+    },
+    {
+      "bytes": [
+        27,
+        69,
+        1
+      ],
+      "command": {
+        "enabled": true,
+        "type": "setBold"
+      },
+      "offset": 232
+    },
+    {
+      "bytes": [
+        84,
+        79,
+        84,
+        65,
+        76,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        82,
+        36,
+        32,
+        52,
+        49,
+        44,
+        51,
+        56
+      ],
+      "command": {
+        "text": "TOTAL                  R$ 41,38",
+        "type": "text"
+      },
+      "offset": 235
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 266
+    },
+    {
+      "bytes": [
+        27,
+        69,
+        0
+      ],
+      "command": {
+        "enabled": false,
+        "type": "setBold"
+      },
+      "offset": 267
+    },
+    {
+      "bytes": [
+        68,
+        105,
+        110,
+        104,
+        101,
+        105,
+        114,
+        111,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        82,
+        36,
+        32,
+        53,
+        48,
+        44,
+        48,
+        48
+      ],
+      "command": {
+        "text": "Dinheiro               R$ 50,00",
+        "type": "text"
+      },
+      "offset": 270
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 301
+    },
+    {
+      "bytes": [
+        84,
+        114,
+        111,
+        99,
+        111,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        82,
+        36,
+        32,
+        56,
+        44,
+        54,
+        50
+      ],
+      "command": {
+        "text": "Troco                   R$ 8,62",
+        "type": "text"
+      },
+      "offset": 302
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 333
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 334
+    },
+    {
+      "bytes": [
+        27,
+        77,
+        1
+      ],
+      "command": {
+        "font": "b",
+        "type": "setFont"
+      },
+      "offset": 335
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        1
+      ],
+      "command": {
+        "alignment": "center",
+        "type": "setAlignment"
+      },
+      "offset": 338
+    },
+    {
+      "bytes": [
+        86,
+        111,
+        108,
+        116,
+        101,
+        32,
+        115,
+        101,
+        109,
+        112,
+        114,
+        101,
+        33
+      ],
+      "command": {
+        "text": "Volte sempre!",
+        "type": "text"
+      },
+      "offset": 341
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 354
+    },
+    {
+      "bytes": [
+        27,
+        100,
+        6
+      ],
+      "command": {
+        "lines": 6,
+        "type": "feedLines"
+      },
+      "offset": 355
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        0
+      ],
+      "command": {
+        "feed": null,
+        "function": "a",
+        "mode": "full",
+        "type": "cut"
+      },
+      "offset": 358
+    },
+    {
+      "bytes": [
+        27,
+        112,
+        0,
+        50,
+        50
+      ],
+      "command": {
+        "offMs": 100,
+        "onMs": 100,
+        "pin": 2,
+        "type": "drawerKick"
+      },
+      "offset": 361
+    }
+  ],
+  "drawerKicks": [
+    {
+      "offMs": 100,
+      "onMs": 100,
+      "pin": 2
+    }
+  ],
+  "paper": "58mm",
+  "receipts": [
+    {
+      "cut": "full",
+      "elements": [
+        {
+          "advance": 48,
+          "alignment": "center",
+          "baseline": 42,
+          "contentWidth": 384,
+          "height": 48,
+          "spans": [
+            {
+              "charHeight": 48,
+              "charWidth": 24,
+              "columns": 16,
+              "style": {
+                "bold": true,
+                "font": "a",
+                "heightMultiplier": 2,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 2
+              },
+              "text": "MERCADO BOA VIST",
+              "width": 384,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 48,
+          "alignment": "center",
+          "baseline": 42,
+          "contentWidth": 24,
+          "height": 48,
+          "spans": [
+            {
+              "charHeight": 48,
+              "charWidth": 24,
+              "columns": 1,
+              "style": {
+                "bold": true,
+                "font": "a",
+                "heightMultiplier": 2,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 2
+              },
+              "text": "A",
+              "width": 24,
+              "x": 180,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 48
+        },
+        {
+          "advance": 30,
+          "alignment": "center",
+          "baseline": 21,
+          "contentWidth": 300,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 25,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "Av. Brasil, 1000 - Centro",
+              "width": 300,
+              "x": 42,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 96
+        },
+        {
+          "advance": 30,
+          "alignment": "center",
+          "baseline": 21,
+          "contentWidth": 276,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 23,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "CNPJ 98.765.432/0001-10",
+              "width": 276,
+              "x": 54,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 126
+        },
+        {
+          "advance": 30,
+          "alignment": "center",
+          "baseline": 21,
+          "contentWidth": 384,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 32,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "--------------------------------",
+              "width": 384,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 156
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 372,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 31,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "Arroz 5 kg             R$ 27,90",
+              "width": 372,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 186
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 372,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 31,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "Feijão 1 kg             R$ 8,49",
+              "width": 372,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 216
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 372,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 31,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "Açúcar 1 kg             R$ 4,99",
+              "width": 372,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 246
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 372,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 31,
+              "style": {
+                "bold": true,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "TOTAL                  R$ 41,38",
+              "width": 372,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 276
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 372,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 31,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "Dinheiro               R$ 50,00",
+              "width": 372,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 306
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 372,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 31,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "Troco                   R$ 8,62",
+              "width": 372,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 336
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 366
+        },
+        {
+          "advance": 30,
+          "alignment": "center",
+          "baseline": 16,
+          "contentWidth": 117,
+          "height": 17,
+          "spans": [
+            {
+              "charHeight": 17,
+              "charWidth": 9,
+              "columns": 13,
+              "style": {
+                "bold": false,
+                "font": "b",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "Volte sempre!",
+              "width": 117,
+              "x": 133,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 396
+        },
+        {
+          "advance": 180,
+          "alignment": "center",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 426
+        }
+      ],
+      "height": 606,
+      "paper": "58mm",
+      "width": 384
+    }
+  ]
+}

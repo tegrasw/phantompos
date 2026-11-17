@@ -255,141 +255,145 @@
       "offset": 104
     }
   ],
+  "drawerKicks": [],
   "paper": "80mm",
-  "receipt": {
-    "elements": [
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 192,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 9,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": true,
-              "underline": "off",
-              "widthMultiplier": 1
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 192,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 9,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": true,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": " REVERSE ",
+              "width": 108,
+              "x": 0,
+              "y": 0
             },
-            "text": " REVERSE ",
-            "width": 108,
-            "x": 0,
-            "y": 0
-          },
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 7,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": " normal",
-            "width": 84,
-            "x": 108,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 0
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 16,
-        "contentWidth": 171,
-        "height": 17,
-        "spans": [
-          {
-            "charHeight": 17,
-            "charWidth": 9,
-            "columns": 19,
-            "style": {
-              "bold": false,
-              "font": "b",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "Font B is 9x17 dots",
-            "width": 171,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 30
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 240,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 20,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "Font A is 12x24 dots",
-            "width": 240,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 60
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 276,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 23,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": true,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "reverse hides underline",
-            "width": 276,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 90
-      }
-    ],
-    "height": 120,
-    "paper": "80mm",
-    "width": 576
-  }
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 7,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": " normal",
+              "width": 84,
+              "x": 108,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 16,
+          "contentWidth": 171,
+          "height": 17,
+          "spans": [
+            {
+              "charHeight": 17,
+              "charWidth": 9,
+              "columns": 19,
+              "style": {
+                "bold": false,
+                "font": "b",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "Font B is 9x17 dots",
+              "width": 171,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 30
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 240,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 20,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "Font A is 12x24 dots",
+              "width": 240,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 60
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 276,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 23,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": true,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "reverse hides underline",
+              "width": 276,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 90
+        }
+      ],
+      "height": 120,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
 }

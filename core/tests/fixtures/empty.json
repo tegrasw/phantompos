@@ -1,10 +1,6 @@
 {
   "commands": [],
+  "drawerKicks": [],
   "paper": "80mm",
-  "receipt": {
-    "elements": [],
-    "height": 0,
-    "paper": "80mm",
-    "width": 576
-  }
+  "receipts": []
 }

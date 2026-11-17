@@ -13,11 +13,17 @@
 //! Commands are described by a lookup table ([`lookup`]): adding a command in a
 //! later stage means adding a table entry (and, for variable-length commands
 //! such as `GS ( k` or `GS v 0`, a new [`ParamLength`] variant).
+//!
+//! Deliberate deviations: `GS V` with an `m` outside the Epson table is taken
+//! as three bytes (`GS V m`) and logged as a `cut` with `null` fields; the
+//! real behaviour is undefined in the reference.
 
 use serde::{Deserialize, Serialize};
 
 use crate::codepage::CodePage;
-use crate::command::{Alignment, Command, DecodedCommand, Font, UnderlineMode, UnknownReason};
+use crate::command::{
+    Alignment, Command, CutFunction, CutMode, DecodedCommand, Font, UnderlineMode, UnknownReason,
+};
 
 const HT: u8 = 0x09;
 const LF: u8 = 0x0A;
@@ -44,6 +50,21 @@ pub struct ParserConfig {
 enum ParamLength {
     /// A fixed number of bytes.
     Fixed(usize),
+    /// `GS V`: one byte `m`, plus `n` for functions B, C and D.
+    Cut,
+}
+
+impl ParamLength {
+    /// Number of parameter bytes needed, given the ones read so far.
+    fn required(self, params: &[u8]) -> usize {
+        match self {
+            Self::Fixed(count) => count,
+            Self::Cut => match params.first() {
+                Some(&m) if cut_takes_feed(m) => 2,
+                _ => 1,
+            },
+        }
+    }
 }
 
 /// Table entry describing one recognized command.
@@ -66,7 +87,7 @@ fn n(params: &[u8]) -> u8 {
     params.first().copied().unwrap_or(0)
 }
 
-/// The stage 2 command table, keyed by (prefix, command byte).
+/// The command table, keyed by (prefix, command byte).
 fn lookup(prefix: u8, code: u8) -> Option<CommandSpec> {
     let found = match (prefix, code) {
         (ESC, b'@') => spec(0, |_| Command::Initialize),
@@ -96,9 +117,72 @@ fn lookup(prefix: u8, code: u8) -> Option<CommandSpec> {
             code_page: CodePage::from_esc_t(n(p)),
         }),
         (ESC, b'R') => spec(1, |p| Command::SetInternationalCharset { n: n(p) }),
+        (GS, b'V') => CommandSpec {
+            params: ParamLength::Cut,
+            decode: decode_cut,
+        },
+        // Obsolete cuts; both are partial cuts in the Epson reference ("one
+        // point left uncut" / "three points left uncut") and equal to GS V
+        // function A.
+        (ESC, b'i') | (ESC, b'm') => spec(0, |_| Command::Cut {
+            mode: Some(CutMode::Partial),
+            function: Some(CutFunction::A),
+            feed: None,
+        }),
+        (ESC, b'p') => spec(3, decode_drawer_kick),
         _ => return None,
     };
     Some(found)
+}
+
+/// `GS V m`: functions B (65, 66), C (97, 98) and D (103, 104) take `n`.
+fn cut_takes_feed(m: u8) -> bool {
+    matches!(m, 65 | 66 | 97 | 98 | 103 | 104)
+}
+
+/// `GS V m [n]`: even `m` is a full cut, odd `m` a partial cut.
+fn decode_cut(params: &[u8]) -> Command {
+    let m = n(params);
+    let feed = params.get(1).copied();
+    let (mode, function) = match m {
+        0 | 48 => (CutMode::Full, CutFunction::A),
+        1 | 49 => (CutMode::Partial, CutFunction::A),
+        65 => (CutMode::Full, CutFunction::B),
+        66 => (CutMode::Partial, CutFunction::B),
+        97 => (CutMode::Full, CutFunction::C),
+        98 => (CutMode::Partial, CutFunction::C),
+        103 => (CutMode::Full, CutFunction::D),
+        104 => (CutMode::Partial, CutFunction::D),
+        _ => {
+            return Command::Cut {
+                mode: None,
+                function: None,
+                feed: None,
+            };
+        }
+    };
+    Command::Cut {
+        mode: Some(mode),
+        function: Some(function),
+        feed,
+    }
+}
+
+/// `ESC p m t1 t2`: m = 0/48 pin 2, 1/49 pin 5; ON time t1 x 2 ms, OFF time
+/// t2 x 2 ms, and "if t2 < t1, the OFF time is equal to the ON time".
+fn decode_drawer_kick(params: &[u8]) -> Command {
+    let pin = match n(params) {
+        0 | 48 => Some(2),
+        1 | 49 => Some(5),
+        _ => None,
+    };
+    let t1 = u32::from(params.get(1).copied().unwrap_or(0));
+    let t2 = u32::from(params.get(2).copied().unwrap_or(0));
+    Command::DrawerKick {
+        pin,
+        on_ms: t1.saturating_mul(2),
+        off_ms: t2.max(t1).saturating_mul(2),
+    }
 }
 
 /// `ESC - n`: 0/48 off, 1/49 one dot, 2/50 two dots.
@@ -258,10 +342,13 @@ impl Parser {
             State::Prefix(prefix) => {
                 self.seq.push(byte);
                 match lookup(prefix, byte) {
-                    Some(spec) => match spec.params {
-                        ParamLength::Fixed(0) => self.complete(spec, out),
-                        ParamLength::Fixed(_) => self.state = State::Params(spec),
-                    },
+                    Some(spec) => {
+                        if spec.params.required(&[]) == 0 {
+                            self.complete(spec, out);
+                        } else {
+                            self.state = State::Params(spec);
+                        }
+                    }
                     None => self.emit_seq(
                         Command::Unknown {
                             reason: UnknownReason::UnsupportedCommand,
@@ -272,9 +359,9 @@ impl Parser {
             }
             State::Params(spec) => {
                 self.seq.push(byte);
-                let ParamLength::Fixed(count) = spec.params;
                 // seq = prefix + command byte + parameters.
-                if self.seq.len() >= count.saturating_add(2) {
+                let params = self.seq.get(2..).unwrap_or(&[]);
+                if params.len() >= spec.params.required(params) {
                     self.complete(spec, out);
                 }
             }
@@ -384,11 +471,75 @@ mod tests {
 
     #[test]
     fn unknown_keeps_only_prefix_and_command_byte() {
-        let out = parse(b"\x1dV\x41", ParserConfig::default());
+        let out = parse(b"\x1dv\x41", ParserConfig::default());
         assert_eq!(out.len(), 2);
-        assert_eq!(out[0].bytes, vec![0x1D, b'V']);
+        assert_eq!(out[0].bytes, vec![0x1D, b'v']);
         assert_eq!(out[1].command, Command::Text { text: "A".into() });
         assert_eq!(out[1].offset, 2);
+    }
+
+    #[test]
+    fn cut_lengths_depend_on_the_function() {
+        let out = parse(
+            b"\x1dV\x00\x1dVA\x05\x1dVh\x10\x1dV\x07X",
+            ParserConfig::default(),
+        );
+        let lens: Vec<_> = out.iter().map(|d| d.bytes.len()).collect();
+        assert_eq!(lens, vec![3, 4, 4, 3, 1]);
+        assert_eq!(
+            out[1].command,
+            Command::Cut {
+                mode: Some(CutMode::Full),
+                function: Some(CutFunction::B),
+                feed: Some(5)
+            }
+        );
+        assert_eq!(
+            out[2].command,
+            Command::Cut {
+                mode: Some(CutMode::Partial),
+                function: Some(CutFunction::D),
+                feed: Some(0x10)
+            }
+        );
+        assert_eq!(
+            out[3].command,
+            Command::Cut {
+                mode: None,
+                function: None,
+                feed: None
+            }
+        );
+    }
+
+    #[test]
+    fn drawer_kick_pins_and_times() {
+        let cmds = commands(b"\x1bp\x00\x19\xfa\x1bp1\x32\x32\x1bp\x02\x01\x01\x1bp\x00\x0a\x05");
+        assert_eq!(
+            cmds,
+            vec![
+                Command::DrawerKick {
+                    pin: Some(2),
+                    on_ms: 50,
+                    off_ms: 500
+                },
+                Command::DrawerKick {
+                    pin: Some(5),
+                    on_ms: 100,
+                    off_ms: 100
+                },
+                Command::DrawerKick {
+                    pin: None,
+                    on_ms: 2,
+                    off_ms: 2
+                },
+                Command::DrawerKick {
+                    pin: Some(2),
+                    on_ms: 20,
+                    off_ms: 20
+                },
+            ]
+        );
     }
 
     #[test]

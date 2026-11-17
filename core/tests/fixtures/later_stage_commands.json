@@ -31,33 +31,17 @@
     {
       "bytes": [
         29,
-        86
-      ],
-      "command": {
-        "reason": "unsupportedCommand",
-        "type": "unknown"
-      },
-      "offset": 11
-    },
-    {
-      "bytes": [
-        66
-      ],
-      "command": {
-        "text": "B",
-        "type": "text"
-      },
-      "offset": 13
-    },
-    {
-      "bytes": [
+        86,
+        66,
         0
       ],
       "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
+        "feed": 0,
+        "function": "b",
+        "mode": "partial",
+        "type": "cut"
       },
-      "offset": 14
+      "offset": 11
     },
     {
       "bytes": [
@@ -65,8 +49,10 @@
         105
       ],
       "command": {
-        "reason": "unsupportedCommand",
-        "type": "unknown"
+        "feed": null,
+        "function": "a",
+        "mode": "partial",
+        "type": "cut"
       },
       "offset": 15
     },
@@ -76,51 +62,28 @@
         109
       ],
       "command": {
-        "reason": "unsupportedCommand",
-        "type": "unknown"
+        "feed": null,
+        "function": "a",
+        "mode": "partial",
+        "type": "cut"
       },
       "offset": 17
     },
     {
       "bytes": [
         27,
-        112
-      ],
-      "command": {
-        "reason": "unsupportedCommand",
-        "type": "unknown"
-      },
-      "offset": 19
-    },
-    {
-      "bytes": [
-        0
-      ],
-      "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
-      },
-      "offset": 21
-    },
-    {
-      "bytes": [
-        25
-      ],
-      "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
-      },
-      "offset": 22
-    },
-    {
-      "bytes": [
+        112,
+        0,
+        25,
         250
       ],
       "command": {
-        "text": "·",
-        "type": "text"
+        "offMs": 500,
+        "onMs": 50,
+        "pin": 2,
+        "type": "drawerKick"
       },
-      "offset": 23
+      "offset": 19
     },
     {
       "bytes": [
@@ -468,96 +431,114 @@
       "offset": 82
     }
   ],
+  "drawerKicks": [
+    {
+      "offMs": 500,
+      "onMs": 50,
+      "pin": 2
+    }
+  ],
   "paper": "80mm",
-  "receipt": {
-    "elements": [
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 120,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 10,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "before cut",
-            "width": 120,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 0
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 276,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 23,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "B·0 k1A2P7891234567895 ",
-            "width": 276,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 30
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 60,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 5,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "after",
-            "width": 60,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 60
-      }
-    ],
-    "height": 90,
-    "paper": "80mm",
-    "width": 576
-  }
+  "receipts": [
+    {
+      "cut": "partial",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 120,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 10,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "before cut",
+              "width": 120,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        }
+      ],
+      "height": 30,
+      "paper": "80mm",
+      "width": 576
+    },
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 252,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 21,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "0 k1A2P7891234567895 ",
+              "width": 252,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 60,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 5,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "after",
+              "width": 60,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 30
+        }
+      ],
+      "height": 60,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
 }

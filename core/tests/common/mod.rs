@@ -5,7 +5,7 @@
 use std::path::{Path, PathBuf};
 
 use phantompos_core::{
-    DecodedCommand, PaperProfile, Parser, ParserConfig, Receipt, ReceiptBuilder, ReceiptConfig,
+    DecodedCommand, PaperProfile, Parser, ParserConfig, ReceiptBuilder, ReceiptConfig, RenderOutput,
 };
 
 /// Directory holding the `.bin` / `.json` pairs.
@@ -44,32 +44,43 @@ pub fn receipt_config(paper: PaperProfile) -> ReceiptConfig {
 }
 
 /// Feeds `input` split into the given chunk lengths (cycled), building the
-/// receipt incrementally, as the backend does per socket read.
+/// receipts incrementally and collecting the effects, as the backend does per
+/// socket read. The in-progress snapshot is taken after every chunk (as the
+/// backend does) to check that it never disturbs the result.
 pub fn run_chunked(
     input: &[u8],
     chunks: &mut dyn FnMut() -> usize,
     paper: PaperProfile,
-) -> (Vec<DecodedCommand>, Receipt) {
+) -> (Vec<DecodedCommand>, RenderOutput) {
     let mut parser = Parser::new(ParserConfig::default());
     let mut builder = ReceiptBuilder::new(receipt_config(paper));
     let mut commands = Vec::new();
+    let mut output = RenderOutput::default();
     let mut rest = input;
     while !rest.is_empty() {
         let len = chunks().clamp(1, rest.len());
         let (chunk, tail) = rest.split_at(len);
         let batch = parser.feed(chunk);
-        builder.apply_all(&batch);
+        for effect in builder.apply_all(&batch) {
+            output.push(effect);
+        }
+        if let Some(update) = builder.take_update() {
+            assert!(update.cut.is_none() && update.height > 0, "bad update");
+        }
         commands.extend(batch);
         rest = tail;
     }
     let batch = parser.finish();
-    builder.apply_all(&batch);
+    for effect in builder.apply_all(&batch) {
+        output.push(effect);
+    }
     commands.extend(batch);
-    (commands, builder.finish())
+    output.receipts.extend(builder.finish());
+    (commands, output)
 }
 
 /// Whole input in a single `feed`.
-pub fn run_whole(input: &[u8], paper: PaperProfile) -> (Vec<DecodedCommand>, Receipt) {
+pub fn run_whole(input: &[u8], paper: PaperProfile) -> (Vec<DecodedCommand>, RenderOutput) {
     let len = input.len().max(1);
     run_chunked(input, &mut || len, paper)
 }

@@ -1,0 +1,146 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        116,
+        0
+      ],
+      "command": {
+        "codePage": "cp437",
+        "page": 0,
+        "type": "setCodePage"
+      },
+      "offset": 2
+    },
+    {
+      "bytes": [
+        112,
+        97,
+        114,
+        116,
+        105,
+        97,
+        108,
+        32,
+        99,
+        117,
+        116,
+        32,
+        97,
+        102,
+        116,
+        101,
+        114,
+        32,
+        69,
+        83,
+        67,
+        32,
+        100,
+        32,
+        54
+      ],
+      "command": {
+        "text": "partial cut after ESC d 6",
+        "type": "text"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 30
+    },
+    {
+      "bytes": [
+        27,
+        100,
+        6
+      ],
+      "command": {
+        "lines": 6,
+        "type": "feedLines"
+      },
+      "offset": 31
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        1
+      ],
+      "command": {
+        "feed": null,
+        "function": "a",
+        "mode": "partial",
+        "type": "cut"
+      },
+      "offset": 34
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": "partial",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 300,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 25,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "partial cut after ESC d 6",
+              "width": 300,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 180,
+          "alignment": "left",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 30
+        }
+      ],
+      "height": 210,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

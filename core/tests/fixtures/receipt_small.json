@@ -605,285 +605,282 @@
     {
       "bytes": [
         29,
-        86
-      ],
-      "command": {
-        "reason": "unsupportedCommand",
-        "type": "unknown"
-      },
-      "offset": 273
-    },
-    {
-      "bytes": [
+        86,
         0
       ],
       "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
+        "feed": null,
+        "function": "a",
+        "mode": "full",
+        "type": "cut"
       },
-      "offset": 275
+      "offset": 273
     }
   ],
+  "drawerKicks": [],
   "paper": "80mm",
-  "receipt": {
-    "elements": [
-      {
-        "advance": 48,
-        "alignment": "center",
-        "baseline": 42,
-        "contentWidth": 384,
-        "height": 48,
-        "spans": [
-          {
-            "charHeight": 48,
-            "charWidth": 24,
-            "columns": 16,
-            "style": {
-              "bold": true,
-              "font": "a",
-              "heightMultiplier": 2,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 2
-            },
-            "text": "PADARIA SÃO JOSÉ",
-            "width": 384,
-            "x": 96,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 0
-      },
-      {
-        "advance": 30,
-        "alignment": "center",
-        "baseline": 21,
-        "contentWidth": 336,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 28,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "Rua das Flores, 123 - Centro",
-            "width": 336,
-            "x": 120,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 48
-      },
-      {
-        "advance": 30,
-        "alignment": "center",
-        "baseline": 21,
-        "contentWidth": 276,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 23,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "CNPJ 12.345.678/0001-90",
-            "width": 276,
-            "x": 150,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 78
-      },
-      {
-        "advance": 30,
-        "alignment": "center",
-        "baseline": 0,
-        "contentWidth": 0,
-        "height": 0,
-        "spans": [],
-        "type": "line",
-        "y": 108
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 360,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 30,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "Pão francês x10        R$ 8,50",
-            "width": 360,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 138
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 360,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 30,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "Café coado             R$ 4,00",
-            "width": 360,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 168
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 360,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 30,
-            "style": {
-              "bold": false,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "Pão de queijo x3       R$ 9,00",
-            "width": 360,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 198
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 21,
-        "contentWidth": 360,
-        "height": 24,
-        "spans": [
-          {
-            "charHeight": 24,
-            "charWidth": 12,
-            "columns": 30,
-            "style": {
-              "bold": true,
-              "font": "a",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "TOTAL                 R$ 21,50",
-            "width": 360,
-            "x": 0,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 228
-      },
-      {
-        "advance": 30,
-        "alignment": "left",
-        "baseline": 0,
-        "contentWidth": 0,
-        "height": 0,
-        "spans": [],
-        "type": "line",
-        "y": 258
-      },
-      {
-        "advance": 30,
-        "alignment": "center",
-        "baseline": 16,
-        "contentWidth": 234,
-        "height": 17,
-        "spans": [
-          {
-            "charHeight": 17,
-            "charWidth": 9,
-            "columns": 26,
-            "style": {
-              "bold": false,
-              "font": "b",
-              "heightMultiplier": 1,
-              "reverse": false,
-              "underline": "off",
-              "widthMultiplier": 1
-            },
-            "text": "Obrigado pela preferência!",
-            "width": 234,
-            "x": 171,
-            "y": 0
-          }
-        ],
-        "type": "line",
-        "y": 288
-      },
-      {
-        "advance": 180,
-        "alignment": "center",
-        "baseline": 0,
-        "contentWidth": 0,
-        "height": 0,
-        "spans": [],
-        "type": "line",
-        "y": 318
-      }
-    ],
-    "height": 498,
-    "paper": "80mm",
-    "width": 576
-  }
+  "receipts": [
+    {
+      "cut": "full",
+      "elements": [
+        {
+          "advance": 48,
+          "alignment": "center",
+          "baseline": 42,
+          "contentWidth": 384,
+          "height": 48,
+          "spans": [
+            {
+              "charHeight": 48,
+              "charWidth": 24,
+              "columns": 16,
+              "style": {
+                "bold": true,
+                "font": "a",
+                "heightMultiplier": 2,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 2
+              },
+              "text": "PADARIA SÃO JOSÉ",
+              "width": 384,
+              "x": 96,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 30,
+          "alignment": "center",
+          "baseline": 21,
+          "contentWidth": 336,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 28,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "Rua das Flores, 123 - Centro",
+              "width": 336,
+              "x": 120,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 48
+        },
+        {
+          "advance": 30,
+          "alignment": "center",
+          "baseline": 21,
+          "contentWidth": 276,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 23,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "CNPJ 12.345.678/0001-90",
+              "width": 276,
+              "x": 150,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 78
+        },
+        {
+          "advance": 30,
+          "alignment": "center",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 108
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 360,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 30,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "Pão francês x10        R$ 8,50",
+              "width": 360,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 138
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 360,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 30,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "Café coado             R$ 4,00",
+              "width": 360,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 168
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 360,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 30,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "Pão de queijo x3       R$ 9,00",
+              "width": 360,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 198
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 360,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 30,
+              "style": {
+                "bold": true,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "TOTAL                 R$ 21,50",
+              "width": 360,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 228
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 258
+        },
+        {
+          "advance": 30,
+          "alignment": "center",
+          "baseline": 16,
+          "contentWidth": 234,
+          "height": 17,
+          "spans": [
+            {
+              "charHeight": 17,
+              "charWidth": 9,
+              "columns": 26,
+              "style": {
+                "bold": false,
+                "font": "b",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "Obrigado pela preferência!",
+              "width": 234,
+              "x": 171,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 288
+        },
+        {
+          "advance": 180,
+          "alignment": "center",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 318
+        }
+      ],
+      "height": 498,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
 }

@@ -1,0 +1,333 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        69,
+        1
+      ],
+      "command": {
+        "enabled": true,
+        "type": "setBold"
+      },
+      "offset": 2
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        1
+      ],
+      "command": {
+        "alignment": "center",
+        "type": "setAlignment"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        27,
+        116,
+        0
+      ],
+      "command": {
+        "codePage": "cp437",
+        "page": 0,
+        "type": "setCodePage"
+      },
+      "offset": 8
+    },
+    {
+      "bytes": [
+        82,
+        69,
+        67,
+        69,
+        73,
+        80,
+        84,
+        32,
+        49
+      ],
+      "command": {
+        "text": "RECEIPT 1",
+        "type": "text"
+      },
+      "offset": 11
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 20
+    },
+    {
+      "bytes": [
+        27,
+        100,
+        6
+      ],
+      "command": {
+        "lines": 6,
+        "type": "feedLines"
+      },
+      "offset": 21
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        0
+      ],
+      "command": {
+        "feed": null,
+        "function": "a",
+        "mode": "full",
+        "type": "cut"
+      },
+      "offset": 24
+    },
+    {
+      "bytes": [
+        82,
+        69,
+        67,
+        69,
+        73,
+        80,
+        84,
+        32,
+        50
+      ],
+      "command": {
+        "text": "RECEIPT 2",
+        "type": "text"
+      },
+      "offset": 27
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 36
+    },
+    {
+      "bytes": [
+        27,
+        69,
+        0
+      ],
+      "command": {
+        "enabled": false,
+        "type": "setBold"
+      },
+      "offset": 37
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        0
+      ],
+      "command": {
+        "alignment": "left",
+        "type": "setAlignment"
+      },
+      "offset": 40
+    },
+    {
+      "bytes": [
+        108,
+        101,
+        102,
+        116,
+        32,
+        97,
+        103,
+        97,
+        105,
+        110
+      ],
+      "command": {
+        "text": "left again",
+        "type": "text"
+      },
+      "offset": 43
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 53
+    },
+    {
+      "bytes": [
+        27,
+        100,
+        6
+      ],
+      "command": {
+        "lines": 6,
+        "type": "feedLines"
+      },
+      "offset": 54
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        1
+      ],
+      "command": {
+        "feed": null,
+        "function": "a",
+        "mode": "partial",
+        "type": "cut"
+      },
+      "offset": 57
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": "full",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "center",
+          "baseline": 21,
+          "contentWidth": 108,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 9,
+              "style": {
+                "bold": true,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "RECEIPT 1",
+              "width": 108,
+              "x": 234,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 180,
+          "alignment": "center",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 30
+        }
+      ],
+      "height": 210,
+      "paper": "80mm",
+      "width": 576
+    },
+    {
+      "cut": "partial",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "center",
+          "baseline": 21,
+          "contentWidth": 108,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 9,
+              "style": {
+                "bold": true,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "RECEIPT 2",
+              "width": 108,
+              "x": 234,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 120,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 10,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "left again",
+              "width": 120,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 30
+        },
+        {
+          "advance": 180,
+          "alignment": "left",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 60
+        }
+      ],
+      "height": 240,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

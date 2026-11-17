@@ -183,6 +183,84 @@ def receipt_small():
     return p.output
 
 
+def cut_full():
+    p = printer()
+    p.text("full cut after ESC d 6\n")
+    p.cut()  # ESC d 6, GS V 0
+    return p.output
+
+
+def cut_partial():
+    p = printer()
+    p.text("partial cut after ESC d 6\n")
+    p.cut(mode="PART")  # ESC d 6, GS V 1
+    return p.output
+
+
+def cut_no_feed():
+    p = printer()
+    p.text("feed-and-cut, n = 0\n")
+    p.cut(feed=False)  # GS V 66 0
+    return p.output
+
+
+def two_receipts():
+    p = printer()
+    p.set(align="center", bold=True)
+    p.text("RECEIPT 1\n")
+    p.cut()
+    # Settings survive the cut: still centered and bold.
+    p.text("RECEIPT 2\n")
+    p.set(align="left", bold=False)
+    p.text("left again\n")
+    p.cut(mode="PART")
+    return p.output
+
+
+def three_receipts():
+    p = printer()
+    for i in range(1, 4):
+        p.text(f"receipt {i}\n")
+        p.cut()
+    p.text("pending, closed by end of stream\n")
+    return p.output
+
+
+def drawer_kick():
+    p = printer()
+    p.text("open drawer\n")
+    p.cashdraw(2)  # ESC p 0 '2' '2': 100 ms / 100 ms
+    p.cashdraw(5)  # ESC p 1 '2' '2'
+    p.cashdraw([27, 112, 48, 25, 250])  # ESC p '0' 25 250: 50 ms / 500 ms
+    return p.output
+
+
+def receipt_full():
+    p = printer()
+    p.charcode("CP858")
+    p.set(align="center", bold=True, double_height=True, double_width=True)
+    p.text("MERCADO BOA VISTA\n")
+    p.set(normal_textsize=True, bold=False)
+    p.text("Av. Brasil, 1000 - Centro\n")
+    p.text("CNPJ 98.765.432/0001-10\n")
+    p.text("-" * 32 + "\n")
+    p.set(align="left")
+    p.text("Arroz 5 kg             R$ 27,90\n")
+    p.text("Feijão 1 kg             R$ 8,49\n")
+    p.text("Açúcar 1 kg             R$ 4,99\n")
+    p.set(bold=True)
+    p.text("TOTAL                  R$ 41,38\n")
+    p.set(bold=False)
+    p.text("Dinheiro               R$ 50,00\n")
+    p.text("Troco                   R$ 8,62\n")
+    p.ln()
+    p.set(align="center", font="b")
+    p.text("Volte sempre!\n")
+    p.cut()
+    p.cashdraw(2)
+    return p.output
+
+
 # --------------------------------------------------------------------------
 # HAND-WRITTEN raw bytes (edge cases no library emits)
 # --------------------------------------------------------------------------
@@ -336,6 +414,79 @@ def raw_feeds():
     )
 
 
+def cut_functions():
+    # HAND-WRITTEN: every GS V function (A-D, full and partial) and the
+    # obsolete ESC i / ESC m (both partial cuts in the Epson reference).
+    out = b""
+    for m, n in [(0, None), (1, None), (48, None), (49, None), (65, 24),
+                 (66, 0), (97, 10), (98, 10), (103, 5), (104, 5)]:
+        out += f"GS V {m}\n".encode() + GS + b"V" + bytes([m])
+        if n is not None:
+            out += bytes([n])
+    out += b"ESC i\n" + ESC + b"i"
+    out += b"ESC m\n" + ESC + b"m"
+    return out
+
+
+def cut_empty():
+    # HAND-WRITTEN: cuts with nothing on the paper produce no receipt; a
+    # feed-only receipt has height and is produced.
+    return (
+        GS + b"V\x00"  # at power on
+        + ESC + b"i" + GS + b"V\x01"  # several in a row
+        + ESC + b"@" + GS + b"V\x00"  # after a reset
+        + GS + b"VA\x00"  # function B with n = 0: no feed
+        + GS + b"VA\x28"  # function B with n = 40: a 40-dot blank receipt
+        + b"text\n" + GS + b"V\x00"
+    )
+
+
+def cut_mid_line():
+    # HAND-WRITTEN: a cut is only executed at the beginning of a line; with
+    # data in the print buffer (text or an HT skip) it is ignored.
+    return (
+        b"before " + GS + b"V\x00" + b"same line\n"
+        + b"\t" + ESC + b"i" + b"after tab\n"
+        + GS + b"VB\x10"  # beginning of line: executed
+        + b"no LF before EOF" + GS + b"V\x01"  # ignored; printed at EOF
+    )
+
+
+def drawer_kick_params():
+    # HAND-WRITTEN: ESC p with ASCII pins, t2 < t1 (OFF time = ON time),
+    # zero times, an out-of-range pin (no pulse) and a kick mid-line.
+    return (
+        ESC + b"p1\x05\x0a"
+        + ESC + b"p\x00\x64\x0a"  # t2 < t1
+        + ESC + b"p\x01\x00\x00"
+        + ESC + b"p\x02\x19\xfa"  # m = 2: out of range
+        + b"mid" + ESC + b"p0\xff\xff" + b"line\n"
+    )
+
+
+def cut_drawer_out_of_range():
+    # HAND-WRITTEN: GS V with m outside the table (taken as GS V m, ignored),
+    # and an invalid ESC p pin.
+    return (
+        b"one\n"
+        + GS + b"V\x02"
+        + GS + b"V\xff"
+        + GS + b"V\x63" + b"x\n"  # 99 is not function C (97/98): 'x' is text
+        + ESC + b"p\x33\x10\x10"  # '3': out of range
+        + b"two\n"
+    )
+
+
+def incomplete_cut_eof():
+    # HAND-WRITTEN: stream ends inside GS V function B (n missing).
+    return b"line\n" + GS + b"VA"
+
+
+def incomplete_drawer_eof():
+    # HAND-WRITTEN: stream ends inside ESC p (t2 missing).
+    return b"line\n" + ESC + b"p\x00\x19"
+
+
 def utf8_bytes():
     # HAND-WRITTEN: UTF-8 sent to a CP437 printer prints mojibake, as on paper.
     return "Ação\n".encode("utf-8")
@@ -373,6 +524,21 @@ FIXTURES = {
     "raw_feeds": raw_feeds,
     "utf8_bytes": utf8_bytes,
     "empty": lambda: b"",
+    "cut_full": cut_full,
+    "cut_partial": cut_partial,
+    "cut_no_feed": cut_no_feed,
+    "two_receipts": two_receipts,
+    "three_receipts": three_receipts,
+    "drawer_kick": drawer_kick,
+    "receipt_full": receipt_full,
+    "receipt_full.58mm": receipt_full,
+    "cut_functions": cut_functions,
+    "cut_empty": cut_empty,
+    "cut_mid_line": cut_mid_line,
+    "drawer_kick_params": drawer_kick_params,
+    "cut_drawer_out_of_range": cut_drawer_out_of_range,
+    "incomplete_cut_eof": incomplete_cut_eof,
+    "incomplete_drawer_eof": incomplete_drawer_eof,
 }
 
 

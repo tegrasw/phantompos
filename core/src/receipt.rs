@@ -28,15 +28,30 @@
 //!   is the effective one.
 //! * **CR** is ignored (auto line feed disabled, the usual setting) unless
 //!   [`ReceiptConfig::cr_line_feed`] is set, in which case it acts as `LF`.
+//! * **Cuts** (`GS V`, `ESC i`, `ESC m`) close the current receipt and start
+//!   a new, empty one; printer settings (styles, spacing, alignment, code
+//!   page) are kept, since a cut is not a reset. Per the reference ("enabled
+//!   only when processed at the beginning of line"), a cut received while the
+//!   print buffer holds data (text or an HT skip) is **ignored**: the data
+//!   stays in the buffer and continues on the same receipt. Functions B, C
+//!   and D first feed `n` dots (a blank line, as `ESC J n` with no data).
+//! * A receipt with nothing on it (no printed line and no feed, i.e. zero
+//!   height) is never produced: a cut on it only starts the next one.
+//! * **ESC p** produces a [`DrawerKick`] effect when `m` is valid.
 //!
 //! Deliberate deviations: fonts C, D, E and the special fonts are not drawn
 //! (selecting them is ignored); `ESC R` is ignored (always U.S.A.); an
 //! unprinted line at the end of the stream is printed as if `LF` followed,
-//! where a real printer would keep it in its buffer.
+//! where a real printer would keep it in its buffer. The distance between the
+//! print head and the autocutter is not modelled: the paper is cut right
+//! below the last feed, not 10-15 mm further down (so the end of one receipt
+//! never spills onto the next). `GS V` function C (preset cutting position)
+//! is treated like function B (feed `n`, cut now), and the reverse feed of
+//! function D has no visible effect.
 
 use serde::{Deserialize, Serialize};
 
-use crate::command::{Alignment, Command, DecodedCommand, Font, UnderlineMode};
+use crate::command::{Alignment, Command, CutMode, DecodedCommand, Font, UnderlineMode};
 use crate::paper::{FONT_A, PaperProfile, font_metrics};
 
 /// Default line spacing (`ESC 2`): 30 dots on TM-T88/TM-T20 class printers.
@@ -65,7 +80,40 @@ pub struct Receipt {
     pub width: u32,
     /// Total paper length in dots (sum of every element's advance).
     pub height: u32,
+    /// How the receipt ended: the cut that closed it, or `null` when it was
+    /// closed by the end of the stream (or is still in progress).
+    pub cut: Option<CutMode>,
     pub elements: Vec<Element>,
+}
+
+/// A drawer kick pulse (`ESC p` with a valid pin).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DrawerKick {
+    /// Drawer kick-out connector pin: 2 or 5.
+    pub pin: u8,
+    pub on_ms: u32,
+    pub off_ms: u32,
+}
+
+/// Something a command did besides drawing, returned by
+/// [`ReceiptBuilder::apply`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Effect {
+    /// A cut closed a non-empty receipt (`cut` is set).
+    ReceiptCompleted(Receipt),
+    /// The cash drawer was kicked.
+    DrawerKick(DrawerKick),
+}
+
+/// Everything a complete stream produced (see [`render`]).
+#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RenderOutput {
+    /// Receipts in closing order; the last one has `cut: null` when the
+    /// stream ended with pending content.
+    pub receipts: Vec<Receipt>,
+    pub drawer_kicks: Vec<DrawerKick>,
 }
 
 /// Something printed on the paper. Later stages add images and codes.
@@ -186,28 +234,55 @@ struct PendingLine {
     has_data: bool,
 }
 
-/// Consumes commands and builds receipts.
+/// Consumes commands and builds receipts, one per cut.
 ///
-/// Stage 2 produces one receipt per stream ([`ReceiptBuilder::finish`]);
-/// [`ReceiptBuilder::close`] already allows closing a receipt mid-stream (on a
-/// cut, from stage 3) while keeping the printer settings.
+/// Feed it every decoded command with [`apply`](Self::apply) /
+/// [`apply_all`](Self::apply_all); they return the [`Effect`]s (completed
+/// receipts, drawer kicks). [`take_update`](Self::take_update) reports the
+/// in-progress receipt when it changed, and [`finish`](Self::finish) closes
+/// it at the end of the stream.
 #[derive(Debug, Clone)]
 pub struct ReceiptBuilder {
     config: ReceiptConfig,
+    /// Paper for the next receipt, set while one is in progress.
+    next_paper: Option<PaperProfile>,
     state: PrintState,
     line: PendingLine,
     elements: Vec<Element>,
     y: u32,
+    /// The in-progress receipt changed since the last `take_update`.
+    dirty: bool,
 }
 
 impl ReceiptBuilder {
     pub fn new(config: ReceiptConfig) -> Self {
         Self {
             config,
+            next_paper: None,
             state: PrintState::default(),
             line: PendingLine::default(),
             elements: Vec::new(),
             y: 0,
+            dirty: false,
+        }
+    }
+
+    /// Paper of the receipt in progress (or of the next one, when empty).
+    pub fn paper(&self) -> PaperProfile {
+        self.config.paper
+    }
+
+    /// Selects the paper for receipts started from now on. A receipt that
+    /// already has content (printed or in the print buffer) keeps its paper;
+    /// the new one applies after it is closed.
+    pub fn set_paper(&mut self, paper: PaperProfile) {
+        if self.is_empty() {
+            self.config.paper = paper;
+            self.next_paper = None;
+        } else if paper == self.config.paper {
+            self.next_paper = None;
+        } else {
+            self.next_paper = Some(paper);
         }
     }
 
@@ -215,8 +290,8 @@ impl ReceiptBuilder {
         self.config.paper.width_dots()
     }
 
-    /// Applies one command.
-    pub fn apply(&mut self, command: &Command) {
+    /// Applies one command and returns its effect, if any.
+    pub fn apply(&mut self, command: &Command) -> Option<Effect> {
         match command {
             Command::Text { text } => {
                 for c in text.chars() {
@@ -281,17 +356,50 @@ impl ReceiptBuilder {
                     self.state.alignment = *alignment;
                 }
             }
-            Command::SetCodePage { .. }
+            Command::Cut {
+                mode: Some(mode),
+                feed,
+                ..
+            } => {
+                // Only effective at the beginning of a line (Epson notes).
+                if self.line.has_data {
+                    return None;
+                }
+                if let Some(dots) = feed {
+                    self.print_and_feed(u32::from(*dots));
+                }
+                return self.close(Some(*mode)).map(Effect::ReceiptCompleted);
+            }
+            Command::DrawerKick {
+                pin: Some(pin),
+                on_ms,
+                off_ms,
+            } => {
+                return Some(Effect::DrawerKick(DrawerKick {
+                    pin: *pin,
+                    on_ms: *on_ms,
+                    off_ms: *off_ms,
+                }));
+            }
+            Command::Cut { mode: None, .. }
+            | Command::DrawerKick { pin: None, .. }
+            | Command::SetCodePage { .. }
             | Command::SetInternationalCharset { .. }
             | Command::Unknown { .. } => {}
         }
+        None
     }
 
-    /// Applies every command of a decoded batch.
-    pub fn apply_all<'a>(&mut self, commands: impl IntoIterator<Item = &'a DecodedCommand>) {
-        for decoded in commands {
-            self.apply(&decoded.command);
-        }
+    /// Applies every command of a decoded batch and returns their effects in
+    /// order.
+    pub fn apply_all<'a>(
+        &mut self,
+        commands: impl IntoIterator<Item = &'a DecodedCommand>,
+    ) -> Vec<Effect> {
+        commands
+            .into_iter()
+            .filter_map(|decoded| self.apply(&decoded.command))
+            .collect()
     }
 
     /// True when nothing has been printed and the print buffer is empty.
@@ -299,35 +407,57 @@ impl ReceiptBuilder {
         self.elements.is_empty() && !self.line.has_data
     }
 
-    /// Prints any pending line and returns the receipt so far, or `None` if
-    /// it is empty. Printer settings are kept; the next receipt starts at
-    /// `y = 0`.
-    pub fn close(&mut self) -> Option<Receipt> {
-        if self.line.has_data {
-            self.print_and_feed(self.state.line_spacing);
-        }
+    /// The paper printed so far in the receipt in progress (`cut: null`), or
+    /// `None` if nothing has been printed. Data still in the print buffer (a
+    /// line without its `LF`) is not on paper yet and is not included.
+    pub fn snapshot(&self) -> Option<Receipt> {
         if self.elements.is_empty() {
             return None;
         }
-        let receipt = Receipt {
+        Some(Receipt {
             paper: self.config.paper,
             width: self.width(),
             height: self.y,
-            elements: std::mem::take(&mut self.elements),
-        };
-        self.y = 0;
-        Some(receipt)
+            cut: None,
+            elements: self.elements.clone(),
+        })
     }
 
-    /// Ends the stream and returns the receipt (possibly with no elements).
-    pub fn finish(mut self) -> Receipt {
-        let paper = self.config.paper;
-        self.close().unwrap_or(Receipt {
-            paper,
-            width: paper.width_dots(),
-            height: 0,
-            elements: Vec::new(),
-        })
+    /// Like [`snapshot`](Self::snapshot), but only when the receipt in
+    /// progress changed since the previous call (or since it started).
+    pub fn take_update(&mut self) -> Option<Receipt> {
+        if !std::mem::take(&mut self.dirty) {
+            return None;
+        }
+        self.snapshot()
+    }
+
+    /// Ends the stream: prints any pending line and returns the receipt in
+    /// progress with `cut: null`, or `None` if it is empty. Printer settings
+    /// are kept, so the builder can go on with a new receipt.
+    pub fn finish(&mut self) -> Option<Receipt> {
+        if self.line.has_data {
+            self.print_and_feed(self.state.line_spacing);
+        }
+        self.close(None)
+    }
+
+    /// Closes the receipt in progress (the print buffer must be empty) and
+    /// starts a new one at `y = 0`, with the pending paper selection.
+    fn close(&mut self, cut: Option<CutMode>) -> Option<Receipt> {
+        let receipt = (!self.elements.is_empty()).then(|| Receipt {
+            paper: self.config.paper,
+            width: self.width(),
+            height: self.y,
+            cut,
+            elements: std::mem::take(&mut self.elements),
+        });
+        self.y = 0;
+        self.dirty = false;
+        if let Some(paper) = self.next_paper.take() {
+            self.config.paper = paper;
+        }
+        receipt
     }
 
     fn put_char(&mut self, c: char) {
@@ -428,14 +558,30 @@ impl ReceiptBuilder {
     fn push_line(&mut self, line: Line) {
         self.y = self.y.saturating_add(line.advance);
         self.elements.push(Element::Line(line));
+        self.dirty = true;
     }
 }
 
-/// Builds the receipt for a complete list of commands.
-pub fn render(commands: &[DecodedCommand], config: ReceiptConfig) -> Receipt {
+/// Builds the receipts and collects the drawer kicks of a complete list of
+/// commands.
+pub fn render(commands: &[DecodedCommand], config: ReceiptConfig) -> RenderOutput {
     let mut builder = ReceiptBuilder::new(config);
-    builder.apply_all(commands);
-    builder.finish()
+    let mut output = RenderOutput::default();
+    for effect in builder.apply_all(commands) {
+        output.push(effect);
+    }
+    output.receipts.extend(builder.finish());
+    output
+}
+
+impl RenderOutput {
+    /// Records one effect.
+    pub fn push(&mut self, effect: Effect) {
+        match effect {
+            Effect::ReceiptCompleted(receipt) => self.receipts.push(receipt),
+            Effect::DrawerKick(kick) => self.drawer_kicks.push(kick),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -443,7 +589,7 @@ mod tests {
     use super::*;
     use crate::parser::{ParserConfig, parse};
 
-    fn receipt(bytes: &[u8], paper: PaperProfile) -> Receipt {
+    fn rendered(bytes: &[u8], paper: PaperProfile) -> RenderOutput {
         let commands = parse(bytes, ParserConfig::default());
         render(
             &commands,
@@ -452,6 +598,12 @@ mod tests {
                 cr_line_feed: false,
             },
         )
+    }
+
+    fn receipt(bytes: &[u8], paper: PaperProfile) -> Receipt {
+        let mut out = rendered(bytes, paper);
+        assert_eq!(out.receipts.len(), 1, "expected one receipt");
+        out.receipts.remove(0)
     }
 
     fn lines(r: &Receipt) -> Vec<&Line> {
@@ -518,5 +670,70 @@ mod tests {
         let l = lines(&r)[0];
         assert_eq!(l.spans[1].x, 96);
         assert_eq!(l.content_width, 108);
+    }
+
+    #[test]
+    fn cut_closes_and_keeps_settings() {
+        let out = rendered(b"\x1bE\x01a\n\x1dV\x00b\n\x1dVB\x0a", PaperProfile::Mm80);
+        assert_eq!(out.receipts.len(), 2);
+        assert_eq!(out.receipts[0].cut, Some(CutMode::Full));
+        assert_eq!(out.receipts[0].height, 30);
+        let second = lines(&out.receipts[1]);
+        assert!(second[0].spans[0].style.bold, "bold survives the cut");
+        assert_eq!(second[0].y, 0);
+        assert_eq!(out.receipts[1].cut, Some(CutMode::Partial));
+        // Function B feeds n dots before cutting.
+        assert_eq!(out.receipts[1].height, 40);
+    }
+
+    #[test]
+    fn cut_mid_line_is_ignored() {
+        let out = rendered(b"abc\x1dV\x00def\n", PaperProfile::Mm80);
+        assert_eq!(out.receipts.len(), 1);
+        assert_eq!(out.receipts[0].cut, None);
+        assert_eq!(lines(&out.receipts[0])[0].content_width, 72);
+    }
+
+    #[test]
+    fn empty_cuts_produce_no_receipt() {
+        let out = rendered(b"\x1dV\x00\x1bi\x1dVA\x00", PaperProfile::Mm80);
+        assert!(out.receipts.is_empty());
+    }
+
+    #[test]
+    fn paper_change_waits_for_the_next_receipt() {
+        let mut b = ReceiptBuilder::new(ReceiptConfig::default());
+        b.set_paper(PaperProfile::Mm58);
+        assert_eq!(b.paper(), PaperProfile::Mm58, "empty builder switches now");
+        b.apply(&Command::Text { text: "x".into() });
+        b.set_paper(PaperProfile::Mm80);
+        b.apply(&Command::LineFeed);
+        assert_eq!(b.take_update().map(|r| r.width), Some(384));
+        assert_eq!(b.take_update(), None, "unchanged");
+        let cut = Command::Cut {
+            mode: Some(CutMode::Full),
+            function: None,
+            feed: None,
+        };
+        match b.apply(&cut) {
+            Some(Effect::ReceiptCompleted(r)) => assert_eq!(r.width, 384),
+            other => panic!("unexpected {other:?}"),
+        }
+        assert_eq!(b.paper(), PaperProfile::Mm80);
+        assert_eq!(b.snapshot(), None);
+        assert_eq!(b.finish(), None);
+    }
+
+    #[test]
+    fn drawer_kick_effect() {
+        let out = rendered(b"\x1bp\x0022\x1bp\x07\x01\x01", PaperProfile::Mm80);
+        assert_eq!(
+            out.drawer_kicks,
+            vec![DrawerKick {
+                pin: 2,
+                on_ms: 100,
+                off_ms: 100
+            }]
+        );
     }
 }

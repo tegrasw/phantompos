@@ -1,0 +1,179 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        112,
+        49,
+        5,
+        10
+      ],
+      "command": {
+        "offMs": 20,
+        "onMs": 10,
+        "pin": 5,
+        "type": "drawerKick"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        112,
+        0,
+        100,
+        10
+      ],
+      "command": {
+        "offMs": 200,
+        "onMs": 200,
+        "pin": 2,
+        "type": "drawerKick"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        27,
+        112,
+        1,
+        0,
+        0
+      ],
+      "command": {
+        "offMs": 0,
+        "onMs": 0,
+        "pin": 5,
+        "type": "drawerKick"
+      },
+      "offset": 10
+    },
+    {
+      "bytes": [
+        27,
+        112,
+        2,
+        25,
+        250
+      ],
+      "command": {
+        "offMs": 500,
+        "onMs": 50,
+        "pin": null,
+        "type": "drawerKick"
+      },
+      "offset": 15
+    },
+    {
+      "bytes": [
+        109,
+        105,
+        100
+      ],
+      "command": {
+        "text": "mid",
+        "type": "text"
+      },
+      "offset": 20
+    },
+    {
+      "bytes": [
+        27,
+        112,
+        48,
+        255,
+        255
+      ],
+      "command": {
+        "offMs": 510,
+        "onMs": 510,
+        "pin": 2,
+        "type": "drawerKick"
+      },
+      "offset": 23
+    },
+    {
+      "bytes": [
+        108,
+        105,
+        110,
+        101
+      ],
+      "command": {
+        "text": "line",
+        "type": "text"
+      },
+      "offset": 28
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 32
+    }
+  ],
+  "drawerKicks": [
+    {
+      "offMs": 20,
+      "onMs": 10,
+      "pin": 5
+    },
+    {
+      "offMs": 200,
+      "onMs": 200,
+      "pin": 2
+    },
+    {
+      "offMs": 0,
+      "onMs": 0,
+      "pin": 5
+    },
+    {
+      "offMs": 510,
+      "onMs": 510,
+      "pin": 2
+    }
+  ],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 84,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 7,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "midline",
+              "width": 84,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        }
+      ],
+      "height": 30,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

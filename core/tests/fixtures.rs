@@ -1,6 +1,6 @@
 //! Golden fixtures: every `tests/fixtures/<name>.bin` must match `<name>.json`.
 //!
-//! The JSON holds `{ "paper", "commands", "receipt" }`. Run with
+//! The JSON holds `{ "paper", "commands", "receipts", "drawerKicks" }`. Run with
 //! `UPDATE_FIXTURES=1` to (re)write the JSON files after reviewing the change.
 
 mod common;
@@ -17,11 +17,12 @@ fn fixtures_match_expected_json() {
     for bin in &bins {
         let input = std::fs::read(bin).expect("fixture is readable");
         let paper = common::paper_for(bin);
-        let (commands, receipt) = common::run_whole(&input, paper);
+        let (commands, output) = common::run_whole(&input, paper);
         let actual = json!({
             "paper": paper,
             "commands": commands,
-            "receipt": receipt,
+            "receipts": output.receipts,
+            "drawerKicks": output.drawer_kicks,
         });
         let json_path = bin.with_extension("json");
         if update {

@@ -1,0 +1,414 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        116,
+        0
+      ],
+      "command": {
+        "codePage": "cp437",
+        "page": 0,
+        "type": "setCodePage"
+      },
+      "offset": 2
+    },
+    {
+      "bytes": [
+        114,
+        101,
+        99,
+        101,
+        105,
+        112,
+        116,
+        32,
+        49
+      ],
+      "command": {
+        "text": "receipt 1",
+        "type": "text"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 14
+    },
+    {
+      "bytes": [
+        27,
+        100,
+        6
+      ],
+      "command": {
+        "lines": 6,
+        "type": "feedLines"
+      },
+      "offset": 15
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        0
+      ],
+      "command": {
+        "feed": null,
+        "function": "a",
+        "mode": "full",
+        "type": "cut"
+      },
+      "offset": 18
+    },
+    {
+      "bytes": [
+        114,
+        101,
+        99,
+        101,
+        105,
+        112,
+        116,
+        32,
+        50
+      ],
+      "command": {
+        "text": "receipt 2",
+        "type": "text"
+      },
+      "offset": 21
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 30
+    },
+    {
+      "bytes": [
+        27,
+        100,
+        6
+      ],
+      "command": {
+        "lines": 6,
+        "type": "feedLines"
+      },
+      "offset": 31
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        0
+      ],
+      "command": {
+        "feed": null,
+        "function": "a",
+        "mode": "full",
+        "type": "cut"
+      },
+      "offset": 34
+    },
+    {
+      "bytes": [
+        114,
+        101,
+        99,
+        101,
+        105,
+        112,
+        116,
+        32,
+        51
+      ],
+      "command": {
+        "text": "receipt 3",
+        "type": "text"
+      },
+      "offset": 37
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 46
+    },
+    {
+      "bytes": [
+        27,
+        100,
+        6
+      ],
+      "command": {
+        "lines": 6,
+        "type": "feedLines"
+      },
+      "offset": 47
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        0
+      ],
+      "command": {
+        "feed": null,
+        "function": "a",
+        "mode": "full",
+        "type": "cut"
+      },
+      "offset": 50
+    },
+    {
+      "bytes": [
+        112,
+        101,
+        110,
+        100,
+        105,
+        110,
+        103,
+        44,
+        32,
+        99,
+        108,
+        111,
+        115,
+        101,
+        100,
+        32,
+        98,
+        121,
+        32,
+        101,
+        110,
+        100,
+        32,
+        111,
+        102,
+        32,
+        115,
+        116,
+        114,
+        101,
+        97,
+        109
+      ],
+      "command": {
+        "text": "pending, closed by end of stream",
+        "type": "text"
+      },
+      "offset": 53
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 85
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": "full",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 108,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 9,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "receipt 1",
+              "width": 108,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 180,
+          "alignment": "left",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 30
+        }
+      ],
+      "height": 210,
+      "paper": "80mm",
+      "width": 576
+    },
+    {
+      "cut": "full",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 108,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 9,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "receipt 2",
+              "width": 108,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 180,
+          "alignment": "left",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 30
+        }
+      ],
+      "height": 210,
+      "paper": "80mm",
+      "width": 576
+    },
+    {
+      "cut": "full",
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 108,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 9,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "receipt 3",
+              "width": 108,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 180,
+          "alignment": "left",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 30
+        }
+      ],
+      "height": 210,
+      "paper": "80mm",
+      "width": 576
+    },
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 384,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 32,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "pending, closed by end of stream",
+              "width": 384,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        }
+      ],
+      "height": 30,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}
