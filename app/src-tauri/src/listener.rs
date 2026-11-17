@@ -1,9 +1,9 @@
 //! Raw TCP listener for the virtual printer.
 //!
-//! Accepts any number of simultaneous connections and forwards every chunk of
-//! bytes read from a socket, untouched, to an [`EventSink`]. Interpreting
-//! ESC/POS is the job of `phantompos-core`; this module never looks inside the
-//! data.
+//! Accepts any number of simultaneous connections. Each connection owns a
+//! `phantompos-core` [`Parser`]: every chunk read from the socket is fed to it
+//! and the decoded commands go to an [`EventSink`]. Interpreting ESC/POS is
+//! the job of `phantompos-core`; this module never looks inside the data.
 //!
 //! The listener is independent of Tauri so it can be tested with a plain
 //! channel as the sink. The Tauri glue lives in `lib.rs`.
@@ -15,6 +15,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use std::time::Duration;
 
+use phantompos_core::{DecodedCommand, Parser, ParserConfig};
 use serde::Serialize;
 use tokio::io::AsyncReadExt;
 use tokio::net::{TcpListener, TcpStream};
@@ -23,7 +24,8 @@ use tokio::task::JoinSet;
 /// Port used by network thermal printers ("raw" / JetDirect printing).
 pub const DEFAULT_PORT: u16 = 9100;
 
-/// Size of the buffer for each socket read; one read produces one event.
+/// Size of the buffer for each socket read; one read produces at most one
+/// `commands:received` event.
 const READ_BUFFER_SIZE: usize = 4096;
 
 /// Pause after a failed `accept` so a persistent error (e.g. too many open
@@ -72,14 +74,17 @@ pub struct ConnectionsSnapshot {
     pub peers: Vec<String>,
 }
 
-/// Payload of the `bytes:received` event: one socket read.
+/// Payload of the `commands:received` event: the commands completed by one
+/// socket read, or the tail flushed when the connection ends. Never empty.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct BytesReceived {
-    /// Unique, increasing id of the connection the bytes came from.
+pub struct CommandsReceived {
+    /// Unique, increasing id of the connection the commands came from.
     pub connection_id: u64,
     pub peer: String,
-    pub bytes: Vec<u8>,
+    /// Serialized by `phantompos-core`; offsets are relative to this
+    /// connection's stream.
+    pub commands: Vec<DecodedCommand>,
 }
 
 /// Return value of the `get_state` command.
@@ -95,7 +100,7 @@ pub struct StateSnapshot {
 pub enum ListenerEvent {
     Status(ListenerStatus),
     Connections(ConnectionsSnapshot),
-    Bytes(BytesReceived),
+    Commands(CommandsReceived),
 }
 
 /// Receives listener events. Implementations must not block for long: status
@@ -260,16 +265,43 @@ pub async fn run(state: Arc<ListenerState>, sink: Arc<dyn EventSink>) {
     }
 }
 
-/// Removes the connection from the shared state when the connection task
-/// ends, including when it is aborted.
-struct ConnectionGuard {
+/// Per-connection state: the parser and what is needed to report its output.
+///
+/// Dropping it ends the connection, whether the task returned (EOF, read
+/// error) or was aborted (listener shutdown): the parser is finished and its
+/// remaining commands are emitted first, then the connection is removed from
+/// the shared state. So the last `commands:received` of a connection always
+/// precedes the `connection:changed` that reports it gone.
+struct Connection {
     id: u64,
+    peer: String,
+    parser: Parser,
     state: Arc<ListenerState>,
     sink: Arc<dyn EventSink>,
 }
 
-impl Drop for ConnectionGuard {
+impl Connection {
+    fn emit_commands(&self, commands: Vec<DecodedCommand>) {
+        if commands.is_empty() {
+            return;
+        }
+        self.sink.emit(ListenerEvent::Commands(CommandsReceived {
+            connection_id: self.id,
+            peer: self.peer.clone(),
+            commands,
+        }));
+    }
+
+    fn feed(&mut self, chunk: &[u8]) {
+        let commands = self.parser.feed(chunk);
+        self.emit_commands(commands);
+    }
+}
+
+impl Drop for Connection {
     fn drop(&mut self) {
+        let tail = self.parser.finish();
+        self.emit_commands(tail);
         self.state.remove_connection(self.id, self.sink.as_ref());
     }
 }
@@ -281,12 +313,13 @@ async fn serve_connection(
     sink: Arc<dyn EventSink>,
 ) {
     let id = state.add_connection(peer, sink.as_ref());
-    let _guard = ConnectionGuard {
+    let mut connection = Connection {
         id,
+        peer: peer.to_string(),
+        parser: Parser::new(ParserConfig::default()),
         state,
-        sink: sink.clone(),
+        sink,
     };
-    let peer_label = peer.to_string();
     let mut buffer = vec![0_u8; READ_BUFFER_SIZE];
 
     loop {
@@ -297,15 +330,14 @@ async fn serve_connection(
                 let Some(chunk) = buffer.get(..read) else {
                     break;
                 };
-                sink.emit(ListenerEvent::Bytes(BytesReceived {
-                    connection_id: id,
-                    peer: peer_label.clone(),
-                    bytes: chunk.to_vec(),
-                }));
+                connection.feed(chunk);
             }
             Err(error) if error.kind() == io::ErrorKind::Interrupted => {}
             Err(error) => {
-                eprintln!("phantompos: connection {id} from {peer_label} failed: {error}");
+                eprintln!(
+                    "phantompos: connection {id} from {} failed: {error}",
+                    connection.peer
+                );
                 break;
             }
         }
@@ -315,6 +347,7 @@ async fn serve_connection(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use phantompos_core::{Command, UnknownReason, parse};
     use tokio::io::AsyncWriteExt;
     use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender, unbounded_channel};
     use tokio::task::JoinHandle;
@@ -350,6 +383,17 @@ mod tests {
             ListenerEvent::Connections(snapshot) => snapshot,
             other => panic!("expected a connections event, got {other:?}"),
         }
+    }
+
+    async fn next_commands(events: &mut UnboundedReceiver<ListenerEvent>) -> CommandsReceived {
+        match next_event(events).await {
+            ListenerEvent::Commands(received) => received,
+            other => panic!("expected a commands event, got {other:?}"),
+        }
+    }
+
+    fn parse_default(bytes: &[u8]) -> Vec<DecodedCommand> {
+        parse(bytes, ParserConfig::default())
     }
 
     struct Running {
@@ -410,14 +454,21 @@ mod tests {
             json(&listening),
             r#"{"state":"listening","address":"127.0.0.1","port":9100}"#
         );
-        let bytes = BytesReceived {
+        let received = CommandsReceived {
             connection_id: 7,
             peer: "127.0.0.1:54321".into(),
-            bytes: vec![0x1b, 0x40],
+            commands: parse_default(b"\x1bE\x01Hi\n\x1ba\x09"),
         };
         assert_eq!(
-            json(&bytes),
-            r#"{"connectionId":7,"peer":"127.0.0.1:54321","bytes":[27,64]}"#
+            json(&received),
+            concat!(
+                r#"{"connectionId":7,"peer":"127.0.0.1:54321","commands":["#,
+                r#"{"offset":0,"bytes":[27,69,1],"command":{"type":"setBold","enabled":true}},"#,
+                r#"{"offset":3,"bytes":[72,105],"command":{"type":"text","text":"Hi"}},"#,
+                r#"{"offset":5,"bytes":[10],"command":{"type":"lineFeed"}},"#,
+                r#"{"offset":6,"bytes":[27,97,9],"command":{"type":"setAlignment","alignment":null}}"#,
+                r#"]}"#
+            )
         );
         let state = ListenerState::new(ListenerSettings::default());
         assert_eq!(
@@ -427,7 +478,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn forwards_bytes_and_tracks_the_connection() {
+    async fn split_stream_yields_the_same_commands_as_one_shot_parse() {
         let mut running = start().await;
         let mut client = TcpStream::connect(("127.0.0.1", running.port))
             .await
@@ -439,40 +490,105 @@ mod tests {
         assert_eq!(opened.peers, vec![client_addr.clone()]);
         assert_eq!(running.state.snapshot().connections, opened);
 
-        // Larger than one read buffer, so it must arrive in several chunks.
-        let payload: Vec<u8> = (0..3 * READ_BUFFER_SIZE).map(|i| (i % 251) as u8).collect();
-        client.write_all(&payload).await.expect("write");
-
-        let mut received = Vec::new();
-        let mut chunks = 0;
-        let mut connection_id = None;
-        while received.len() < payload.len() {
-            match next_event(&mut running.events).await {
-                ListenerEvent::Bytes(event) => {
-                    assert_eq!(event.peer, client_addr);
-                    assert!(!event.bytes.is_empty() && event.bytes.len() <= READ_BUFFER_SIZE);
-                    assert_eq!(
-                        *connection_id.get_or_insert(event.connection_id),
-                        event.connection_id
-                    );
-                    received.extend_from_slice(&event.bytes);
-                    chunks += 1;
-                }
-                other => panic!("expected bytes, got {other:?}"),
-            }
+        // Writes that split commands and text runs mid-way. Each one completes
+        // at least one command, so waiting for an event between writes forces
+        // them into separate reads.
+        let parts: [&[u8]; 4] = [
+            b"\x1b@Caf\x82 ",
+            b"total\n\x1b",
+            b"E\x01bold\x1b",
+            b"E\x00\x1da\x1d!\x11big\n",
+        ];
+        let mut stream = Vec::new();
+        let mut batches = Vec::new();
+        for part in parts {
+            client.write_all(part).await.expect("write");
+            stream.extend_from_slice(part);
+            batches.push(next_commands(&mut running.events).await);
         }
-        assert_eq!(received, payload);
-        assert!(chunks >= 3, "expected several chunks, got {chunks}");
-
+        // Larger than one read buffer, so it must arrive in several reads.
+        let bulk: Vec<u8> = (0..3 * READ_BUFFER_SIZE).map(|i| (i % 251) as u8).collect();
+        client.write_all(&bulk).await.expect("write bulk");
+        stream.extend_from_slice(&bulk);
+        // Ends inside a command: only `finish` can report it.
+        client.write_all(b"tail\x1bd").await.expect("write tail");
+        stream.extend_from_slice(b"tail\x1bd");
         drop(client);
-        let closed = next_connections(&mut running.events).await;
+
+        let closed = loop {
+            match next_event(&mut running.events).await {
+                ListenerEvent::Commands(batch) => batches.push(batch),
+                ListenerEvent::Connections(snapshot) => break snapshot,
+                other => panic!("unexpected event {other:?}"),
+            }
+        };
         assert_eq!(closed, ConnectionsSnapshot::default());
         assert_eq!(running.state.snapshot().connections, closed);
+        assert!(
+            batches.len() > parts.len() + 1,
+            "got {} batches",
+            batches.len()
+        );
+
+        let id = batches.first().expect("batches").connection_id;
+        let mut next_offset = 0_u64;
+        let mut commands = Vec::new();
+        for batch in batches {
+            assert_eq!(batch.connection_id, id);
+            assert_eq!(batch.peer, client_addr);
+            assert!(!batch.commands.is_empty());
+            // Offsets continue across batches with no gap or overlap.
+            for command in &batch.commands {
+                assert_eq!(command.offset, next_offset);
+                next_offset += command.bytes.len() as u64;
+            }
+            commands.extend(batch.commands);
+        }
+        assert_eq!(next_offset, stream.len() as u64);
+        assert_eq!(commands, parse_default(&stream));
+        assert_eq!(
+            commands.last().map(|last| &last.command),
+            Some(&Command::Unknown {
+                reason: UnknownReason::Incomplete
+            })
+        );
         running.task.abort();
     }
 
     #[tokio::test]
-    async fn accepts_simultaneous_connections() {
+    async fn trailing_text_is_emitted_before_the_disconnect() {
+        let mut running = start().await;
+        let mut client = TcpStream::connect(("127.0.0.1", running.port))
+            .await
+            .expect("connect");
+        assert_eq!(next_connections(&mut running.events).await.active, 1);
+
+        client.write_all(b"Hello\nTail").await.expect("write");
+        let first = next_commands(&mut running.events).await;
+        assert_eq!(first.commands, parse_default(b"Hello\n"));
+
+        drop(client);
+        let tail = next_commands(&mut running.events).await;
+        assert_eq!(tail.connection_id, first.connection_id);
+        assert_eq!(
+            tail.commands,
+            vec![DecodedCommand {
+                offset: 6,
+                bytes: b"Tail".to_vec(),
+                command: Command::Text {
+                    text: "Tail".into()
+                },
+            }]
+        );
+        assert_eq!(
+            next_connections(&mut running.events).await,
+            ConnectionsSnapshot::default()
+        );
+        running.task.abort();
+    }
+
+    #[tokio::test]
+    async fn simultaneous_connections_have_independent_parsers() {
         let mut running = start().await;
         let mut first = TcpStream::connect(("127.0.0.1", running.port))
             .await
@@ -483,47 +599,72 @@ mod tests {
             .expect("connect second");
         let both = next_connections(&mut running.events).await;
         assert_eq!(both.active, 2);
+        let second_addr = second.local_addr().expect("second address").to_string();
         assert_eq!(
             both.peers,
             vec![
                 first.local_addr().expect("first address").to_string(),
-                second.local_addr().expect("second address").to_string(),
+                second_addr.clone(),
             ]
         );
 
-        first.write_all(b"one").await.expect("write first");
-        let ListenerEvent::Bytes(from_first) = next_event(&mut running.events).await else {
-            panic!("expected bytes from the first connection");
-        };
-        second.write_all(b"two").await.expect("write second");
-        let ListenerEvent::Bytes(from_second) = next_event(&mut running.events).await else {
-            panic!("expected bytes from the second connection");
-        };
-        assert_eq!(from_first.bytes, b"one");
-        assert_eq!(from_second.bytes, b"two");
+        // The first connection leaves an unfinished command behind; it must
+        // not leak into the second one.
+        first.write_all(b"one\n\x1b").await.expect("write first");
+        let from_first = next_commands(&mut running.events).await;
+        second.write_all(b"E\x01two\n").await.expect("write second");
+        let from_second = next_commands(&mut running.events).await;
+        assert_eq!(from_first.commands, parse_default(b"one\n"));
+        assert_eq!(from_second.commands, parse_default(b"E\x01two\n"));
+        assert_eq!(from_second.peer, second_addr);
         assert!(from_second.connection_id > from_first.connection_id);
 
+        first.write_all(b"E\x01").await.expect("write first again");
+        let continued = next_commands(&mut running.events).await;
+        assert_eq!(continued.connection_id, from_first.connection_id);
+        assert_eq!(
+            continued.commands,
+            vec![DecodedCommand {
+                offset: 4,
+                bytes: vec![0x1b, b'E', 0x01],
+                command: Command::SetBold { enabled: true },
+            }]
+        );
+
+        // Nothing pending: the disconnect produces no commands event.
         drop(first);
         let remaining = next_connections(&mut running.events).await;
         assert_eq!(remaining.active, 1);
-        assert_eq!(
-            remaining.peers,
-            vec![second.local_addr().expect("second address").to_string()]
-        );
+        assert_eq!(remaining.peers, vec![second_addr]);
         running.task.abort();
     }
 
     #[tokio::test]
-    async fn aborting_the_listener_closes_connections() {
+    async fn aborting_the_listener_flushes_and_closes_connections() {
         let mut running = start().await;
-        let _client = TcpStream::connect(("127.0.0.1", running.port))
+        let mut client = TcpStream::connect(("127.0.0.1", running.port))
             .await
             .expect("connect");
         assert_eq!(next_connections(&mut running.events).await.active, 1);
 
+        client.write_all(b"A\n\x1bE").await.expect("write");
+        let first = next_commands(&mut running.events).await;
+        assert_eq!(first.commands, parse_default(b"A\n"));
+
         running.task.abort();
         assert!(running.task.await.is_err_and(|error| error.is_cancelled()));
         // Connection tasks are dropped asynchronously after the abort.
+        let tail = next_commands(&mut running.events).await;
+        assert_eq!(
+            tail.commands,
+            vec![DecodedCommand {
+                offset: 2,
+                bytes: vec![0x1b, b'E'],
+                command: Command::Unknown {
+                    reason: UnknownReason::Incomplete
+                },
+            }]
+        );
         assert_eq!(
             next_connections(&mut running.events).await,
             ConnectionsSnapshot::default()

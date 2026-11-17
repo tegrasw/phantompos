@@ -8,16 +8,11 @@ use tauri::{AppHandle, Emitter, Manager, State};
 
 use listener::{EventSink, ListenerEvent, ListenerSettings, ListenerState, StateSnapshot};
 
-// The parser crate is still empty; linking it now keeps the workspace wiring
-// honest until stage 2 feeds the received bytes into it.
-use phantompos_core as _;
-
 /// Event names shared with the frontend.
 mod events {
     pub const LISTENER_STATUS: &str = "listener:status";
     pub const CONNECTION_CHANGED: &str = "connection:changed";
-    /// Provisional for stage 1; replaced by `commands:received` in stage 2.
-    pub const BYTES_RECEIVED: &str = "bytes:received";
+    pub const COMMANDS_RECEIVED: &str = "commands:received";
 }
 
 /// Forwards listener events to the frontend as global Tauri events.
@@ -30,7 +25,7 @@ impl EventSink for AppEventSink {
             ListenerEvent::Connections(connections) => {
                 self.0.emit(events::CONNECTION_CHANGED, connections)
             }
-            ListenerEvent::Bytes(bytes) => self.0.emit(events::BYTES_RECEIVED, bytes),
+            ListenerEvent::Commands(commands) => self.0.emit(events::COMMANDS_RECEIVED, commands),
         };
         if let Err(error) = result {
             eprintln!("phantompos: failed to emit event: {error}");
