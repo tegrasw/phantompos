@@ -5,8 +5,11 @@
     runningInTauri,
     type BackendConnector,
     type BackendHandlers,
+    type BackendSession,
     type ConnectionsStatus,
+    type DrawerKicked,
     type ListenerStatus,
+    type Paper,
   } from "./lib/backend";
   import { CommandLog } from "./lib/commandLog.svelte";
   import CommandLogPanel from "./lib/components/CommandLog.svelte";
@@ -15,6 +18,7 @@
   import RollView from "./lib/components/RollView.svelte";
   import SidePanel from "./lib/components/SidePanel.svelte";
   import { messages } from "./lib/messages";
+  import { Roll } from "./lib/roll.svelte";
   import { printerStatus } from "./lib/status";
 
   const t = messages;
@@ -27,6 +31,15 @@
   let activity = $state(0);
 
   const log = new CommandLog();
+  const roll = new Roll();
+  /** Paper for new receipts (memory only until the settings of stage 6). */
+  let paper = $state<Paper>("80mm");
+  let drawer = $state<{ open: boolean; kicks: number; last: DrawerKicked | null }>({
+    open: false,
+    kicks: 0,
+    last: null,
+  });
+  let session: BackendSession | null = null;
   const status = $derived(printerStatus(hasBackend, listener, backendError));
 
   // Layout ------------------------------------------------------------------
@@ -79,9 +92,17 @@
         activity++;
       }
     },
+    onReceiptUpdated: (update) => roll.update(update),
+    onReceiptCompleted: (receipt) => roll.complete(receipt),
+    onDrawerKicked: (kick) => {
+      drawer = { open: true, kicks: drawer.kicks + 1, last: kick };
+    },
     onInitialState: (state) => {
       listener = state.listener;
       connections = state.connections;
+      // Tolerate a backend that predates these fields.
+      if (state.paper) paper = state.paper;
+      if (typeof state.drawerOpen === "boolean") drawer = { ...drawer, open: state.drawerOpen };
       backendError = null;
     },
     onError: (error) => {
@@ -89,11 +110,34 @@
     },
   };
 
+  /** Optimistic: shows the new paper at once, rolls back if refused. */
+  async function changePaper(next: Paper): Promise<void> {
+    const previous = paper;
+    paper = next;
+    try {
+      if (!session) throw new Error("No backend");
+      paper = await session.setPaper(next);
+    } catch (error) {
+      paper = previous;
+      throw error;
+    }
+  }
+
+  async function closeDrawer(): Promise<void> {
+    if (!drawer.open) return;
+    drawer = { ...drawer, open: false };
+    try {
+      if (!session) throw new Error("No backend");
+      await session.closeDrawer();
+    } catch {
+      drawer = { ...drawer, open: true };
+    }
+  }
+
   onMount(() => {
-    let disconnect: (() => void) | undefined;
     let disposed = false;
     const attach = (connect: BackendConnector): void => {
-      if (!disposed) disconnect = connect(handlers);
+      if (!disposed) session = connect(handlers);
     };
 
     if (hasBackend) {
@@ -108,8 +152,10 @@
 
     return () => {
       disposed = true;
-      disconnect?.();
+      session?.disconnect();
+      session = null;
       log.dispose();
+      roll.dispose();
     };
   });
 </script>
@@ -126,7 +172,15 @@
   />
 
   <div class="workspace">
-    <RollView {status} stats={log.stats} />
+    <RollView
+      {status}
+      stats={log.stats}
+      {roll}
+      {paper}
+      onPaperChange={changePaper}
+      {drawer}
+      onCloseDrawer={() => void closeDrawer()}
+    />
 
     <SidePanel
       id="command-log"

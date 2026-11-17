@@ -16,7 +16,12 @@
  *   --danger*         listener errors only
  *   --warning*        unknown ESC/POS sequences (attention, not failure)
  *   --paper / --paper-ink / --paper-edge   thermal paper (stays light in both
- *                     themes, like the real thing; used by the roll from stage 3)
+ *                     themes, like the real thing). The receipt print itself is
+ *                     drawn on a canvas in fixed near-black (lib/receipt/render.ts)
+ *   --paper-curl      faint shading at the paper's long edges (roll curvature)
+ *   --paper-grain     very low-contrast noise tile (paper fibre)
+ *   --paper-shadow    elevation of a sheet on the desk
+ *   --slot            the printer slot the paper feeds out of
  *   --focus-ring      keyboard focus outline colour
  *   --shadow-*        elevation (kept faint; dark theme leans on borders)
  *
@@ -125,9 +130,14 @@
 
   --focus-ring: rgb(7 122 101 / 0.55);
   --desk-dot: rgb(16 20 26 / 0.07);
-  --paper: #ffffff;
+  --paper: #fdfdfb;
   --paper-ink: #2a2d33;
   --paper-edge: rgb(16 20 26 / 0.12);
+  --paper-curl: rgb(16 20 26 / 0.035);
+  --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.055 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --paper-shadow: 0 0 0 1px rgb(16 20 26 / 0.05), 0 1px 2px rgb(16 20 26 / 0.08),
+    0 8px 22px -6px rgb(16 20 26 / 0.16);
+  --slot: #23262b;
 
   --shadow-sm: 0 1px 2px rgb(16 20 26 / 0.06);
   --shadow-md: 0 1px 2px rgb(16 20 26 / 0.05), 0 4px 12px rgb(16 20 26 / 0.06);
@@ -228,9 +238,13 @@
 
     --focus-ring: rgb(58 214 180 / 0.6);
     --desk-dot: rgb(255 255 255 / 0.05);
-    --paper: #e9e6df;
+    --paper: #e8e5de;
     --paper-ink: #3a3c40;
     --paper-edge: rgb(0 0 0 / 0.5);
+    --paper-curl: rgb(0 0 0 / 0.06);
+    --paper-shadow: 0 0 0 1px rgb(0 0 0 / 0.35), 0 1px 2px rgb(0 0 0 / 0.5),
+      0 10px 24px -12px rgb(0 0 0 / 0.65);
+    --slot: #020203;
 
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
     --shadow-md: 0 1px 2px rgb(0 0 0 / 0.35), 0 6px 16px rgb(0 0 0 / 0.3);

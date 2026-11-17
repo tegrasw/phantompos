@@ -55,10 +55,100 @@ export interface CommandsReceived {
   commands: DecodedCommand[];
 }
 
+// ---------------------------------------------------------------------------
+// Receipt model (see core/README.md). All sizes are printer dots.
+// ---------------------------------------------------------------------------
+
+export type Paper = "58mm" | "80mm";
+export const PAPERS: readonly Paper[] = ["58mm", "80mm"];
+
+/** How a receipt was closed: a cut command, or `null` for end of connection. */
+export type Cut = "full" | "partial" | null;
+
+export type Alignment = "left" | "center" | "right";
+export type UnderlineMode = "off" | "oneDot" | "twoDots";
+
+export interface SpanStyle {
+  font: "a" | "b";
+  bold: boolean;
+  underline: UnderlineMode;
+  reverse: boolean;
+  widthMultiplier: number;
+  heightMultiplier: number;
+}
+
+export interface Span {
+  text: string;
+  /** Left edge from the paper edge, alignment applied. */
+  x: number;
+  /** Top of the character cells inside the line. */
+  y: number;
+  width: number;
+  columns: number;
+  /** Cell size of one character, multipliers applied. */
+  charWidth: number;
+  charHeight: number;
+  style: SpanStyle;
+}
+
+export interface LineElement {
+  type: "line";
+  y: number;
+  height: number;
+  baseline: number;
+  advance: number;
+  alignment: Alignment;
+  contentWidth: number;
+  spans: Span[];
+}
+
+/**
+ * Something printed on the paper. Later stages add images and codes; the UI
+ * ignores element types it does not know.
+ */
+export type ReceiptElement = LineElement | { type: string; y?: number };
+
+export interface Receipt {
+  paper: Paper;
+  /** Paper width in dots (384 or 576). */
+  width: number;
+  /** Paper length in dots. */
+  height: number;
+  /** Missing on older backends; treat as `null`. */
+  cut?: Cut;
+  elements: ReceiptElement[];
+}
+
+/** Payload of `receipt:updated`: the in-progress receipt of a connection. */
+export interface ReceiptUpdated {
+  connectionId: number;
+  peer: string;
+  receipt: Receipt;
+}
+
+/** Payload of `receipt:completed`. `id` is unique and increasing. */
+export interface ReceiptCompleted {
+  id: number;
+  connectionId: number;
+  peer: string;
+  receipt: Receipt;
+}
+
+/** Payload of `drawer:kicked` (`ESC p`). */
+export interface DrawerKicked {
+  connectionId: number;
+  peer: string;
+  pin: 2 | 5;
+  onMs: number;
+  offMs: number;
+}
+
 /** Result of the `get_state` command. */
 export interface BackendState {
   listener: ListenerStatus;
   connections: ConnectionsStatus;
+  paper: Paper;
+  drawerOpen: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -69,10 +159,15 @@ export const EVENTS = {
   listenerStatus: "listener:status",
   connectionChanged: "connection:changed",
   commandsReceived: "commands:received",
+  receiptUpdated: "receipt:updated",
+  receiptCompleted: "receipt:completed",
+  drawerKicked: "drawer:kicked",
 } as const;
 
 export const COMMANDS = {
   getState: "get_state",
+  setPaper: "set_paper",
+  closeDrawer: "close_drawer",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -88,23 +183,42 @@ export function getState(): Promise<BackendState> {
   return invoke<BackendState>(COMMANDS.getState);
 }
 
+export function setPaper(paper: Paper): Promise<Paper> {
+  return invoke<Paper>(COMMANDS.setPaper, { paper });
+}
+
+export function closeDrawer(): Promise<void> {
+  return invoke<void>(COMMANDS.closeDrawer);
+}
+
 export interface BackendHandlers {
   onListenerStatus(status: ListenerStatus): void;
   onConnectionsChanged(connections: ConnectionsStatus): void;
   onCommandsReceived(batch: CommandsReceived): void;
+  onReceiptUpdated(update: ReceiptUpdated): void;
+  onReceiptCompleted(receipt: ReceiptCompleted): void;
+  onDrawerKicked(kick: DrawerKicked): void;
   /** Called with the initial snapshot once all listeners are registered. */
   onInitialState(state: BackendState): void;
   /** Called if the initial snapshot or a listener registration fails. */
   onError(error: unknown): void;
 }
 
-/** Connects a set of handlers to a backend; returns a synchronous cleanup. */
-export type BackendConnector = (handlers: BackendHandlers) => () => void;
+/** A connected backend: the commands the UI may call, plus cleanup. */
+export interface BackendSession {
+  setPaper(paper: Paper): Promise<Paper>;
+  closeDrawer(): Promise<void>;
+  /** Synchronous cleanup, safe to call at any time. */
+  disconnect(): void;
+}
+
+/** Connects a set of handlers to a backend. */
+export type BackendConnector = (handlers: BackendHandlers) => BackendSession;
 
 /**
  * Subscribes to all backend events and then fetches the initial state, so no
- * event emitted in between is missed. Returns a synchronous cleanup function
- * that is safe to call at any time, even before the subscriptions resolve.
+ * event emitted in between is missed. The returned `disconnect` is safe to
+ * call at any time, even before the subscriptions resolve.
  */
 export const connectBackend: BackendConnector = (handlers) => {
   let disposed = false;
@@ -127,6 +241,15 @@ export const connectBackend: BackendConnector = (handlers) => {
         listen<CommandsReceived>(EVENTS.commandsReceived, (e) => {
           if (!disposed) handlers.onCommandsReceived(e.payload);
         }).then(track),
+        listen<ReceiptUpdated>(EVENTS.receiptUpdated, (e) => {
+          if (!disposed) handlers.onReceiptUpdated(e.payload);
+        }).then(track),
+        listen<ReceiptCompleted>(EVENTS.receiptCompleted, (e) => {
+          if (!disposed) handlers.onReceiptCompleted(e.payload);
+        }).then(track),
+        listen<DrawerKicked>(EVENTS.drawerKicked, (e) => {
+          if (!disposed) handlers.onDrawerKicked(e.payload);
+        }).then(track),
       ]);
       if (disposed) return;
       const state = await getState();
@@ -136,9 +259,13 @@ export const connectBackend: BackendConnector = (handlers) => {
     }
   })();
 
-  return () => {
-    disposed = true;
-    for (const unlisten of unlisteners.splice(0)) unlisten();
+  return {
+    setPaper,
+    closeDrawer,
+    disconnect: () => {
+      disposed = true;
+      for (const unlisten of unlisteners.splice(0)) unlisten();
+    },
   };
 };
 

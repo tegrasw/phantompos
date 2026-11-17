@@ -15,7 +15,10 @@
     | "terminal"
     | "list"
     | "plug"
-    | "x";
+    | "x"
+    | "drawer"
+    | "drawerOpen"
+    | "receipt";
 </script>
 
 <script lang="ts">
@@ -72,6 +75,18 @@
     <path d="M8 11.5v2.25" />
   {:else if name === "x"}
     <path d="M4 4l8 8M12 4l-8 8" />
+  {:else if name === "drawer"}
+    <!-- Cash drawer, closed: cabinet with a flush drawer front. -->
+    <rect x="1.75" y="4.25" width="12.5" height="9" rx="1.5" />
+    <path d="M1.75 8.25h12.5M6.5 10.75h3" />
+  {:else if name === "drawerOpen"}
+    <!-- Cash drawer, open: the front slid out below the cabinet. -->
+    <path d="M3.25 7.25V3.75A1.5 1.5 0 0 1 4.75 2.25h6.5a1.5 1.5 0 0 1 1.5 1.5v3.5" />
+    <rect x="1.25" y="7.25" width="13.5" height="6.5" rx="1.5" />
+    <path d="M6.25 10.5h3.5" />
+  {:else if name === "receipt"}
+    <path d="M3.75 2.25h8.5v11.5l-1.4-1-1.42 1-1.43-1-1.42 1-1.43-1-1.4 1z" />
+    <path d="M6 5.5h4M6 8h4" />
   {/if}
 </svg>
 

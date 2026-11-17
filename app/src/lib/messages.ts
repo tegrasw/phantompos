@@ -54,6 +54,52 @@ export const messages = {
     statUnknown: "Unknown",
     statLast: "Last data",
     lastFrom: (peer: string): string => `from ${peer}`,
+
+    // The roll, once receipts exist.
+    rollLabel: "Paper roll",
+    toolbarLabel: "Roll",
+    receiptCount: (n: number): string => plural(n, "receipt", "receipts"),
+    clear: "Clear roll",
+    clearDisabled: "The roll is empty",
+    jumpToLatest: "Jump to latest",
+    newReceipts: (n: number): string => plural(n, "new receipt", "new receipts"),
+    dropped: (n: number): string =>
+      `${plural(n, "older receipt was", "older receipts were")} removed to keep memory in check.`,
+    receiptNumber: (id: number): string => `#${id}`,
+    printing: "Printing",
+    cutFull: "Full cut",
+    cutPartial: "Partial cut",
+    cutNone: "Connection closed, no cut",
+    cutNoneShort: "No cut",
+    receiptLabel: (id: number | null, paper: string, cut: string): string =>
+      `${id === null ? "Receipt being printed" : `Receipt ${id}`}, ${paper} paper, ${cut}`,
+    receiptTitle: (peer: string, connectionId: number): string => `From ${peer} (connection #${connectionId})`,
+    slotReady: "Ready",
+    slotPrinting: (n: number): string => (n > 1 ? `Printing ${n} receipts` : "Printing"),
+    slotOffline: "Not listening",
+  },
+
+  paper: {
+    label: "Paper",
+    groupLabel: "Paper width",
+    names: { "58mm": "58 mm", "80mm": "80 mm" } as Record<string, string>,
+    hint: "Applies to the next receipt",
+    changed: (name: string): string => `Next receipt prints on ${name}`,
+    failed: "Couldn't change the paper",
+  },
+
+  drawer: {
+    closed: "Drawer closed",
+    open: "Drawer open",
+    closedTitle: "Cash drawer is closed. It opens when the printer receives ESC p.",
+    openTitle: "Cash drawer is open. Click to close it.",
+    closeLabel: "Cash drawer is open. Close it",
+    closedLabel: "Cash drawer is closed",
+    kickedBy: (peer: string, pin: number, onMs: number, offMs: number): string =>
+      `Last kick from ${peer}: pin ${pin}, on ${onMs} ms, off ${offMs} ms.`,
+    announceOpen: "Cash drawer opened",
+    announceClosed: "Cash drawer closed",
+    closeFailed: "Couldn't close the drawer",
   },
 
   log: {
