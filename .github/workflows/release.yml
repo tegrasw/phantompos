@@ -1,0 +1,311 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+# tauri-action uploads assets to the release, which needs write access to contents.
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  create-release:
+    # Creates the draft release once, before the matrix starts. Letting every
+    # matrix job call tauri-action with only `tagName` races: drafts cannot be
+    # looked up by tag, so parallel jobs could each create their own draft.
+    name: Create draft release
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      release-id: ${{ steps.release.outputs.id }}
+    steps:
+      - name: Create or reuse the draft release for this tag
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          existing="$(gh api "repos/$GH_REPO/releases" --paginate \
+            --jq ".[] | select(.tag_name == \"$TAG\") | \"\(.id) \(.draft)\"" | head -n 1)"
+
+          if [ -n "$existing" ]; then
+            id="${existing%% *}"
+            draft="${existing##* }"
+            if [ "$draft" != "true" ]; then
+              echo "::error title=Release already published::A published release already exists for $TAG. Delete it or push a new tag."
+              exit 1
+            fi
+            echo "Reusing draft release $id for $TAG."
+          else
+            case "$TAG" in
+              *-*) prerelease=true ;;
+              *) prerelease=false ;;
+            esac
+            body="$(printf '%s\n' \
+              "Draft release for PhantomPOS $TAG." \
+              "" \
+              "- Windows: NSIS installer (.exe). Unsigned, so SmartScreen shows a warning on first run." \
+              "- macOS: one .dmg per architecture (aarch64 = Apple silicon, x64 = Intel)." \
+              "- Linux: AppImage and .deb (the .deb requires WebKitGTK 4.1).")"
+            id="$(gh api -X POST "repos/$GH_REPO/releases" \
+              -f tag_name="$TAG" \
+              -f name="PhantomPOS $TAG" \
+              -f body="$body" \
+              -F draft=true \
+              -F prerelease="$prerelease" \
+              --jq '.id')"
+            echo "Created draft release $id for $TAG."
+          fi
+
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build (${{ matrix.name }})
+    needs: create-release
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            runner: windows-latest
+            target: ''
+            args: --bundles nsis
+          # One .dmg per architecture (not a universal binary). macos-latest is
+          # an Apple silicon runner; the x86_64 build is cross-compiled.
+          - name: macOS aarch64
+            runner: macos-latest
+            target: aarch64-apple-darwin
+            args: --target aarch64-apple-darwin --bundles dmg
+          - name: macOS x86_64
+            runner: macos-latest
+            target: x86_64-apple-darwin
+            args: --target x86_64-apple-darwin --bundles dmg
+          - name: Linux x64
+            runner: ubuntu-22.04
+            target: ''
+            args: --bundles appimage,deb
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install Tauri system dependencies
+        if: runner.os == 'Linux'
+        # https://v2.tauri.app/start/prerequisites/#linux (Debian/Ubuntu),
+        # plus patchelf as in https://v2.tauri.app/distribute/pipelines/github/
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf
+
+      - name: Install Rust toolchain from rust-toolchain.toml
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          rustup toolchain install
+          if [ -n "$TARGET" ]; then
+            rustup target add "$TARGET"
+          fi
+          rustc --version
+
+      # No build cache here on purpose: release builds start clean, and a tag
+      # ref could only restore caches written by other refs.
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Install frontend dependencies
+        working-directory: app
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure macOS signing and notarization
+        id: apple
+        if: runner.os == 'macOS'
+        shell: bash
+        env:
+          IN_APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          IN_APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          IN_APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          IN_APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          IN_APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          IN_APPLE_API_PRIVATE_KEY: ${{ secrets.APPLE_API_PRIVATE_KEY }}
+        # The Tauri bundler reads APPLE_* variables directly: with
+        # APPLE_CERTIFICATE + APPLE_CERTIFICATE_PASSWORD it creates and removes
+        # its own temporary keychain, and with APPLE_API_ISSUER + APPLE_API_KEY +
+        # APPLE_API_KEY_PATH it notarizes and staples. It treats a variable that
+        # is set but empty as present (and then fails), so variables are only
+        # exported to later steps when the corresponding secrets are non-empty.
+        run: |
+          set -euo pipefail
+
+          has() { [ -n "${!1:-}" ]; }
+          put_env() {
+            local delim
+            delim="EOF_$(openssl rand -hex 16)"
+            {
+              printf '%s<<%s\n' "$1" "$delim"
+              printf '%s\n' "$2"
+              printf '%s\n' "$delim"
+            } >> "$GITHUB_ENV"
+          }
+
+          sign=false
+          notarize=false
+
+          if has IN_APPLE_CERTIFICATE && has IN_APPLE_CERTIFICATE_PASSWORD; then
+            sign=true
+          elif has IN_APPLE_CERTIFICATE || has IN_APPLE_CERTIFICATE_PASSWORD || has IN_APPLE_SIGNING_IDENTITY; then
+            echo "::error title=Incomplete signing secrets::APPLE_CERTIFICATE and APPLE_CERTIFICATE_PASSWORD must both be set (APPLE_SIGNING_IDENTITY is optional). See docs/release-signing.md."
+            exit 1
+          fi
+
+          api_count=0
+          for name in IN_APPLE_API_ISSUER IN_APPLE_API_KEY IN_APPLE_API_PRIVATE_KEY; do
+            if has "$name"; then api_count=$((api_count + 1)); fi
+          done
+          if [ "$api_count" -eq 3 ]; then
+            notarize=true
+          elif [ "$api_count" -ne 0 ]; then
+            echo "::error title=Incomplete notarization secrets::APPLE_API_ISSUER, APPLE_API_KEY and APPLE_API_PRIVATE_KEY must all be set. See docs/release-signing.md."
+            exit 1
+          fi
+
+          if [ "$sign" = true ]; then
+            if has IN_APPLE_SIGNING_IDENTITY; then
+              case "$IN_APPLE_SIGNING_IDENTITY" in
+                "Developer ID Application:"*) ;;
+                *)
+                  echo "::error title=Wrong certificate type::APPLE_SIGNING_IDENTITY must be a 'Developer ID Application: ...' identity."
+                  exit 1
+                  ;;
+              esac
+              put_env APPLE_SIGNING_IDENTITY "$IN_APPLE_SIGNING_IDENTITY"
+            fi
+            put_env APPLE_CERTIFICATE "$IN_APPLE_CERTIFICATE"
+            put_env APPLE_CERTIFICATE_PASSWORD "$IN_APPLE_CERTIFICATE_PASSWORD"
+
+            if [ "$notarize" = true ]; then
+              key_dir="$RUNNER_TEMP/apple-private-keys"
+              key_file="$key_dir/AuthKey_${IN_APPLE_API_KEY}.p8"
+              mkdir -p "$key_dir"
+              chmod 700 "$key_dir"
+              umask 077
+              # Accept the .p8 as raw PEM text (documented) or base64 of the file.
+              if printf '%s' "$IN_APPLE_API_PRIVATE_KEY" | grep -q -- '-----BEGIN PRIVATE KEY-----'; then
+                printf '%s\n' "$IN_APPLE_API_PRIVATE_KEY" | tr -d '\r' > "$key_file"
+              else
+                printf '%s' "$IN_APPLE_API_PRIVATE_KEY" | tr -d ' \r\n' | openssl base64 -d -A > "$key_file"
+              fi
+              if ! grep -q -- '-----BEGIN PRIVATE KEY-----' "$key_file"; then
+                echo "::error title=Invalid App Store Connect key::APPLE_API_PRIVATE_KEY is not a .p8 private key (PEM text or its base64)."
+                exit 1
+              fi
+              put_env APPLE_API_ISSUER "$IN_APPLE_API_ISSUER"
+              put_env APPLE_API_KEY "$IN_APPLE_API_KEY"
+              put_env APPLE_API_KEY_PATH "$key_file"
+              echo "macOS build will be signed with a Developer ID certificate and notarized." >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "::warning title=macOS build not notarized::Signing secrets found but App Store Connect API secrets are missing. The .dmg will be signed but NOT notarized, so Gatekeeper will block it."
+              echo "macOS build is signed but NOT notarized." >> "$GITHUB_STEP_SUMMARY"
+            fi
+          else
+            if [ "$notarize" = true ]; then
+              echo "::warning title=Notarization skipped::App Store Connect API secrets are set but the signing certificate is not; notarization needs a signed app."
+              notarize=false
+            fi
+            # Ad-hoc signature ("-"): no Apple identity, but the bundle gets a
+            # valid signature, which Apple silicon requires to launch at all.
+            put_env APPLE_SIGNING_IDENTITY "-"
+            echo "::warning title=Unsigned macOS build::Apple signing secrets are not configured. Producing an ad-hoc signed, NOT notarized .dmg; Gatekeeper will warn users. See docs/release-signing.md."
+            echo "macOS build is UNSIGNED (ad-hoc signature only, not notarized)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          echo "signed=$sign" >> "$GITHUB_OUTPUT"
+          echo "notarized=$notarize" >> "$GITHUB_OUTPUT"
+
+      - name: Build and upload with tauri-action
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: app
+          releaseId: ${{ needs.create-release.outputs.release-id }}
+          args: ${{ matrix.args }}
+          uploadUpdaterJson: false
+          uploadUpdaterSignatures: false
+
+      - name: Verify macOS signature
+        if: runner.os == 'macOS'
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+          SIGNED: ${{ steps.apple.outputs.signed }}
+          NOTARIZED: ${{ steps.apple.outputs.notarized }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          apps=(target/"$TARGET"/release/bundle/macos/*.app)
+          dmgs=(target/"$TARGET"/release/bundle/dmg/*.dmg)
+          if [ "${#apps[@]}" -eq 0 ] || [ "${#dmgs[@]}" -eq 0 ]; then
+            echo "::error::Expected .app and .dmg under target/$TARGET/release/bundle."
+            exit 1
+          fi
+          app="${apps[0]}"
+          dmg="${dmgs[0]}"
+
+          codesign --verify --deep --strict --verbose=2 "$app"
+          codesign --display --verbose=2 "$app" 2>&1 | grep -E '^(Identifier|Authority|TeamIdentifier)=' || true
+
+          if [ "$SIGNED" = true ]; then
+            if ! codesign --display --verbose=2 "$app" 2>&1 | grep -q '^Authority=Developer ID Application'; then
+              echo "::error title=Wrong signing identity::The app is not signed with a Developer ID Application certificate."
+              exit 1
+            fi
+            codesign --verify --verbose=2 "$dmg"
+          fi
+
+          if [ "$NOTARIZED" = true ]; then
+            xcrun stapler validate "$app"
+            spctl --assess --type execute --verbose=2 "$app"
+            # The .dmg itself is signed but not notarized by the Tauri bundler;
+            # report Gatekeeper's verdict on it without failing the job.
+            spctl --assess --type open --context context:primary-signature --verbose=2 "$dmg" \
+              || echo "::warning title=DMG assessment::spctl did not accept the .dmg container itself; the notarized app inside is stapled."
+          fi
+
+      - name: Remove App Store Connect key
+        if: always() && runner.os == 'macOS'
+        shell: bash
+        run: rm -rf "$RUNNER_TEMP/apple-private-keys"
