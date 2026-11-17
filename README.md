@@ -14,8 +14,8 @@ PhantomPOS is an open source project by Tegra Software, built with Rust and Taur
 ## Status
 
 Early development. Version 0.1.0 has not been released yet, and no binaries are
-published. The project is being built in stages; stages 1 (skeleton) and 2 (text and
-formatting) are done.
+published. The project is being built in stages; stages 1 (skeleton), 2 (text and
+formatting) and 3 (roll, cut and drawer) are done.
 
 ## Features
 
@@ -25,14 +25,16 @@ What is implemented today:
 - A raw TCP listener on `127.0.0.1:9100`.
 - An ESC/POS parser for text, styles, alignment, line feeds and code pages (CP437,
   CP850, CP860, CP858 and Windows-1252).
+- Cut and cash drawer commands.
+- Real-time rendering of the receipt roll for 58 mm and 80 mm paper, with the cut
+  visible between receipts and a cash drawer indicator.
 - A log of decoded commands, side by side with the raw bytes, highlighting unknown
   sequences.
 
 Planned for v1 (not implemented yet):
 
 - Configurable port, and an opt-in mode that accepts connections from the local network.
-- Parser support for cut, cash drawer, raster images, QR codes and barcodes.
-- Real-time rendering of the receipt roll for 58 mm and 80 mm paper.
+- Parser support for raster images, QR codes and barcodes.
 - Simulated printer states (paper out, cover open, offline, drawer open) with replies
   to the status commands `DLE EOT`, `GS r` and `GS a`.
 - Export of a receipt as PNG and of the raw bytes as a `.bin` file.

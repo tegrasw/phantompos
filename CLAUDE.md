@@ -3,7 +3,7 @@
 Virtual ESC/POS thermal printer: a Tauri 2 desktop app that listens on TCP 9100,
 parses ESC/POS and draws the receipt. `SPEC.md` (Portuguese) is the source of
 truth; work proceeds one stage at a time ("Etapas e critérios de aceite").
-Current stage: **2 (text and formatting) done**; stage 3 (roll, cut, drawer) not started.
+Current stage: **3 (roll, cut, drawer) done**; stage 4 (image, QR, barcodes) not started.
 
 ## Layout
 
@@ -48,7 +48,7 @@ cat core/tests/fixtures/receipt_small.bin | nc 127.0.0.1 9100
 UPDATE_FIXTURES=1 cargo test -p phantompos-core --test fixtures
 
 # UI with mock data in a plain browser (dev only, from app/)
-pnpm dev   # then open http://localhost:1420/?demo
+pnpm dev   # then open http://localhost:1420/?demo (also ?demo=gallery, ?demo=cap)
 ```
 
 `app/dist` must exist before a release compile of the app crate
@@ -82,11 +82,20 @@ All payloads are camelCase JSON. Names are declared once on each side:
 | Event | `listener:status` | `{ state: "listening" \| "error" \| "stopped", address, port, message? }` (`message` only on error) |
 | Event | `connection:changed` | `{ active: number, peers: string[] }` |
 | Event | `commands:received` | `{ connectionId: number, peer: string, commands: DecodedCommand[] }`, never empty. `DecodedCommand = { offset, bytes: number[], command: { type, ...params } }`; `offset` counts from the start of the connection stream. Variants and fields: `core/README.md`. Pending text and incomplete sequences are flushed on disconnect, before `connection:changed`. |
-| Command | `get_state` | `{ listener: <listener:status payload>, connections: <connection:changed payload> }` |
+| Event | `receipt:updated` | `{ connectionId, peer, receipt: Receipt }`: full snapshot of that connection's in-progress receipt (`cut: null`). At most one per socket read, only when something new was printed. |
+| Event | `receipt:completed` | `{ id, connectionId, peer, receipt: Receipt }`: closed by a cut (`cut: "full" \| "partial"`) or by the end of the connection (`cut: null`). `id` is unique and increasing in closing order. |
+| Event | `drawer:kicked` | `{ connectionId, peer, pin: 2 \| 5, onMs, offMs }`. The drawer stays open until `close_drawer`. |
+| Command | `get_state` | `{ listener, connections, paper: "58mm" \| "80mm", drawerOpen: boolean }` |
+| Command | `set_paper` | Argument `paper`. Memory only (default 80 mm); applies to receipts started afterwards. Returns the new paper; an invalid value rejects with a message. Provisional: folds into `update_settings` in stage 6. |
+| Command | `close_drawer` | No arguments. Provisional: folds into `set_printer_status` in stage 5. |
+
+Order per connection: `commands:received` for the batch, then
+`receipt:completed` (in order), then `receipt:updated`. On disconnect: flushed
+commands, `receipt:completed` if content is pending, then `connection:changed`.
+`Receipt` is documented in `core/README.md` (all values in printer dots).
 
 The UI registers its event listeners first and then calls `get_state`.
-Still to come from the SPEC: `receipt:completed`,
-`drawer:kicked`, `set_printer_status`, `update_settings`, `export_receipt`.
+Still to come from the SPEC: `set_printer_status`, `update_settings`, `export_receipt`.
 
 New commands need a permission: add them to `AppManifest` in
 `app/src-tauri/build.rs` and to `app/src-tauri/capabilities/default.json`.
@@ -107,9 +116,18 @@ includes visual design work, not just function.
 - One accent colour (teal). Red only for listener errors, amber only for
   unknown sequences. Text contrast at least WCAG AA in both themes.
 - All motion respects `prefers-reduced-motion`.
-- Embedded font: JetBrains Mono (OFL) in `app/src/assets/fonts/`, latin and
-  latin-ext only. The stage 3 roll needs box-drawing and shade glyphs
-  (U+2500-259F) for CP437, which these subsets lack.
+- Embedded font: JetBrains Mono (OFL) in `app/src/assets/fonts/`. The UI uses
+  the latin and latin-ext subsets; the receipt canvas uses a separate family,
+  "PhantomPOS Receipt", subset to every character the five code pages can
+  produce (recipe in the fonts README).
+- Receipt rendering (`app/src/lib/receipt/`): the bitmap is exactly `width`
+  dots wide, one pixel per dot, thresholded to pure black and white, and
+  scaled without smoothing. Each character is drawn in its own cell; box
+  drawing and block characters are drawn procedurally, not from the font.
+  Receipts are split into 1024-dot tiles that release their bitmap when far
+  off-screen. One zoom for all receipts keeps 58 and 80 mm in proportion.
+  `renderReceipt()` with `EXPORT_COLORS` gives black on white for PNG export.
+- The roll keeps at most 200 receipts.
 - No component or animation libraries; inline SVG icons.
 - The UI renders commands generically from `command.type` and its params, so
   new core variants need no UI change.
@@ -162,15 +180,20 @@ open design/icon/AppIcon.icon   # edit in Icon Composer
 - ESC/POS doubts: the Epson reference wins; document deliberate deviations in code.
 - Signing happens only in `release.yml`, never in CI.
 
-## Known limitations (stage 2)
+## Known limitations (stage 3)
 
 - Commands received before the webview has registered its listeners (the
   first moments after launch) are not shown; there is no backlog replay yet.
 - Text is emitted when its run ends (next command, 4096 bytes, or
   disconnect), so a client that keeps the socket open sees trailing text late.
-- Later-stage commands (cut, drawer, raster, QR, barcode, status) appear as
-  `unknown`, and their parameter bytes as text or control characters.
-- The receipt model is built in core but not yet sent to the UI (stage 3).
+- Later-stage commands (raster, QR, barcode, status) appear as `unknown`, and
+  their parameter bytes as text or control characters.
+- A cut in the middle of a line (buffered text without LF) is ignored, as on
+  an Epson printer. `GS V` function C is drawn like function B.
+- Text without its LF is not on the in-progress receipt until an LF, a cut or
+  the disconnect.
+- Vertical box-drawing lines only connect when line spacing is at most the
+  cell height (`ESC 3 24`), as on a real printer.
 - Port and bind address are fixed at `127.0.0.1:9100` until stage 6. Flutter
   DevTools also defaults to port 9100; if it is running, the header shows the
   port-in-use error.
