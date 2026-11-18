@@ -1,0 +1,195 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        104,
+        117,
+        103,
+        101
+      ],
+      "command": {
+        "text": "huge",
+        "type": "text"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 4
+    },
+    {
+      "bytes": [
+        29,
+        118,
+        48,
+        0,
+        255,
+        255,
+        255,
+        255
+      ],
+      "command": {
+        "bytesExpected": 4294836225,
+        "height": 65535,
+        "mode": "normal",
+        "type": "rasterImage",
+        "width": 524280
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+      ],
+      "command": {
+        "reason": "incomplete",
+        "type": "unknown"
+      },
+      "offset": 13
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 48,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 4,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "huge",
+              "width": 48,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        }
+      ],
+      "height": 30,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

@@ -93,33 +93,16 @@
     {
       "bytes": [
         28,
-        112
-      ],
-      "command": {
-        "reason": "unsupportedCommand",
-        "type": "unknown"
-      },
-      "offset": 11
-    },
-    {
-      "bytes": [
-        1
-      ],
-      "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
-      },
-      "offset": 13
-    },
-    {
-      "bytes": [
+        112,
+        1,
         0
       ],
       "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
+        "command": "FS p n=1 m=0",
+        "length": 0,
+        "type": "unsupportedImage"
       },
-      "offset": 14
+      "offset": 11
     },
     {
       "bytes": [

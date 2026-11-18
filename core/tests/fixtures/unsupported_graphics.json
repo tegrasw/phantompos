@@ -1,0 +1,366 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        116,
+        0
+      ],
+      "command": {
+        "codePage": "cp437",
+        "page": 0,
+        "type": "setCodePage"
+      },
+      "offset": 2
+    },
+    {
+      "bytes": [
+        103,
+        114,
+        97,
+        112,
+        104,
+        105,
+        99,
+        115
+      ],
+      "command": {
+        "text": "graphics",
+        "type": "text"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 13
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        76,
+        26,
+        0,
+        48,
+        112,
+        48,
+        1,
+        1,
+        49,
+        16,
+        0,
+        8,
+        0,
+        255,
+        255,
+        240,
+        241,
+        240,
+        241,
+        240,
+        241,
+        143,
+        15,
+        143,
+        15,
+        143,
+        15,
+        255,
+        255
+      ],
+      "command": {
+        "command": "GS ( L fn=112",
+        "length": 26,
+        "type": "unsupportedImage"
+      },
+      "offset": 14
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        76,
+        2,
+        0,
+        48,
+        50
+      ],
+      "command": {
+        "command": "GS ( L fn=50",
+        "length": 2,
+        "type": "unsupportedImage"
+      },
+      "offset": 45
+    },
+    {
+      "bytes": [
+        98,
+        105,
+        116,
+        73,
+        109,
+        97,
+        103,
+        101,
+        67,
+        111,
+        108,
+        117,
+        109,
+        110
+      ],
+      "command": {
+        "text": "bitImageColumn",
+        "type": "text"
+      },
+      "offset": 52
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 66
+    },
+    {
+      "bytes": [
+        27,
+        51,
+        16
+      ],
+      "command": {
+        "dots": 16,
+        "type": "setLineSpacing"
+      },
+      "offset": 67
+    },
+    {
+      "bytes": [
+        27,
+        42,
+        33,
+        16,
+        0,
+        255,
+        0,
+        0,
+        241,
+        0,
+        0,
+        241,
+        0,
+        0,
+        241,
+        0,
+        0,
+        143,
+        0,
+        0,
+        143,
+        0,
+        0,
+        143,
+        0,
+        0,
+        143,
+        0,
+        0,
+        241,
+        0,
+        0,
+        241,
+        0,
+        0,
+        241,
+        0,
+        0,
+        241,
+        0,
+        0,
+        143,
+        0,
+        0,
+        143,
+        0,
+        0,
+        143,
+        0,
+        0,
+        255,
+        0,
+        0
+      ],
+      "command": {
+        "command": "ESC * m=33",
+        "length": 48,
+        "type": "unsupportedImage"
+      },
+      "offset": 70
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 123
+    },
+    {
+      "bytes": [
+        27,
+        50
+      ],
+      "command": {
+        "type": "resetLineSpacing"
+      },
+      "offset": 124
+    },
+    {
+      "bytes": [
+        97,
+        102,
+        116,
+        101,
+        114
+      ],
+      "command": {
+        "text": "after",
+        "type": "text"
+      },
+      "offset": 126
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 131
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 96,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 8,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "graphics",
+              "width": 96,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 168,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 14,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "bitImageColumn",
+              "width": 168,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 30
+        },
+        {
+          "advance": 16,
+          "alignment": "left",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 60
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 60,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 5,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "after",
+              "width": 60,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 76
+        }
+      ],
+      "height": 106,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

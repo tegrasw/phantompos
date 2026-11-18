@@ -1,0 +1,547 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        122,
+        101,
+        114,
+        111,
+        32,
+        119,
+        105,
+        100,
+        116,
+        104
+      ],
+      "command": {
+        "text": "zero width",
+        "type": "text"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 10
+    },
+    {
+      "bytes": [
+        29,
+        118,
+        48,
+        0,
+        0,
+        0,
+        10,
+        0
+      ],
+      "command": {
+        "bytesExpected": 0,
+        "height": 10,
+        "mode": "normal",
+        "type": "rasterImage",
+        "width": 0
+      },
+      "offset": 11
+    },
+    {
+      "bytes": [
+        122,
+        101,
+        114,
+        111,
+        32,
+        104,
+        101,
+        105,
+        103,
+        104,
+        116
+      ],
+      "command": {
+        "text": "zero height",
+        "type": "text"
+      },
+      "offset": 19
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 30
+    },
+    {
+      "bytes": [
+        29,
+        118,
+        48,
+        0,
+        4,
+        0,
+        0,
+        0
+      ],
+      "command": {
+        "bytesExpected": 0,
+        "height": 0,
+        "mode": "normal",
+        "type": "rasterImage",
+        "width": 32
+      },
+      "offset": 31
+    },
+    {
+      "bytes": [
+        65,
+        83,
+        67,
+        73,
+        73,
+        32,
+        39,
+        51,
+        39,
+        32,
+        113,
+        117,
+        97,
+        100,
+        114,
+        117,
+        112,
+        108,
+        101
+      ],
+      "command": {
+        "text": "ASCII '3' quadruple",
+        "type": "text"
+      },
+      "offset": 39
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 58
+    },
+    {
+      "bytes": [
+        29,
+        118,
+        48,
+        51,
+        1,
+        0,
+        2,
+        0,
+        129,
+        126
+      ],
+      "command": {
+        "bytesExpected": 2,
+        "height": 2,
+        "mode": "quadruple",
+        "type": "rasterImage",
+        "width": 8
+      },
+      "offset": 59
+    },
+    {
+      "bytes": [
+        109,
+        111,
+        100,
+        101,
+        32,
+        55,
+        32,
+        99,
+        111,
+        110,
+        115,
+        117,
+        109,
+        101,
+        100,
+        44,
+        32,
+        110,
+        111,
+        116,
+        32,
+        100,
+        114,
+        97,
+        119,
+        110
+      ],
+      "command": {
+        "text": "mode 7 consumed, not drawn",
+        "type": "text"
+      },
+      "offset": 69
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 95
+    },
+    {
+      "bytes": [
+        29,
+        118,
+        48,
+        7,
+        1,
+        0,
+        2,
+        0,
+        255,
+        255
+      ],
+      "command": {
+        "bytesExpected": 2,
+        "height": 2,
+        "mode": null,
+        "type": "rasterImage",
+        "width": 8
+      },
+      "offset": 96
+    },
+    {
+      "bytes": [
+        109,
+        105,
+        100,
+        45,
+        108,
+        105,
+        110,
+        101,
+        32
+      ],
+      "command": {
+        "text": "mid-line ",
+        "type": "text"
+      },
+      "offset": 106
+    },
+    {
+      "bytes": [
+        29,
+        118,
+        48,
+        0,
+        1,
+        0,
+        1,
+        0,
+        255
+      ],
+      "command": {
+        "bytesExpected": 1,
+        "height": 1,
+        "mode": "normal",
+        "type": "rasterImage",
+        "width": 8
+      },
+      "offset": 115
+    },
+    {
+      "bytes": [
+        105,
+        103,
+        110,
+        111,
+        114,
+        101,
+        100
+      ],
+      "command": {
+        "text": "ignored",
+        "type": "text"
+      },
+      "offset": 124
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 131
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        2
+      ],
+      "command": {
+        "alignment": "right",
+        "type": "setAlignment"
+      },
+      "offset": 132
+    },
+    {
+      "bytes": [
+        29,
+        118,
+        48,
+        48,
+        2,
+        0,
+        2,
+        0,
+        255,
+        1,
+        128,
+        255
+      ],
+      "command": {
+        "bytesExpected": 4,
+        "height": 2,
+        "mode": "normal",
+        "type": "rasterImage",
+        "width": 16
+      },
+      "offset": 135
+    },
+    {
+      "bytes": [
+        101,
+        110,
+        100
+      ],
+      "command": {
+        "text": "end",
+        "type": "text"
+      },
+      "offset": 147
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 150
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 120,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 10,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "zero width",
+              "width": 120,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 132,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 11,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "zero height",
+              "width": 132,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 30
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 228,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 19,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "ASCII '3' quadruple",
+              "width": 228,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 60
+        },
+        {
+          "advance": 4,
+          "data": "wAPAAz/8P/w=",
+          "height": 4,
+          "kind": "raster",
+          "type": "image",
+          "width": 16,
+          "x": 0,
+          "y": 90
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 312,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 26,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "mode 7 consumed, not drawn",
+              "width": 312,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 94
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 192,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 16,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "mid-line ignored",
+              "width": 192,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 124
+        },
+        {
+          "advance": 2,
+          "data": "/wGA/w==",
+          "height": 2,
+          "kind": "raster",
+          "type": "image",
+          "width": 16,
+          "x": 560,
+          "y": 154
+        },
+        {
+          "advance": 30,
+          "alignment": "right",
+          "baseline": 21,
+          "contentWidth": 36,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 3,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "end",
+              "width": 36,
+              "x": 540,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 156
+        }
+      ],
+      "height": 186,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

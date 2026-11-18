@@ -1,0 +1,886 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        116,
+        0
+      ],
+      "command": {
+        "codePage": "cp437",
+        "page": 0,
+        "type": "setCodePage"
+      },
+      "offset": 2
+    },
+    {
+      "bytes": [
+        81,
+        82,
+        32,
+        109,
+        111,
+        100,
+        101,
+        108,
+        32,
+        50,
+        44,
+        32,
+        115,
+        105,
+        122,
+        101,
+        32,
+        51,
+        44,
+        32,
+        108,
+        101,
+        118,
+        101,
+        108,
+        32,
+        76,
+        32,
+        40,
+        100,
+        101,
+        102,
+        97,
+        117,
+        108,
+        116,
+        115,
+        41
+      ],
+      "command": {
+        "text": "QR model 2, size 3, level L (defaults)",
+        "type": "text"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 43
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        4,
+        0,
+        49,
+        65,
+        50,
+        0
+      ],
+      "command": {
+        "model": "model2",
+        "type": "setQrModel"
+      },
+      "offset": 44
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        67,
+        3
+      ],
+      "command": {
+        "size": 3,
+        "type": "setQrModuleSize"
+      },
+      "offset": 53
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        69,
+        48
+      ],
+      "command": {
+        "level": "l",
+        "type": "setQrErrorCorrection"
+      },
+      "offset": 61
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        13,
+        0,
+        49,
+        80,
+        48,
+        80,
+        104,
+        97,
+        110,
+        116,
+        111,
+        109,
+        80,
+        79,
+        83
+      ],
+      "command": {
+        "length": 10,
+        "type": "qrStoreData",
+        "valid": true
+      },
+      "offset": 69
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        81,
+        48
+      ],
+      "command": {
+        "type": "qrPrint"
+      },
+      "offset": 87
+    },
+    {
+      "bytes": [
+        115,
+        105,
+        122,
+        101,
+        32,
+        54,
+        44,
+        32,
+        108,
+        101,
+        118,
+        101,
+        108,
+        32,
+        77,
+        44,
+        32,
+        85,
+        82,
+        76
+      ],
+      "command": {
+        "text": "size 6, level M, URL",
+        "type": "text"
+      },
+      "offset": 95
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 115
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        4,
+        0,
+        49,
+        65,
+        50,
+        0
+      ],
+      "command": {
+        "model": "model2",
+        "type": "setQrModel"
+      },
+      "offset": 116
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        67,
+        6
+      ],
+      "command": {
+        "size": 6,
+        "type": "setQrModuleSize"
+      },
+      "offset": 125
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        69,
+        49
+      ],
+      "command": {
+        "level": "m",
+        "type": "setQrErrorCorrection"
+      },
+      "offset": 133
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        40,
+        0,
+        49,
+        80,
+        48,
+        104,
+        116,
+        116,
+        112,
+        115,
+        58,
+        47,
+        47,
+        103,
+        105,
+        116,
+        104,
+        117,
+        98,
+        46,
+        99,
+        111,
+        109,
+        47,
+        116,
+        101,
+        103,
+        114,
+        97,
+        115,
+        119,
+        47,
+        112,
+        104,
+        97,
+        110,
+        116,
+        111,
+        109,
+        112,
+        111,
+        115
+      ],
+      "command": {
+        "length": 37,
+        "type": "qrStoreData",
+        "valid": true
+      },
+      "offset": 141
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        81,
+        48
+      ],
+      "command": {
+        "type": "qrPrint"
+      },
+      "offset": 186
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        1
+      ],
+      "command": {
+        "alignment": "center",
+        "type": "setAlignment"
+      },
+      "offset": 194
+    },
+    {
+      "bytes": [
+        99,
+        101,
+        110,
+        116,
+        114,
+        101,
+        100,
+        44,
+        32,
+        115,
+        105,
+        122,
+        101,
+        32,
+        52,
+        44,
+        32,
+        108,
+        101,
+        118,
+        101,
+        108,
+        32,
+        81,
+        44,
+        32,
+        85,
+        84,
+        70,
+        45,
+        56
+      ],
+      "command": {
+        "text": "centred, size 4, level Q, UTF-8",
+        "type": "text"
+      },
+      "offset": 197
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 228
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        4,
+        0,
+        49,
+        65,
+        50,
+        0
+      ],
+      "command": {
+        "model": "model2",
+        "type": "setQrModel"
+      },
+      "offset": 229
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        67,
+        4
+      ],
+      "command": {
+        "size": 4,
+        "type": "setQrModuleSize"
+      },
+      "offset": 238
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        69,
+        50
+      ],
+      "command": {
+        "level": "q",
+        "type": "setQrErrorCorrection"
+      },
+      "offset": 246
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        39,
+        0,
+        49,
+        80,
+        48,
+        80,
+        195,
+        163,
+        111,
+        32,
+        100,
+        101,
+        32,
+        113,
+        117,
+        101,
+        105,
+        106,
+        111,
+        32,
+        226,
+        128,
+        148,
+        32,
+        82,
+        36,
+        32,
+        57,
+        44,
+        57,
+        48,
+        32,
+        194,
+        183,
+        32,
+        65,
+        195,
+        167,
+        195,
+        163,
+        111
+      ],
+      "command": {
+        "length": 36,
+        "type": "qrStoreData",
+        "valid": true
+      },
+      "offset": 254
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        81,
+        48
+      ],
+      "command": {
+        "type": "qrPrint"
+      },
+      "offset": 298
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        2
+      ],
+      "command": {
+        "alignment": "right",
+        "type": "setAlignment"
+      },
+      "offset": 306
+    },
+    {
+      "bytes": [
+        114,
+        105,
+        103,
+        104,
+        116,
+        44,
+        32,
+        115,
+        105,
+        122,
+        101,
+        32,
+        50,
+        44,
+        32,
+        108,
+        101,
+        118,
+        101,
+        108,
+        32,
+        72,
+        44,
+        32,
+        110,
+        117,
+        109,
+        101,
+        114,
+        105,
+        99
+      ],
+      "command": {
+        "text": "right, size 2, level H, numeric",
+        "type": "text"
+      },
+      "offset": 309
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 340
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        4,
+        0,
+        49,
+        65,
+        50,
+        0
+      ],
+      "command": {
+        "model": "model2",
+        "type": "setQrModel"
+      },
+      "offset": 341
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        67,
+        2
+      ],
+      "command": {
+        "size": 2,
+        "type": "setQrModuleSize"
+      },
+      "offset": 350
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        69,
+        51
+      ],
+      "command": {
+        "level": "h",
+        "type": "setQrErrorCorrection"
+      },
+      "offset": 358
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        43,
+        0,
+        49,
+        80,
+        48,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57
+      ],
+      "command": {
+        "length": 40,
+        "type": "qrStoreData",
+        "valid": true
+      },
+      "offset": 366
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        81,
+        48
+      ],
+      "command": {
+        "type": "qrPrint"
+      },
+      "offset": 414
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        0
+      ],
+      "command": {
+        "alignment": "left",
+        "type": "setAlignment"
+      },
+      "offset": 422
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 456,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 38,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "QR model 2, size 3, level L (defaults)",
+              "width": 456,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 63,
+          "data": "///4A44///7///gDjj///v//+AOOP//+4AA44444AA7gADjjjjgADuAAOOOOOAAO4/444/A4/47j/jjj8Dj/juP+OOPwOP+O4/44AA44/47j/jgADjj/juP+OAAOOP+O4/44//44/47j/jj//jj/juP+OP/+OP+O4AA4/4A4AA7gADj/gDgADuAAOP+AOAAO///4444///7///jjjj///v//+OOOP//+AAAA4AAAAAAAAADgAAAAAAAAAOAAAAAA/HA/A/4/4/D8cD8D/j/j8PxwPwP+P+Pw/H4A/HHAH/78fgD8ccAf/vx+APxxwB/+////A/H/A47///8D8f8Djv///wPx/wOOAAAAH444HH4AAAAfjjgcfgAAAB+OOBx+4A//H/A/AA7gD/8f8D8ADuAP/x/wPwAOAAAA/AH/HHAAAAD8Af8ccAAAAPwB/xxw///44H//4/D///jgf//j8P//+OB//+Pw4AA4A4AA4H7gADgDgADgfuAAOAOAAOB+4/44H44/4HDj/jgfjj/gcOP+OB+OP+Bw4/44/4H///7j/jj/gf///uP+OP+B///+4/44H/HH4A7j/jgf8cfgDuP+OB/xx+AO4AA44H4H4ADgADjgfgfgAOAAOOB+B+AA///44AAH4HD///jgAAfgcP//+OAAB+Bw",
+          "height": 63,
+          "kind": "qrCode",
+          "type": "image",
+          "width": 63,
+          "x": 0,
+          "y": 30
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 240,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 20,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "size 6, level M, URL",
+              "width": 240,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 93
+        },
+        {
+          "advance": 174,
+          "data": "///////A//////AAA/AAAA///////P//////wP/////wAAPwAAAP//////z//////8D/////8AAD8AAAD//////8///////A//////AAA/AAAA///////P//////wP/////wAAPwAAAP//////z//////8D/////8AAD8AAAD//////8/AAAAA/A/AA//A/A////AA/AAAAA/PwAAAAPwPwAP/wPwP///wAPwAAAAPz8AAAAD8D8AD/8D8D///8AD8AAAAD8/AAAAA/A/AA//A/A////AA/AAAAA/PwAAAAPwPwAP/wPwP///wAPwAAAAPz8AAAAD8D8AD/8D8D///8AD8AAAAD8/A///A/A///AA//AAA/A/A/A///A/PwP//wPwP//wAP/wAAPwPwPwP//wPz8D//8D8D//8AD/8AAD8D8D8D//8D8/A///A/A///AA//AAA/A/A/A///A/PwP//wPwP//wAP/wAAPwPwPwP//wPz8D//8D8D//8AD/8AAD8D8D8D//8D8/A///A/AAA/A/A////AA/A/A///A/PwP//wPwAAPwPwP///wAPwPwP//wPz8D//8D8AAD8D8D///8AD8D8D//8D8/A///A/AAA/A/A////AA/A/A///A/PwP//wPwAAPwPwP///wAPwPwP//wPz8D//8D8AAD8D8D///8AD8D8D//8D8/A///A/A///////A////AA/A///A/PwP//wPwP//////wP///wAPwP//wPz8D//8D8D//////8D///8AD8D//8D8/A///A/A///////A////AA/A///A/PwP//wPwP//////wP///wAPwP//wPz8D//8D8D//////8D///8AD8D//8D8/AAAAA/AA//////A///A/A/AAAAA/PwAAAAPwAP/////wP//wPwPwAAAAPz8AAAAD8AD/////8D//8D8D8AAAAD8/AAAAA/AA//////A///A/A/AAAAA/PwAAAAPwAP/////wP//wPwPwAAAAPz8AAAAD8AD/////8D//8D8D8AAAAD8///////A/A/A/A/A/A/A/A///////P//////wPwPwPwPwPwPwPwP//////z//////8D8D8D8D8D8D8D8D//////8///////A/A/A/A/A/A/A/A///////P//////wPwPwPwPwPwPwPwP//////z//////8D8D8D8D8D8D8D8D//////8AAAAAAAAAA/A/A/AAAA/AAAAAAAAAAAAAAAAAAAPwPwPwAAAPwAAAAAAAAAAAAAAAAAAD8D8D8AAAD8AAAAAAAAAAAAAAAAAAA/A/A/AAAA/AAAAAAAAAAAAAAAAAAAPwPwPwAAAPwAAAAAAAAAAAAAAAAAAD8D8D8AAAD8AAAAAAAAA/AA/////////A///A/A/A/AA/A///PwAP////////wP//wPwPwPwAPwP//z8AD////////8D//8D8D8D8AD8D//8/AA/////////A///A/A/A/AA/A///PwAP////////wP//wPwPwPwAPwP//z8AD////////8D//8D8D8D8AD8D//8AA/A/AA/AAAA/A//AAA/A/A//A//AAAPwPwAPwAAAPwP/wAAPwPwP/wP/wAAD8D8AD8AAAD8D/8AAD8D8D/8D/8AAA/A/AA/AAAA/A//AAA/A/A//A//AAAPwPwAPwAAAPwP/wAAPwPwP/wP/wAAD8D8AD8AAAD8D/8AAD8D8D/8D/8A/AA/A///A///AA///A/A/AA//A/AAPwAPwP//wP//wAP//wPwPwAP/wPwAD8AD8D//8D//8AD//8D8D8AD/8D8AA/AA/A///A///AA///A/A/AA//A/AAPwAPwP//wP//wAP//wPwPwAP/wPwAD8AD8D//8D//8AD//8D8D8AD/8D8AA///A//AA/AAA/A/AA/AA////A/AA/P//wP/wAPwAAPwPwAPwAP///wPwAPz//8D/8AD8AAD8D8AD8AD///8D8AD8///A//AA/AAA/A/AA/AA////A/AA/P//wP/wAPwAAPwPwAPwAP///wPwAPz//8D/8AD8AAD8D8AD8AD///8D8AD8/A///A/AA///A//A/AA/AA//AAAA/PwP//wPwAP//wP/wPwAPwAP/wAAAPz8D//8D8AD//8D/8D8AD8AD/8AAAD8/A///A/AA///A//A/AA/AA//AAAA/PwP//wPwAP//wP/wPwAPwAP/wAAAPz8D//8D8AD//8D/8D8AD8AD/8AAAD8AA//A/A/AA///AA//AAAAA///////AAP/wPwPwAP//wAP/wAAAAP//////wAD/8D8D8AD//8AD/8AAAAD//////8AA//A/A/AA///AA//AAAAA///////AAP/wPwPwAP//wAP/wAAAAP//////wAD/8D8D8AD//8AD/8AAAAD//////8AA/AAA/A////AA//A/A////A/A/A/AAPwAAPwP///wAP/wPwP///wPwPwPwAD8AAD8D///8AD/8D8D///8D8D8D8AA/AAA/A////AA//A/A////A/A/A/AAPwAAPwP///wAP/wPwP///wPwPwPwAD8AAD8D///8AD/8D8D///8D8D8D8/A//A/AA/A//////AAA/AAA//A/A/PwP/wPwAPwP/////wAAPwAAP/wPwPz8D/8D8AD8D/////8AAD8AAD/8D8D8/A//A/AA/A//////AAA/AAA//A/A/PwP/wPwAPwP/////wAAPwAAP/wPwPz8D/8D8AD8D/////8AAD8AAD/8D8D8/AA/A//A//A//AAAAA////AAA/AAAPwAPwP/wP/wP/wAAAAP///wAAPwAAD8AD8D/8D/8D/8AAAAD///8AAD8AAA/AA/A//A//A//AAAAA////AAA/AAAPwAPwP/wP/wP/wAAAAP///wAAPwAAD8AD8D/8D/8D/8AAAAD///8AAD8AAA/AAAAAA/AA/AAAA/AA//AAAA/A//APwAAAAAPwAPwAAAPwAP/wAAAPwP/wD8AAAAAD8AD8AAAD8AD/8AAAD8D/8A/AAAAAA/AA/AAAA/AA//AAAA/A//APwAAAAAPwAPwAAAPwAP/wAAAPwP/wD8AAAAAD8AD8AAAD8AD/8AAAD8D/8A///A////AA///////AA/AAAA//AA/P//wP///wAP//////wAPwAAAP/wAPz//8D///8AD//////8AD8AAAD/8AD8///A////AA///////AA/AAAA//AA/P//wP///wAP//////wAPwAAAP/wAPz//8D///8AD//////8AD8AAAD/8AD8//A/AAA/AA/AA/AA/AA/AA/AA//AAP/wPwAAPwAPwAPwAPwAPwAPwAP/wAD/8D8AAD8AD8AD8AD8AD8AD8AD/8AA//A/AAA/AA/AA/AA/AA/AA/AA//AAP/wPwAAPwAPwAPwAPwAPwAPwAP/wAD/8D8AAD8AD8AD8AD8AD8AD8AD/8AA///////AA//A//A/A/AA////////AP//////wAP/wP/wPwPwAP///////wD//////8AD/8D/8D8D8AD///////8A///////AA//A//A/A/AA////////AP//////wAP/wP/wPwPwAP///////wD//////8AD/8D/8D8D8AD///////8AAAAAAAAA///A//A/AAAA/AAA//AAAAAAAAAAAP//wP/wPwAAAPwAAP/wAAAAAAAAAAD//8D/8D8AAAD8AAD/8AAAAAAAAAAA///A//A/AAAA/AAA//AAAAAAAAAAAP//wP/wPwAAAPwAAP/wAAAAAAAAAAD//8D/8D8AAAD8AAD/8AAA///////A/AAAA/A/A////A/A//AAAP//////wPwAAAPwPwP///wPwP/wAAD//////8D8AAAD8D8D///8D8D/8AAA///////A/AAAA/A/A////A/A//AAAP//////wPwAAAPwPwP///wPwP/wAAD//////8D8AAAD8D8D///8D8D/8AAA/AAAAA/A////A/A/A////AAA/AA//PwAAAAPwP///wPwPwP///wAAPwAP/z8AAAAD8D///8D8D8D///8AAD8AD/8/AAAAA/A////A/A/A////AAA/AA//PwAAAAPwP///wPwPwP///wAAPwAP/z8AAAAD8D///8D8D8D///8AAD8AD/8/A///A/A//A/A/AA/AA///////AA/PwP//wPwP/wPwPwAPwAP//////wAPz8D//8D8D/8D8D8AD8AD//////8AD8/A///A/A//A/A/AA/AA///////AA/PwP//wPwP/wPwPwAPwAP//////wAPz8D//8D8D/8D8D8AD8AD//////8AD8/A///A/A/AAA/A/////AA/AAAAAA/PwP//wPwPwAAPwP////wAPwAAAAAPz8D//8D8D8AAD8D////8AD8AAAAAD8/A///A/A/AAA/A/////AA/AAAAAA/PwP//wPwPwAAPwP////wAPwAAAAAPz8D//8D8D8AAD8D////8AD8AAAAAD8/A///A/AAA///AA/AA/A//A//A///PwP//wPwAAP//wAPwAPwP/wP/wP//z8D//8D8AAD//8AD8AD8D/8D/8D//8/A///A/AAA///AA/AA/A//A//A///PwP//wPwAAP//wAPwAPwP/wP/wP//z8D//8D8AAD//8AD8AD8D/8D/8D//8/AAAAA/AA/A/AA/A/A/AAA//A//A/PwAAAAPwAPwPwAPwPwPwAAP/wP/wPz8AAAAD8AD8D8AD8D8D8AAD/8D/8D8/AAAAA/AA/A/AA/A/A/AAA//A//A/PwAAAAPwAPwPwAPwPwPwAAP/wP/wPz8AAAAD8AD8D8AD8D8D8AAD/8D/8D8///////A///AAAA/AAA//A/A/AAAAP//////wP//wAAAPwAAP/wPwPwAAAD//////8D//8AAAD8AAD/8D8D8AAAA///////A///AAAA/AAA//A/A/AAAAP//////wP//wAAAPwAAP/wPwPwAAAD//////8D//8AAAD8AAD/8D8D8AAAA",
+          "height": 174,
+          "kind": "qrCode",
+          "type": "image",
+          "width": 174,
+          "x": 0,
+          "y": 123
+        },
+        {
+          "advance": 30,
+          "alignment": "center",
+          "baseline": 21,
+          "contentWidth": 372,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 31,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "centred, size 4, level Q, UTF-8",
+              "width": 372,
+              "x": 102,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 297
+        },
+        {
+          "advance": 132,
+          "data": "////8PDw8PD/////AP////D////w8PDw8P////8A////8P////Dw8PDw/////wD////w////8PDw8PD/////AP////DwAADwAA8PD/DwAA8A8AAA8PAAAPAADw8P8PAADwDwAADw8AAA8AAPDw/w8AAPAPAAAPDwAADwAA8PD/DwAA8A8AAA8PD/8PDw8P8PAPD/8PDw//Dw8P/w8PDw/w8A8P/w8PD/8PDw//Dw8PD/DwDw//Dw8P/w8PD/8PDw8P8PAPD/8PDw//Dw8P/w8PAAD//////wAPD/8PDw//Dw8AAP//////AA8P/w8PD/8PDwAA//////8ADw//Dw8P/w8PAAD//////wAPD/8PDw//DwD/AP/wD//wDw8P/w8PD/8PAP8A//AP//APDw//Dw8P/w8A/wD/8A//8A8PD/8PDw//DwD/AP/wD//wDw8P/w8PAAAPD/D/D/8A8A8PDwAADw8AAA8P8P8P/wDwDw8PAAAPDwAADw/w/w//APAPDw8AAA8PAAAPD/D/D/8A8A8PDwAADw////8PDw8PDw8PDw8P////D////w8PDw8PDw8PDw////8P////Dw8PDw8PDw8PD////w////8PDw8PDw8PDw8P////AAAAAA/wAAAP8ADwDwAAAAAAAAAAD/AAAA/wAPAPAAAAAAAAAAAP8AAAD/AA8A8AAAAAAAAAAA/wAAAP8ADwDwAAAAAA8PD//wDwD/8PAP8P//D/DwDw8P//APAP/w8A/w//8P8PAPDw//8A8A//DwD/D//w/w8A8PD//wDwD/8PAP8P//D/Dw8PDwAPD/Dw//8A8A//8PAPDw8PAA8P8PD//wDwD//w8A8PDw8ADw/w8P//APAP//DwDw8PDwAPD/Dw//8A8A//8PAPAAAA///w8AAAD/8AAP/w8P8AAAD///DwAAAP/wAA//Dw/wAAAP//8PAAAA//AAD/8PD/AAAA///w8AAAD/8AAP/w8P8A8P8A8PAAAPAPD/8ADwAPDwDw/wDw8AAA8A8P/wAPAA8PAPD/APDwAADwDw//AA8ADw8A8P8A8PAAAPAPD/8ADwAPDw/wDw8P/w8A/w8PD//wDwAAD/APDw//DwD/Dw8P//APAAAP8A8PD/8PAP8PDw//8A8AAA/wDw8P/w8A/w8PD//wDwAADw//8AAAAP/w/w/wDwAP8AAPD//wAAAA//D/D/APAA/wAA8P//AAAAD/8P8P8A8AD/AADw//8AAAAP/w/w/wDwAP8AAPAA///wDwDw8A8A/wAA///w8AD///APAPDwDwD/AAD///DwAP//8A8A8PAPAP8AAP//8PAA///wDwDw8A8A/wAA///w8P8ADwAP/w//APAADw8PDwDw/wAPAA//D/8A8AAPDw8PAPD/AA8AD/8P/wDwAA8PDw8A8P8ADwAP/w//APAADw8PDwD//w/w8ADwAP/wD/Dw8PAP8P//D/DwAPAA//AP8PDw8A/w//8P8PAA8AD/8A/w8PDwD/D//w/w8ADwAP/wD/Dw8PAP8A8PAAAP//8P//8AD/AAAAAADw8AAA///w///wAP8AAAAAAPDwAAD///D///AA/wAAAAAA8PAAAP//8P//8AD/AAAAAAAP8P///w//DwAP8AAPD/APAA/w////D/8PAA/wAA8P8A8AD/D///8P/w8AD/AADw/wDwAP8P///w//DwAP8AAPD/APD/APAA/w/w8A8AAP//8PAAAP8A8AD/D/DwDwAA///w8AAA/wDwAP8P8PAPAAD///DwAAD/APAA/w/w8A8AAP//8PAAAAAA////8PD///DwD/DwDw/wAAD////w8P//8PAP8PAPD/AAAP////Dw///w8A/w8A8P8AAA////8PD///DwD/DwDw/wAPDwD/DwAA8ADw8AD/8PAAAA8PAP8PAADwAPDwAP/w8AAADw8A/w8AAPAA8PAA//DwAAAPDwD/DwAA8ADw8AD/8PAAD/8PD/D/AA//APDw8P//Dw8P/w8P8P8AD/8A8PDw//8PDw//Dw/w/wAP/wDw8PD//w8PD/8PD/D/AA//APDw8P//Dw8A//Dw/wAAAPDw/wDwDwD//wD/8PD/AAAA8PD/APAPAP//AP/w8P8AAADw8P8A8A8A//8A//Dw/wAAAPDw/wDwDwD//w8PDw//AADw8PAPDw///w//Dw8PD/8AAPDw8A8PD///D/8PDw8P/wAA8PDwDw8P//8P/w8PDw//AADw8PAPDw///w//AAAAAA/wD/AAD/D//wAPDw8AAAAAD/AP8AAP8P//AA8PDwAAAAAP8A/wAA/w//8ADw8PAAAAAA/wD/AAD/D//wAPDw8P////D/8AAP//AA8PDw8AAA////8P/wAA//8ADw8PDwAAD////w//AAD//wAPDw8PAAAP////D/8AAP//AA8PDw8AAA8AAA8P8PD/AA///w8AD/AADwAADw/w8P8AD///DwAP8AAPAAAPD/Dw/wAP//8PAA/wAA8AAA8P8PD/AA///w8AD/AADw//DwAPD/APAP8AD///APAPD/8PAA8P8A8A/wAP//8A8A8P/w8ADw/wDwD/AA///wDwDw//DwAPD/APAP8AD///APAPD/8PDwAPAPAA8P/wD/8A8A8P/w8PAA8A8ADw//AP/wDwDw//Dw8ADwDwAPD/8A//APAPD/8PDwAPAPAA8P/wD/8A8A8P/w8A/wAA8A//D//w/wAPDw//DwD/AADwD/8P//D/AA8PD/8PAP8AAPAP/w//8P8ADw8P/w8A/wAA8A//D//w/wAPDwAADw/wAADwAP8P8PD//wAPAAAPD/AAAPAA/w/w8P//AA8AAA8P8AAA8AD/D/Dw//8ADwAADw/wAADwAP8P8PD//wAP////AA8A/w8A/w8A/w8A8A////8ADwD/DwD/DwD/DwDwD////wAPAP8PAP8PAP8PAPAP////AA8A/w8A/w8A/w8A8A",
+          "height": 132,
+          "kind": "qrCode",
+          "type": "image",
+          "width": 132,
+          "x": 222,
+          "y": 327
+        },
+        {
+          "advance": 30,
+          "alignment": "right",
+          "baseline": 21,
+          "contentWidth": 372,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 31,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "right, size 2, level H, numeric",
+              "width": 372,
+              "x": 204,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 459
+        },
+        {
+          "advance": 58,
+          "data": "//zPAPDP/8D//M8A8M//wMAMDA//zADAwAwMD//MAMDPzA8M/Mz8wM/MDwz8zPzAz8z///PM/MDPzP//88z8wM/MMAD8DPzAz8wwAPwM/MDADDzMzAwAwMAMPMzMDADA//zMzMzP/8D//MzMzM//wAAAAADAwAAAAAAAAMDAAAAM/P8zA/AwwAz8/zMD8DDAwzDw8DPwzwDDMPDwM/DPAMAPzDD/8A8AwA/MMP/wDwAPAMDA8PzDAA8AwMDw/MMAM8/A/M8A/MAzz8D8zwD8wMDwzA8PPAMAwPDMDw88AwAPD8DzzM/8wA8PwPPMz/zA/PPAMMADAwD888AwwAMDAAzMwDwzDMPADMzAPDMMw8A/MzMzPwMDAD8zMzM/AwMAwzw//DADwMDDPD/8MAPAwDMwz8wPM8PAMzDPzA8zw8DPP/wDPP/AAM8//AM8/8AAAADz/MDAwAAAAPP8wMDAAP/8PPMDzMPA//w88wPMw8DADMw/DMD/AMAMzD8MwP8Az8z8wPz/wwDPzPzA/P/DAM/MM/Mwz/8Az8wz8zDP/wDPzPPA/z8AwM/M88D/PwDAwAw8Dz8PwADADDwPPw/AAP/8MPM/A8DA//ww8z8DwMA=",
+          "height": 58,
+          "kind": "qrCode",
+          "type": "image",
+          "width": 58,
+          "x": 518,
+          "y": 489
+        }
+      ],
+      "height": 547,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

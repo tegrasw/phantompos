@@ -1,0 +1,699 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        80,
+        68,
+        70,
+        52,
+        49,
+        55
+      ],
+      "command": {
+        "text": "PDF417",
+        "type": "text"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 6
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        14,
+        0,
+        48,
+        80,
+        48,
+        80,
+        68,
+        70,
+        52,
+        49,
+        55,
+        32,
+        100,
+        97,
+        116,
+        97
+      ],
+      "command": {
+        "command": "GS ( k PDF417 fn=80",
+        "length": 14,
+        "type": "unsupportedImage"
+      },
+      "offset": 7
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        48,
+        81,
+        48
+      ],
+      "command": {
+        "command": "GS ( k PDF417 fn=81",
+        "length": 3,
+        "type": "unsupportedImage"
+      },
+      "offset": 26
+    },
+    {
+      "bytes": [
+        77,
+        97,
+        120,
+        105,
+        67,
+        111,
+        100,
+        101
+      ],
+      "command": {
+        "text": "MaxiCode",
+        "type": "text"
+      },
+      "offset": 34
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 42
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        4,
+        0,
+        50,
+        65,
+        50,
+        0
+      ],
+      "command": {
+        "command": "GS ( k MaxiCode fn=65",
+        "length": 4,
+        "type": "unsupportedImage"
+      },
+      "offset": 43
+    },
+    {
+      "bytes": [
+        68,
+        97,
+        116,
+        97,
+        77,
+        97,
+        116,
+        114,
+        105,
+        120
+      ],
+      "command": {
+        "text": "DataMatrix",
+        "type": "text"
+      },
+      "offset": 52
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 62
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        5,
+        0,
+        54,
+        80,
+        48,
+        65,
+        66
+      ],
+      "command": {
+        "command": "GS ( k DataMatrix fn=80",
+        "length": 5,
+        "type": "unsupportedImage"
+      },
+      "offset": 63
+    },
+    {
+      "bytes": [
+        71,
+        83,
+        32,
+        56,
+        32,
+        76
+      ],
+      "command": {
+        "text": "GS 8 L",
+        "type": "text"
+      },
+      "offset": 73
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 79
+    },
+    {
+      "bytes": [
+        29,
+        56,
+        76,
+        6,
+        0,
+        0,
+        0,
+        48,
+        50,
+        1,
+        2,
+        3,
+        4
+      ],
+      "command": {
+        "command": "GS 8 L fn=50",
+        "length": 6,
+        "type": "unsupportedImage"
+      },
+      "offset": 80
+    },
+    {
+      "bytes": [
+        71,
+        83,
+        32,
+        42,
+        32,
+        97,
+        110,
+        100,
+        32,
+        71,
+        83,
+        32,
+        47
+      ],
+      "command": {
+        "text": "GS * and GS /",
+        "type": "text"
+      },
+      "offset": 93
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 106
+    },
+    {
+      "bytes": [
+        29,
+        42,
+        1,
+        1,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255
+      ],
+      "command": {
+        "command": "GS *",
+        "length": 8,
+        "type": "unsupportedImage"
+      },
+      "offset": 107
+    },
+    {
+      "bytes": [
+        29,
+        47,
+        0
+      ],
+      "command": {
+        "command": "GS / m=0",
+        "length": 0,
+        "type": "unsupportedImage"
+      },
+      "offset": 119
+    },
+    {
+      "bytes": [
+        70,
+        83,
+        32,
+        112
+      ],
+      "command": {
+        "text": "FS p",
+        "type": "text"
+      },
+      "offset": 122
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 126
+    },
+    {
+      "bytes": [
+        28,
+        112,
+        1,
+        0
+      ],
+      "command": {
+        "command": "FS p n=1 m=0",
+        "length": 0,
+        "type": "unsupportedImage"
+      },
+      "offset": 127
+    },
+    {
+      "bytes": [
+        71,
+        83,
+        32,
+        40,
+        32,
+        69
+      ],
+      "command": {
+        "text": "GS ( E",
+        "type": "text"
+      },
+      "offset": 131
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 137
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        69,
+        3,
+        0,
+        1,
+        2,
+        3
+      ],
+      "command": {
+        "reason": "unsupportedCommand",
+        "type": "unknown"
+      },
+      "offset": 138
+    },
+    {
+      "bytes": [
+        69,
+        83,
+        67,
+        32,
+        42,
+        32,
+        109,
+        61,
+        50,
+        32,
+        40,
+        104,
+        101,
+        97,
+        100,
+        101,
+        114,
+        32,
+        111,
+        110,
+        108,
+        121,
+        41
+      ],
+      "command": {
+        "text": "ESC * m=2 (header only)",
+        "type": "text"
+      },
+      "offset": 146
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 169
+    },
+    {
+      "bytes": [
+        27,
+        42,
+        2,
+        5,
+        0
+      ],
+      "command": {
+        "command": "ESC * m=2",
+        "length": 0,
+        "type": "unsupportedImage"
+      },
+      "offset": 170
+    },
+    {
+      "bytes": [
+        101,
+        110,
+        100
+      ],
+      "command": {
+        "text": "end",
+        "type": "text"
+      },
+      "offset": 175
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 178
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 72,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 6,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "PDF417",
+              "width": 72,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 96,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 8,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "MaxiCode",
+              "width": 96,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 30
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 120,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 10,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "DataMatrix",
+              "width": 120,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 60
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 72,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 6,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "GS 8 L",
+              "width": 72,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 90
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 156,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 13,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "GS * and GS /",
+              "width": 156,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 120
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 48,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 4,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "FS p",
+              "width": 48,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 150
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 72,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 6,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "GS ( E",
+              "width": 72,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 180
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 276,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 23,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "ESC * m=2 (header only)",
+              "width": 276,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 210
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 36,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 3,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "end",
+              "width": 36,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 240
+        }
+      ],
+      "height": 270,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

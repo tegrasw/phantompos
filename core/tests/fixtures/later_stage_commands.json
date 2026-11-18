@@ -88,223 +88,83 @@
     {
       "bytes": [
         29,
-        118
+        118,
+        48,
+        0,
+        1,
+        0,
+        1,
+        0,
+        255
       ],
       "command": {
-        "reason": "unsupportedCommand",
-        "type": "unknown"
+        "bytesExpected": 1,
+        "height": 1,
+        "mode": "normal",
+        "type": "rasterImage",
+        "width": 8
       },
       "offset": 24
     },
     {
       "bytes": [
-        48
-      ],
-      "command": {
-        "text": "0",
-        "type": "text"
-      },
-      "offset": 26
-    },
-    {
-      "bytes": [
-        0
-      ],
-      "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
-      },
-      "offset": 27
-    },
-    {
-      "bytes": [
-        1
-      ],
-      "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
-      },
-      "offset": 28
-    },
-    {
-      "bytes": [
-        0
-      ],
-      "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
-      },
-      "offset": 29
-    },
-    {
-      "bytes": [
-        1
-      ],
-      "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
-      },
-      "offset": 30
-    },
-    {
-      "bytes": [
-        0
-      ],
-      "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
-      },
-      "offset": 31
-    },
-    {
-      "bytes": [
-        255
-      ],
-      "command": {
-        "text": " ",
-        "type": "text"
-      },
-      "offset": 32
-    },
-    {
-      "bytes": [
         29,
-        40
-      ],
-      "command": {
-        "reason": "unsupportedCommand",
-        "type": "unknown"
-      },
-      "offset": 33
-    },
-    {
-      "bytes": [
-        107
-      ],
-      "command": {
-        "text": "k",
-        "type": "text"
-      },
-      "offset": 35
-    },
-    {
-      "bytes": [
-        3
-      ],
-      "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
-      },
-      "offset": 36
-    },
-    {
-      "bytes": [
-        0
-      ],
-      "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
-      },
-      "offset": 37
-    },
-    {
-      "bytes": [
+        40,
+        107,
+        3,
+        0,
         49,
         65,
         50
       ],
       "command": {
-        "text": "1A2",
-        "type": "text"
+        "command": "GS ( k QR Code fn=65",
+        "length": 3,
+        "type": "unsupportedImage"
       },
-      "offset": 38
+      "offset": 33
     },
     {
       "bytes": [
         29,
-        104
+        104,
+        80
       ],
       "command": {
-        "reason": "unsupportedCommand",
-        "type": "unknown"
+        "dots": 80,
+        "type": "setBarcodeHeight"
       },
       "offset": 41
     },
     {
       "bytes": [
-        80
-      ],
-      "command": {
-        "text": "P",
-        "type": "text"
-      },
-      "offset": 43
-    },
-    {
-      "bytes": [
         29,
-        119
+        119,
+        2
       ],
       "command": {
-        "reason": "unsupportedCommand",
-        "type": "unknown"
+        "module": 2,
+        "type": "setBarcodeWidth"
       },
       "offset": 44
     },
     {
       "bytes": [
+        29,
+        72,
         2
       ],
       "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
-      },
-      "offset": 46
-    },
-    {
-      "bytes": [
-        29,
-        72
-      ],
-      "command": {
-        "reason": "unsupportedCommand",
-        "type": "unknown"
+        "position": "below",
+        "type": "setHriPosition"
       },
       "offset": 47
     },
     {
       "bytes": [
-        2
-      ],
-      "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
-      },
-      "offset": 49
-    },
-    {
-      "bytes": [
         29,
-        107
-      ],
-      "command": {
-        "reason": "unsupportedCommand",
-        "type": "unknown"
-      },
-      "offset": 50
-    },
-    {
-      "bytes": [
-        2
-      ],
-      "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
-      },
-      "offset": 52
-    },
-    {
-      "bytes": [
+        107,
+        2,
         55,
         56,
         57,
@@ -317,23 +177,18 @@
         55,
         56,
         57,
-        53
-      ],
-      "command": {
-        "text": "7891234567895",
-        "type": "text"
-      },
-      "offset": 53
-    },
-    {
-      "bytes": [
+        53,
         0
       ],
       "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
+        "data": "7891234567895",
+        "function": "a",
+        "problem": null,
+        "symbology": "ean13",
+        "type": "barcode",
+        "valid": true
       },
-      "offset": 66
+      "offset": 50
     },
     {
       "bytes": [
@@ -480,16 +335,36 @@
       "cut": null,
       "elements": [
         {
-          "advance": 30,
+          "advance": 1,
+          "data": "/w==",
+          "height": 1,
+          "kind": "raster",
+          "type": "image",
+          "width": 8,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "advance": 80,
+          "data": "zPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzMzPPwz8PDDzz/MPzMzD8zAMDDDA/MMPzM",
+          "height": 80,
+          "kind": "barcode",
+          "type": "image",
+          "width": 190,
+          "x": 0,
+          "y": 1
+        },
+        {
+          "advance": 24,
           "alignment": "left",
           "baseline": 21,
-          "contentWidth": 252,
+          "contentWidth": 156,
           "height": 24,
           "spans": [
             {
               "charHeight": 24,
               "charWidth": 12,
-              "columns": 21,
+              "columns": 13,
               "style": {
                 "bold": false,
                 "font": "a",
@@ -498,14 +373,42 @@
                 "underline": "off",
                 "widthMultiplier": 1
               },
-              "text": "0 k1A2P7891234567895 ",
-              "width": 252,
+              "text": "7891234567895",
+              "width": 156,
+              "x": 17,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 81
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 12,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 1,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": " ",
+              "width": 12,
               "x": 0,
               "y": 0
             }
           ],
           "type": "line",
-          "y": 0
+          "y": 105
         },
         {
           "advance": 30,
@@ -533,10 +436,10 @@
             }
           ],
           "type": "line",
-          "y": 30
+          "y": 135
         }
       ],
-      "height": 60,
+      "height": 165,
       "paper": "80mm",
       "width": 576
     }

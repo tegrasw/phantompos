@@ -1,0 +1,460 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        116,
+        0
+      ],
+      "command": {
+        "codePage": "cp437",
+        "page": 0,
+        "type": "setCodePage"
+      },
+      "offset": 2
+    },
+    {
+      "bytes": [
+        69,
+        65,
+        78,
+        45,
+        49,
+        51,
+        44,
+        32,
+        99,
+        104,
+        101,
+        99,
+        107,
+        32,
+        100,
+        105,
+        103,
+        105,
+        116,
+        32,
+        97,
+        100,
+        100,
+        101,
+        100,
+        32,
+        40,
+        102,
+        117,
+        110,
+        99,
+        116,
+        105,
+        111,
+        110,
+        32,
+        65,
+        41
+      ],
+      "command": {
+        "text": "EAN-13, check digit added (function A)",
+        "type": "text"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 43
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        1
+      ],
+      "command": {
+        "alignment": "center",
+        "type": "setAlignment"
+      },
+      "offset": 44
+    },
+    {
+      "bytes": [
+        29,
+        104,
+        64
+      ],
+      "command": {
+        "dots": 64,
+        "type": "setBarcodeHeight"
+      },
+      "offset": 47
+    },
+    {
+      "bytes": [
+        29,
+        119,
+        3
+      ],
+      "command": {
+        "module": 3,
+        "type": "setBarcodeWidth"
+      },
+      "offset": 50
+    },
+    {
+      "bytes": [
+        29,
+        102,
+        0
+      ],
+      "command": {
+        "font": "a",
+        "type": "setHriFont"
+      },
+      "offset": 53
+    },
+    {
+      "bytes": [
+        29,
+        72,
+        2
+      ],
+      "command": {
+        "position": "below",
+        "type": "setHriPosition"
+      },
+      "offset": 56
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        2,
+        55,
+        56,
+        57,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        0
+      ],
+      "command": {
+        "data": "789123456789",
+        "function": "a",
+        "problem": null,
+        "symbology": "ean13",
+        "type": "barcode",
+        "valid": true
+      },
+      "offset": 59
+    },
+    {
+      "bytes": [
+        69,
+        65,
+        78,
+        45,
+        49,
+        51,
+        32,
+        119,
+        105,
+        116,
+        104,
+        32,
+        99,
+        104,
+        101,
+        99,
+        107,
+        32,
+        100,
+        105,
+        103,
+        105,
+        116,
+        32,
+        40,
+        102,
+        117,
+        110,
+        99,
+        116,
+        105,
+        111,
+        110,
+        32,
+        66,
+        41
+      ],
+      "command": {
+        "text": "EAN-13 with check digit (function B)",
+        "type": "text"
+      },
+      "offset": 75
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 111
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        1
+      ],
+      "command": {
+        "alignment": "center",
+        "type": "setAlignment"
+      },
+      "offset": 112
+    },
+    {
+      "bytes": [
+        29,
+        104,
+        64
+      ],
+      "command": {
+        "dots": 64,
+        "type": "setBarcodeHeight"
+      },
+      "offset": 115
+    },
+    {
+      "bytes": [
+        29,
+        119,
+        3
+      ],
+      "command": {
+        "module": 3,
+        "type": "setBarcodeWidth"
+      },
+      "offset": 118
+    },
+    {
+      "bytes": [
+        29,
+        102,
+        0
+      ],
+      "command": {
+        "font": "a",
+        "type": "setHriFont"
+      },
+      "offset": 121
+    },
+    {
+      "bytes": [
+        29,
+        72,
+        2
+      ],
+      "command": {
+        "position": "below",
+        "type": "setHriPosition"
+      },
+      "offset": 124
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        67,
+        13,
+        55,
+        56,
+        57,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        53
+      ],
+      "command": {
+        "data": "7891234567895",
+        "function": "b",
+        "problem": null,
+        "symbology": "ean13",
+        "type": "barcode",
+        "valid": true
+      },
+      "offset": 127
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 456,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 38,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "EAN-13, check digit added (function A)",
+              "width": 456,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 64,
+          "data": "44/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/444",
+          "height": 64,
+          "kind": "barcode",
+          "type": "image",
+          "width": 285,
+          "x": 145,
+          "y": 30
+        },
+        {
+          "advance": 24,
+          "alignment": "center",
+          "baseline": 21,
+          "contentWidth": 156,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 13,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "7891234567895",
+              "width": 156,
+              "x": 209,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 94
+        },
+        {
+          "advance": 30,
+          "alignment": "center",
+          "baseline": 21,
+          "contentWidth": 432,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 36,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "EAN-13 with check digit (function B)",
+              "width": 432,
+              "x": 72,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 118
+        },
+        {
+          "advance": 64,
+          "data": "44/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44HA/444",
+          "height": 64,
+          "kind": "barcode",
+          "type": "image",
+          "width": 285,
+          "x": 145,
+          "y": 148
+        },
+        {
+          "advance": 24,
+          "alignment": "center",
+          "baseline": 21,
+          "contentWidth": 156,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 13,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "7891234567895",
+              "width": 156,
+              "x": 209,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 212
+        }
+      ],
+      "height": 236,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

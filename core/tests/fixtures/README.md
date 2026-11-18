@@ -27,7 +27,7 @@ library in a virtualenv **outside** the repository:
 
 ```bash
 python3 -m venv ~/.venvs/phantompos-fixtures  # any directory outside the repo
-~/.venvs/phantompos-fixtures/bin/pip install python-escpos   # 3.1 was used
+~/.venvs/phantompos-fixtures/bin/pip install python-escpos pillow   # 3.1 / 13.0 were used
 ~/.venvs/phantompos-fixtures/bin/python core/tests/fixtures/generate.py
 ```
 
@@ -62,8 +62,8 @@ fixture that enshrines a bug is worse than none.
 | `print_mode_combos` | hand-written | `ESC !` bits; underline thickness kept across `ESC - 0`; `GS !` after `ESC !` |
 | `underline_ascii_params` | hand-written | ASCII `'0'..'2'` parameters of `ESC -`, `ESC a`, `ESC M` |
 | `mid_line_alignment` | hand-written | `ESC a` ignored when not at the beginning of a line |
-| `unknown_sequences` | hand-written | unimplemented `ESC`/`FS` commands, NUL/BEL/FF/CAN, `ESC ESC` |
-| `later_stage_commands` | hand-written | stage 4-5 commands appear as unknown and their parameters fall through as data; the cut and drawer commands at the start are decoded |
+| `unknown_sequences` | hand-written | unimplemented `ESC` commands, `FS p` (consumed as `unsupportedImage`), NUL/BEL/FF/CAN, `ESC ESC` |
+| `later_stage_commands` | hand-written | stage 5 commands (`DLE EOT`, `GS r`, `GS a`) appear as unknown and their parameters fall through as data; the cut, drawer, raster, QR (wrong length) and barcode commands are decoded |
 | `cut_functions` | hand-written | every `GS V` function (A-D, full/partial) and `ESC i` / `ESC m` |
 | `cut_empty` | hand-written | cuts with nothing printed produce no receipt; a feed-only (`GS V 65 40`) receipt is produced |
 | `cut_mid_line` | hand-written | a cut with data in the print buffer (text, HT) is ignored; the data continues the receipt |
@@ -81,3 +81,21 @@ fixture that enshrines a bug is worse than none.
 | `raw_feeds` | hand-written | `ESC J`/`ESC d` with and without data, tall characters, zero spacing |
 | `utf8_bytes` | hand-written | UTF-8 bytes decoded as CP437 (mojibake, as a printer prints it) |
 | `empty` | hand-written | empty stream |
+| `image_raster_logo`, `image_raster_logo.58mm` | python-escpos | centred `GS v 0` logo drawn with PIL in `generate.py` |
+| `image_alignment` | python-escpos | `GS v 0` left/center/right; double width, double height, quadruple |
+| `image_wider_than_paper`, `.58mm` | python-escpos | 640-dot image clipped to 576 / 384 dots at the left edge |
+| `qr_codes` | python-escpos | native QR: defaults, URL size 6 level M, UTF-8 Portuguese size 4 level Q centred, numeric size 2 level H right |
+| `qr_models` | python-escpos | model 1 (drawn as model 2) and Micro QR |
+| `barcode_ean13` | python-escpos | EAN-13 function A (check digit added) and B (sent) |
+| `barcode_symbologies_a` / `_b` | python-escpos | every drawn symbology in function A / B (CODE93, CODE128 with `{A`/`{B`/`{C` in B only) |
+| `barcode_hri` | python-escpos | HRI none/above/below/both, fonts A/B, heights, module widths 2-6, alignment |
+| `receipt_codes`, `receipt_codes.58mm` | python-escpos | stage 4 acceptance example: logo, items, EAN-13, QR Code, cut |
+| `unsupported_graphics` | python-escpos | `image(impl="graphics")` (`GS ( L` fn 112/50) and `impl="bitImageColumn"` (`ESC *`): consumed, not drawn |
+| `image_edge_cases` | hand-written | zero-size images, ASCII mode, invalid mode, image mid-line (ignored), right alignment |
+| `image_truncated_eof` | hand-written | stream ends inside `GS v 0` data |
+| `image_huge_declared` | hand-written | 65535 x 65535 declared: header emitted, data skipped, stream ends early |
+| `barcode_invalid` | hand-written | invalid data per symbology, wrong check digit (printed), GS1 (not drawn), unknown `m`, `n = 0`, function A without NUL |
+| `barcode_settings` | hand-written | `GS h`/`GS w`/`GS H`/`GS f` out of range, ASCII values, font C ignored, `ESC @` defaults, too wide |
+| `qr_edge_cases` | hand-written | print with no data, `m != 48`, invalid parameters, wrong length, too long for level H, too wide, mid-line, `ESC @` |
+| `unsupported_symbols` | hand-written | PDF417, MaxiCode, DataMatrix, `GS 8 L`, `GS *`, `GS /`, `FS p`, `GS ( E`, `ESC *` with an unknown mode |
+| `incomplete_qr_eof` | hand-written | stream ends inside `GS ( k` fn 80 |

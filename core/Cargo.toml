@@ -11,6 +11,9 @@ rust-version.workspace = true
 [dependencies]
 # Serialization of the command log and receipt model (JSON contract with the UI).
 serde = { version = "1.0.229", features = ["derive"] }
+# QR Code generation (GS ( k): pure Rust, no I/O; default features (image,
+# svg, pic renderers) are off, so it pulls in no other crate.
+qrcode = { version = "0.14.1", default-features = false }
 # Typed errors, as required by the project conventions.
 thiserror = "2.0.21"
 

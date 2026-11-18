@@ -1,0 +1,369 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        116,
+        0
+      ],
+      "command": {
+        "codePage": "cp437",
+        "page": 0,
+        "type": "setCodePage"
+      },
+      "offset": 2
+    },
+    {
+      "bytes": [
+        109,
+        111,
+        100,
+        101,
+        108,
+        32,
+        49,
+        32,
+        40,
+        100,
+        114,
+        97,
+        119,
+        110,
+        32,
+        97,
+        115,
+        32,
+        109,
+        111,
+        100,
+        101,
+        108,
+        32,
+        50,
+        41
+      ],
+      "command": {
+        "text": "model 1 (drawn as model 2)",
+        "type": "text"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 31
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        4,
+        0,
+        49,
+        65,
+        49,
+        0
+      ],
+      "command": {
+        "model": "model1",
+        "type": "setQrModel"
+      },
+      "offset": 32
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        67,
+        3
+      ],
+      "command": {
+        "size": 3,
+        "type": "setQrModuleSize"
+      },
+      "offset": 41
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        69,
+        48
+      ],
+      "command": {
+        "level": "l",
+        "type": "setQrErrorCorrection"
+      },
+      "offset": 49
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        10,
+        0,
+        49,
+        80,
+        48,
+        77,
+        79,
+        68,
+        69,
+        76,
+        32,
+        49
+      ],
+      "command": {
+        "length": 7,
+        "type": "qrStoreData",
+        "valid": true
+      },
+      "offset": 57
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        81,
+        48
+      ],
+      "command": {
+        "type": "qrPrint"
+      },
+      "offset": 72
+    },
+    {
+      "bytes": [
+        109,
+        105,
+        99,
+        114,
+        111,
+        32,
+        81,
+        82
+      ],
+      "command": {
+        "text": "micro QR",
+        "type": "text"
+      },
+      "offset": 80
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 88
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        4,
+        0,
+        49,
+        65,
+        51,
+        0
+      ],
+      "command": {
+        "model": "micro",
+        "type": "setQrModel"
+      },
+      "offset": 89
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        67,
+        4
+      ],
+      "command": {
+        "size": 4,
+        "type": "setQrModuleSize"
+      },
+      "offset": 98
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        69,
+        48
+      ],
+      "command": {
+        "level": "l",
+        "type": "setQrErrorCorrection"
+      },
+      "offset": 106
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        8,
+        0,
+        49,
+        80,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53
+      ],
+      "command": {
+        "length": 5,
+        "type": "qrStoreData",
+        "valid": true
+      },
+      "offset": 114
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        81,
+        48
+      ],
+      "command": {
+        "type": "qrPrint"
+      },
+      "offset": 127
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 312,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 26,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "model 1 (drawn as model 2)",
+              "width": 312,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 63,
+          "data": "///4HH4///7///gcfj///v//+Bx+P//+4AA4H/A4AA7gADgf8DgADuAAOB/wOAAO4/44/H44/47j/jj8fjj/juP+OPx+OP+O4/44HHA4/47j/jgccDj/juP+OBxwOP+O4/44A444/47j/jgDjjj/juP+OAOOOP+O4AA4AA44AA7gADgADjgADuAAOAAOOAAO///4444///7///jjjj///v//+OOOP//+AAAA/H4AAAAAAAD8fgAAAAAAAPx+AAAA/4////H4A4D/j///8fgDgP+P///x+AOAH/AAH4A4AH4f8AAfgDgAfh/wAB+AOAB+/A//4A4A4/78D//gDgDj/vwP/+AOAOP+44/AA4A4H47jj8ADgDgfjuOPwAOAOB+OHA4/AA444HAcDj8ADjjgcBwOPwAOOOBwAAAA4/HHA44AAADj8ccDjgAAAOPxxwOO///44/H/AAD///jj8f8AAP//+OPx/wAA4AA4/H/H447gADj8f8fjjuAAOPx/x+OO4/444/H/HA7j/jjj8f8cDuP+OOPx/xwO4/44AAA/AHDj/jgAAD8AcOP+OAAAPwBw4/44444A/47j/jjjjgD/juP+OOOOAP+O4AA4/4A4AH7gADj/gDgAfuAAOP+AOAB+///4/444447///j/jjjjjv//+P+OOOOO",
+          "height": 63,
+          "kind": "qrCode",
+          "type": "image",
+          "width": 63,
+          "x": 0,
+          "y": 30
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 96,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 8,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "micro QR",
+              "width": 96,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 93
+        },
+        {
+          "advance": 44,
+          "data": "////8PDw////8PDw////8PDw////8PDw8AAA8P8A8AAA8P8A8AAA8P8A8AAA8P8A8P/w8PAA8P/w8PAA8P/w8PAA8P/w8PAA8P/w8AAA8P/w8AAA8P/w8AAA8P/w8AAA8P/w8P/w8P/w8P/w8P/w8P/w8P/w8P/w8AAA8A/w8AAA8A/w8AAA8A/w8AAA8A/w////8PAA////8PAA////8PAA////8PAAAAAAAA/wAAAAAA/wAAAAAA/wAAAAAA/w/wD/8A/w/wD/8A/w/wD/8A/w/wD/8A/wDw8AD/AADw8AD/AADw8AD/AADw8AD/AA//8AAA/w//8AAA/w//8AAA/w//8AAA/w",
+          "height": 44,
+          "kind": "qrCode",
+          "type": "image",
+          "width": 44,
+          "x": 0,
+          "y": 123
+        }
+      ],
+      "height": 167,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

@@ -1,0 +1,2256 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        29,
+        72,
+        2
+      ],
+      "command": {
+        "position": "below",
+        "type": "setHriPosition"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        69,
+        65,
+        78,
+        45,
+        49,
+        51,
+        32,
+        119,
+        114,
+        111,
+        110,
+        103,
+        32,
+        99,
+        104,
+        101,
+        99,
+        107,
+        32,
+        100,
+        105,
+        103,
+        105,
+        116,
+        32,
+        40,
+        112,
+        114,
+        105,
+        110,
+        116,
+        101,
+        100,
+        41
+      ],
+      "command": {
+        "text": "EAN-13 wrong check digit (printed)",
+        "type": "text"
+      },
+      "offset": 3
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 37
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        2,
+        55,
+        56,
+        57,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        48,
+        0
+      ],
+      "command": {
+        "data": "7891234567890",
+        "function": "a",
+        "problem": null,
+        "symbology": "ean13",
+        "type": "barcode",
+        "valid": true
+      },
+      "offset": 38
+    },
+    {
+      "bytes": [
+        69,
+        65,
+        78,
+        45,
+        49,
+        51,
+        32,
+        49,
+        49,
+        32,
+        100,
+        105,
+        103,
+        105,
+        116,
+        115
+      ],
+      "command": {
+        "text": "EAN-13 11 digits",
+        "type": "text"
+      },
+      "offset": 55
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 71
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        2,
+        55,
+        56,
+        57,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        0
+      ],
+      "command": {
+        "data": "78912345678",
+        "function": "a",
+        "problem": "invalidLength",
+        "symbology": "ean13",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 72
+    },
+    {
+      "bytes": [
+        69,
+        65,
+        78,
+        45,
+        49,
+        51,
+        32,
+        108,
+        101,
+        116,
+        116,
+        101,
+        114
+      ],
+      "command": {
+        "text": "EAN-13 letter",
+        "type": "text"
+      },
+      "offset": 87
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 100
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        67,
+        12,
+        55,
+        56,
+        57,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        88
+      ],
+      "command": {
+        "data": "78912345678X",
+        "function": "b",
+        "problem": "invalidCharacter",
+        "symbology": "ean13",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 101
+    },
+    {
+      "bytes": [
+        85,
+        80,
+        67,
+        45,
+        65,
+        32,
+        49,
+        48,
+        32,
+        100,
+        105,
+        103,
+        105,
+        116,
+        115
+      ],
+      "command": {
+        "text": "UPC-A 10 digits",
+        "type": "text"
+      },
+      "offset": 117
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 132
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        0,
+        48,
+        51,
+        54,
+        48,
+        48,
+        48,
+        50,
+        57,
+        49,
+        52,
+        0
+      ],
+      "command": {
+        "data": "0360002914",
+        "function": "a",
+        "problem": "invalidLength",
+        "symbology": "upcA",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 133
+    },
+    {
+      "bytes": [
+        85,
+        80,
+        67,
+        45,
+        69,
+        32,
+        78,
+        83,
+        67,
+        32,
+        49
+      ],
+      "command": {
+        "text": "UPC-E NSC 1",
+        "type": "text"
+      },
+      "offset": 147
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 158
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        1,
+        49,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        53,
+        0
+      ],
+      "command": {
+        "data": "11234565",
+        "function": "a",
+        "problem": "invalidNumberSystem",
+        "symbology": "upcE",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 159
+    },
+    {
+      "bytes": [
+        85,
+        80,
+        67,
+        45,
+        69,
+        32,
+        110,
+        111,
+        116,
+        32,
+        99,
+        111,
+        109,
+        112,
+        114,
+        101,
+        115,
+        115,
+        105,
+        98,
+        108,
+        101
+      ],
+      "command": {
+        "text": "UPC-E not compressible",
+        "type": "text"
+      },
+      "offset": 171
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 193
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        1,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        48,
+        0
+      ],
+      "command": {
+        "data": "01234567890",
+        "function": "a",
+        "problem": "notCompressible",
+        "symbology": "upcE",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 194
+    },
+    {
+      "bytes": [
+        69,
+        65,
+        78,
+        45,
+        56,
+        32,
+        57,
+        32,
+        100,
+        105,
+        103,
+        105,
+        116,
+        115
+      ],
+      "command": {
+        "text": "EAN-8 9 digits",
+        "type": "text"
+      },
+      "offset": 209
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 223
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        68,
+        9,
+        57,
+        54,
+        51,
+        56,
+        53,
+        48,
+        55,
+        52,
+        49
+      ],
+      "command": {
+        "data": "963850741",
+        "function": "b",
+        "problem": "invalidLength",
+        "symbology": "ean8",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 224
+    },
+    {
+      "bytes": [
+        67,
+        79,
+        68,
+        69,
+        51,
+        57,
+        32,
+        108,
+        111,
+        119,
+        101,
+        114,
+        99,
+        97,
+        115,
+        101
+      ],
+      "command": {
+        "text": "CODE39 lowercase",
+        "type": "text"
+      },
+      "offset": 237
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 253
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        4,
+        97,
+        98,
+        99,
+        0
+      ],
+      "command": {
+        "data": "abc",
+        "function": "a",
+        "problem": "invalidCharacter",
+        "symbology": "code39",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 254
+    },
+    {
+      "bytes": [
+        67,
+        79,
+        68,
+        69,
+        51,
+        57,
+        32,
+        115,
+        116,
+        97,
+        114,
+        32,
+        105,
+        110,
+        115,
+        105,
+        100,
+        101
+      ],
+      "command": {
+        "text": "CODE39 star inside",
+        "type": "text"
+      },
+      "offset": 261
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 279
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        4,
+        65,
+        66,
+        42,
+        67,
+        68,
+        0
+      ],
+      "command": {
+        "data": "AB*CD",
+        "function": "a",
+        "problem": "invalidCharacter",
+        "symbology": "code39",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 280
+    },
+    {
+      "bytes": [
+        73,
+        84,
+        70,
+        32,
+        111,
+        100,
+        100,
+        32,
+        99,
+        111,
+        117,
+        110,
+        116,
+        44,
+        32,
+        102,
+        117,
+        110,
+        99,
+        116,
+        105,
+        111,
+        110,
+        32,
+        66
+      ],
+      "command": {
+        "text": "ITF odd count, function B",
+        "type": "text"
+      },
+      "offset": 289
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 314
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        70,
+        5,
+        49,
+        50,
+        51,
+        52,
+        53
+      ],
+      "command": {
+        "data": "12345",
+        "function": "b",
+        "problem": "invalidLength",
+        "symbology": "itf",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 315
+    },
+    {
+      "bytes": [
+        73,
+        84,
+        70,
+        32,
+        111,
+        100,
+        100,
+        32,
+        99,
+        111,
+        117,
+        110,
+        116,
+        44,
+        32,
+        102,
+        117,
+        110,
+        99,
+        116,
+        105,
+        111,
+        110,
+        32,
+        65,
+        32,
+        40,
+        108,
+        97,
+        115,
+        116,
+        32,
+        100,
+        105,
+        103,
+        105,
+        116,
+        32,
+        100,
+        114,
+        111,
+        112,
+        112,
+        101,
+        100,
+        41
+      ],
+      "command": {
+        "text": "ITF odd count, function A (last digit dropped)",
+        "type": "text"
+      },
+      "offset": 324
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 370
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        5,
+        49,
+        50,
+        51,
+        52,
+        53,
+        0
+      ],
+      "command": {
+        "data": "12345",
+        "function": "a",
+        "problem": null,
+        "symbology": "itf",
+        "type": "barcode",
+        "valid": true
+      },
+      "offset": 371
+    },
+    {
+      "bytes": [
+        67,
+        79,
+        68,
+        65,
+        66,
+        65,
+        82,
+        32,
+        119,
+        105,
+        116,
+        104,
+        111,
+        117,
+        116,
+        32,
+        115,
+        116,
+        97,
+        114,
+        116,
+        47,
+        115,
+        116,
+        111,
+        112
+      ],
+      "command": {
+        "text": "CODABAR without start/stop",
+        "type": "text"
+      },
+      "offset": 380
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 406
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        6,
+        52,
+        48,
+        49,
+        53,
+        54,
+        0
+      ],
+      "command": {
+        "data": "40156",
+        "function": "a",
+        "problem": "invalidStartStop",
+        "symbology": "codabar",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 407
+    },
+    {
+      "bytes": [
+        67,
+        79,
+        68,
+        69,
+        57,
+        51,
+        32,
+        98,
+        121,
+        116,
+        101,
+        32,
+        48,
+        120,
+        56,
+        48
+      ],
+      "command": {
+        "text": "CODE93 byte 0x80",
+        "type": "text"
+      },
+      "offset": 416
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 432
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        72,
+        3,
+        65,
+        66,
+        128
+      ],
+      "command": {
+        "data": "AB\\x80",
+        "function": "b",
+        "problem": "invalidCharacter",
+        "symbology": "code93",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 433
+    },
+    {
+      "bytes": [
+        67,
+        79,
+        68,
+        69,
+        49,
+        50,
+        56,
+        32,
+        119,
+        105,
+        116,
+        104,
+        111,
+        117,
+        116,
+        32,
+        99,
+        111,
+        100,
+        101,
+        32,
+        115,
+        101,
+        116
+      ],
+      "command": {
+        "text": "CODE128 without code set",
+        "type": "text"
+      },
+      "offset": 440
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 464
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        73,
+        3,
+        65,
+        66,
+        67
+      ],
+      "command": {
+        "data": "ABC",
+        "function": "b",
+        "problem": "invalidCharacter",
+        "symbology": "code128",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 465
+    },
+    {
+      "bytes": [
+        67,
+        79,
+        68,
+        69,
+        49,
+        50,
+        56,
+        32,
+        67,
+        32,
+        118,
+        97,
+        108,
+        117,
+        101,
+        32,
+        49,
+        48,
+        48
+      ],
+      "command": {
+        "text": "CODE128 C value 100",
+        "type": "text"
+      },
+      "offset": 472
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 491
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        73,
+        3,
+        123,
+        67,
+        100
+      ],
+      "command": {
+        "data": "{Cd",
+        "function": "b",
+        "problem": "invalidCharacter",
+        "symbology": "code128",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 492
+    },
+    {
+      "bytes": [
+        71,
+        83,
+        49,
+        45,
+        49,
+        50,
+        56,
+        32,
+        40,
+        110,
+        111,
+        116,
+        32,
+        100,
+        114,
+        97,
+        119,
+        110,
+        41
+      ],
+      "command": {
+        "text": "GS1-128 (not drawn)",
+        "type": "text"
+      },
+      "offset": 499
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 518
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        74,
+        6,
+        123,
+        65,
+        48,
+        49,
+        50,
+        51
+      ],
+      "command": {
+        "data": "{A0123",
+        "function": "b",
+        "problem": "unsupportedSymbology",
+        "symbology": "gs1128",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 519
+    },
+    {
+      "bytes": [
+        71,
+        83,
+        49,
+        32,
+        68,
+        97,
+        116,
+        97,
+        66,
+        97,
+        114,
+        32,
+        40,
+        110,
+        111,
+        116,
+        32,
+        100,
+        114,
+        97,
+        119,
+        110,
+        41
+      ],
+      "command": {
+        "text": "GS1 DataBar (not drawn)",
+        "type": "text"
+      },
+      "offset": 529
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 552
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        75,
+        13,
+        50,
+        48,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        48
+      ],
+      "command": {
+        "data": "2001234567890",
+        "function": "b",
+        "problem": "unsupportedSymbology",
+        "symbology": "gs1DataBarOmnidirectional",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 553
+    },
+    {
+      "bytes": [
+        117,
+        110,
+        107,
+        110,
+        111,
+        119,
+        110,
+        32,
+        109,
+        61,
+        49,
+        48
+      ],
+      "command": {
+        "text": "unknown m=10",
+        "type": "text"
+      },
+      "offset": 570
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 582
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        10
+      ],
+      "command": {
+        "data": "",
+        "function": null,
+        "problem": "unknownSymbology",
+        "symbology": null,
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 583
+    },
+    {
+      "bytes": [
+        116,
+        101,
+        120,
+        116,
+        32,
+        97,
+        102,
+        116,
+        101,
+        114,
+        32,
+        109
+      ],
+      "command": {
+        "text": "text after m",
+        "type": "text"
+      },
+      "offset": 586
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 598
+    },
+    {
+      "bytes": [
+        102,
+        117,
+        110,
+        99,
+        116,
+        105,
+        111,
+        110,
+        32,
+        66,
+        32,
+        110,
+        61,
+        48
+      ],
+      "command": {
+        "text": "function B n=0",
+        "type": "text"
+      },
+      "offset": 599
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 613
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        73,
+        0
+      ],
+      "command": {
+        "data": "",
+        "function": "b",
+        "problem": "invalidLength",
+        "symbology": "code128",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 614
+    },
+    {
+      "bytes": [
+        102,
+        117,
+        110,
+        99,
+        116,
+        105,
+        111,
+        110,
+        32,
+        65,
+        32,
+        109,
+        105,
+        115,
+        115,
+        105,
+        110,
+        103,
+        32,
+        78,
+        85,
+        76
+      ],
+      "command": {
+        "text": "function A missing NUL",
+        "type": "text"
+      },
+      "offset": 618
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 640
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        4,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65
+      ],
+      "command": {
+        "data": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "function": "a",
+        "problem": "missingTerminator",
+        "symbology": "code39",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 641
+    },
+    {
+      "bytes": [
+        65,
+        65,
+        65,
+        65
+      ],
+      "command": {
+        "text": "AAAA",
+        "type": "text"
+      },
+      "offset": 900
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 904
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 408,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 34,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "EAN-13 wrong check digit (printed)",
+              "width": 408,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 162,
+          "data": "44/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A44444/H/A4/4H4HA/H4//HA/44444H/HHAA4A4HA4A/44H/A444",
+          "height": 162,
+          "kind": "barcode",
+          "type": "image",
+          "width": 285,
+          "x": 0,
+          "y": 30
+        },
+        {
+          "advance": 24,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 156,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 13,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "7891234567890",
+              "width": 156,
+              "x": 64,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 192
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 192,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 16,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "EAN-13 11 digits",
+              "width": 192,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 216
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 156,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 13,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "EAN-13 letter",
+              "width": 156,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 246
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 180,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 15,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "UPC-A 10 digits",
+              "width": 180,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 276
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 132,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 11,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "UPC-E NSC 1",
+              "width": 132,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 306
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 264,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 22,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "UPC-E not compressible",
+              "width": 264,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 336
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 168,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 14,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "EAN-8 9 digits",
+              "width": 168,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 366
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 192,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 16,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "CODE39 lowercase",
+              "width": 192,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 396
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 216,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 18,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "CODE39 star inside",
+              "width": 216,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 426
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 300,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 25,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "ITF odd count, function B",
+              "width": 300,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 456
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 552,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 46,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "ITF odd count, function A (last digit dropped)",
+              "width": 552,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 486
+        },
+        {
+          "advance": 162,
+          "data": "44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c44/xwDjj/AP8f44BxwD/HOOP8cA44/wD/H+OAccA/xzjj/HAOOP8A/x/jgHHAP8c",
+          "height": 162,
+          "kind": "barcode",
+          "type": "image",
+          "width": 126,
+          "x": 0,
+          "y": 516
+        },
+        {
+          "advance": 24,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 48,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 4,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "1234",
+              "width": 48,
+              "x": 39,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 678
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 312,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 26,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "CODABAR without start/stop",
+              "width": 312,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 702
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 192,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 16,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "CODE93 byte 0x80",
+              "width": 192,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 732
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 288,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 24,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "CODE128 without code set",
+              "width": 288,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 762
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 228,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 19,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "CODE128 C value 100",
+              "width": 228,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 792
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 228,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 19,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "GS1-128 (not drawn)",
+              "width": 228,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 822
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 276,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 23,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "GS1 DataBar (not drawn)",
+              "width": 276,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 852
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 144,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 12,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "unknown m=10",
+              "width": 144,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 882
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 144,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 12,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "text after m",
+              "width": 144,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 912
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 168,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 14,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "function B n=0",
+              "width": 168,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 942
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 264,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 22,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "function A missing NUL",
+              "width": 264,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 972
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 48,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 4,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "AAAA",
+              "width": 48,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 1002
+        }
+      ],
+      "height": 1032,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

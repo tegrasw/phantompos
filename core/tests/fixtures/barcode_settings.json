@@ -1,0 +1,801 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        29,
+        104,
+        0
+      ],
+      "command": {
+        "dots": null,
+        "type": "setBarcodeHeight"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        29,
+        119,
+        1
+      ],
+      "command": {
+        "module": null,
+        "type": "setBarcodeWidth"
+      },
+      "offset": 3
+    },
+    {
+      "bytes": [
+        29,
+        119,
+        7
+      ],
+      "command": {
+        "module": null,
+        "type": "setBarcodeWidth"
+      },
+      "offset": 6
+    },
+    {
+      "bytes": [
+        29,
+        72,
+        4
+      ],
+      "command": {
+        "position": null,
+        "type": "setHriPosition"
+      },
+      "offset": 9
+    },
+    {
+      "bytes": [
+        29,
+        102,
+        5
+      ],
+      "command": {
+        "font": null,
+        "type": "setHriFont"
+      },
+      "offset": 12
+    },
+    {
+      "bytes": [
+        100,
+        101,
+        102,
+        97,
+        117,
+        108,
+        116,
+        115,
+        58,
+        32,
+        49,
+        54,
+        50,
+        32,
+        100,
+        111,
+        116,
+        115,
+        44,
+        32,
+        109,
+        111,
+        100,
+        117,
+        108,
+        101,
+        32,
+        51,
+        44,
+        32,
+        110,
+        111,
+        32,
+        72,
+        82,
+        73
+      ],
+      "command": {
+        "text": "defaults: 162 dots, module 3, no HRI",
+        "type": "text"
+      },
+      "offset": 15
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 51
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        3,
+        57,
+        54,
+        51,
+        56,
+        53,
+        48,
+        55,
+        0
+      ],
+      "command": {
+        "data": "9638507",
+        "function": "a",
+        "problem": null,
+        "symbology": "ean8",
+        "type": "barcode",
+        "valid": true
+      },
+      "offset": 52
+    },
+    {
+      "bytes": [
+        29,
+        104,
+        32
+      ],
+      "command": {
+        "dots": 32,
+        "type": "setBarcodeHeight"
+      },
+      "offset": 63
+    },
+    {
+      "bytes": [
+        29,
+        119,
+        6
+      ],
+      "command": {
+        "module": 6,
+        "type": "setBarcodeWidth"
+      },
+      "offset": 66
+    },
+    {
+      "bytes": [
+        29,
+        72,
+        51
+      ],
+      "command": {
+        "position": "both",
+        "type": "setHriPosition"
+      },
+      "offset": 69
+    },
+    {
+      "bytes": [
+        29,
+        102,
+        49
+      ],
+      "command": {
+        "font": "b",
+        "type": "setHriFont"
+      },
+      "offset": 72
+    },
+    {
+      "bytes": [
+        51,
+        50,
+        32,
+        100,
+        111,
+        116,
+        115,
+        44,
+        32,
+        109,
+        111,
+        100,
+        117,
+        108,
+        101,
+        32,
+        54,
+        44,
+        32,
+        72,
+        82,
+        73,
+        32,
+        98,
+        111,
+        116,
+        104,
+        32,
+        105,
+        110,
+        32,
+        102,
+        111,
+        110,
+        116,
+        32,
+        66,
+        32,
+        40,
+        39,
+        51,
+        39,
+        44,
+        32,
+        39,
+        49,
+        39,
+        41
+      ],
+      "command": {
+        "text": "32 dots, module 6, HRI both in font B ('3', '1')",
+        "type": "text"
+      },
+      "offset": 75
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 123
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        3,
+        57,
+        54,
+        51,
+        56,
+        53,
+        48,
+        55,
+        0
+      ],
+      "command": {
+        "data": "9638507",
+        "function": "a",
+        "problem": null,
+        "symbology": "ean8",
+        "type": "barcode",
+        "valid": true
+      },
+      "offset": 124
+    },
+    {
+      "bytes": [
+        29,
+        102,
+        2
+      ],
+      "command": {
+        "font": "c",
+        "type": "setHriFont"
+      },
+      "offset": 135
+    },
+    {
+      "bytes": [
+        102,
+        111,
+        110,
+        116,
+        32,
+        67,
+        32,
+        105,
+        103,
+        110,
+        111,
+        114,
+        101,
+        100
+      ],
+      "command": {
+        "text": "font C ignored",
+        "type": "text"
+      },
+      "offset": 138
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 152
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        3,
+        57,
+        54,
+        51,
+        56,
+        53,
+        48,
+        55,
+        0
+      ],
+      "command": {
+        "data": "9638507",
+        "function": "a",
+        "problem": null,
+        "symbology": "ean8",
+        "type": "barcode",
+        "valid": true
+      },
+      "offset": 153
+    },
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 164
+    },
+    {
+      "bytes": [
+        97,
+        102,
+        116,
+        101,
+        114,
+        32,
+        69,
+        83,
+        67,
+        32,
+        64
+      ],
+      "command": {
+        "text": "after ESC @",
+        "type": "text"
+      },
+      "offset": 166
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 177
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        3,
+        57,
+        54,
+        51,
+        56,
+        53,
+        48,
+        55,
+        0
+      ],
+      "command": {
+        "data": "9638507",
+        "function": "a",
+        "problem": null,
+        "symbology": "ean8",
+        "type": "barcode",
+        "valid": true
+      },
+      "offset": 178
+    },
+    {
+      "bytes": [
+        116,
+        111,
+        111,
+        32,
+        119,
+        105,
+        100,
+        101,
+        58,
+        32,
+        105,
+        103,
+        110,
+        111,
+        114,
+        101,
+        100
+      ],
+      "command": {
+        "text": "too wide: ignored",
+        "type": "text"
+      },
+      "offset": 189
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 206
+    },
+    {
+      "bytes": [
+        29,
+        119,
+        6
+      ],
+      "command": {
+        "module": 6,
+        "type": "setBarcodeWidth"
+      },
+      "offset": 207
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        73,
+        22,
+        123,
+        66,
+        87,
+        87,
+        87,
+        87,
+        87,
+        87,
+        87,
+        87,
+        87,
+        87,
+        87,
+        87,
+        87,
+        87,
+        87,
+        87,
+        87,
+        87,
+        87,
+        87
+      ],
+      "command": {
+        "data": "{BWWWWWWWWWWWWWWWWWWWW",
+        "function": "b",
+        "problem": null,
+        "symbology": "code128",
+        "type": "barcode",
+        "valid": true
+      },
+      "offset": 210
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 432,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 36,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "defaults: 162 dots, module 3, no HRI",
+              "width": 432,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        },
+        {
+          "advance": 162,
+          "data": "44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA",
+          "height": 162,
+          "kind": "barcode",
+          "type": "image",
+          "width": 201,
+          "x": 0,
+          "y": 30
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 576,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 48,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "32 dots, module 6, HRI both in font B ('3', '1')",
+              "width": 576,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 192
+        },
+        {
+          "advance": 17,
+          "alignment": "left",
+          "baseline": 16,
+          "contentWidth": 72,
+          "height": 17,
+          "spans": [
+            {
+              "charHeight": 17,
+              "charWidth": 9,
+              "columns": 8,
+              "style": {
+                "bold": false,
+                "font": "b",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "96385074",
+              "width": 72,
+              "x": 165,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 222
+        },
+        {
+          "advance": 32,
+          "data": "/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A",
+          "height": 32,
+          "kind": "barcode",
+          "type": "image",
+          "width": 402,
+          "x": 0,
+          "y": 239
+        },
+        {
+          "advance": 17,
+          "alignment": "left",
+          "baseline": 16,
+          "contentWidth": 72,
+          "height": 17,
+          "spans": [
+            {
+              "charHeight": 17,
+              "charWidth": 9,
+              "columns": 8,
+              "style": {
+                "bold": false,
+                "font": "b",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "96385074",
+              "width": 72,
+              "x": 165,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 271
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 168,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 14,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "font C ignored",
+              "width": 168,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 288
+        },
+        {
+          "advance": 17,
+          "alignment": "left",
+          "baseline": 16,
+          "contentWidth": 72,
+          "height": 17,
+          "spans": [
+            {
+              "charHeight": 17,
+              "charWidth": 9,
+              "columns": 8,
+              "style": {
+                "bold": false,
+                "font": "b",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "96385074",
+              "width": 72,
+              "x": 165,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 318
+        },
+        {
+          "advance": 32,
+          "data": "/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A/A/AAA/A//A/A////A////A/A//A///A/A/A/AA///A///AA/A/AAA/AA/A///AA/A/A",
+          "height": 32,
+          "kind": "barcode",
+          "type": "image",
+          "width": 402,
+          "x": 0,
+          "y": 335
+        },
+        {
+          "advance": 17,
+          "alignment": "left",
+          "baseline": 16,
+          "contentWidth": 72,
+          "height": 17,
+          "spans": [
+            {
+              "charHeight": 17,
+              "charWidth": 9,
+              "columns": 8,
+              "style": {
+                "bold": false,
+                "font": "b",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "96385074",
+              "width": 72,
+              "x": 165,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 367
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 132,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 11,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "after ESC @",
+              "width": 132,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 384
+        },
+        {
+          "advance": 162,
+          "data": "44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA44A4/HH/4//HH4/4444H/H/A44A4HH/A44DjgDj8cf/j/8cfj/jjjgf8f8DjgDgcf8DjgOOAOPxx/+P/xx+P+OOOB/x/wOOAOBx/wOOA",
+          "height": 162,
+          "kind": "barcode",
+          "type": "image",
+          "width": 201,
+          "x": 0,
+          "y": 414
+        },
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 204,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 17,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "too wide: ignored",
+              "width": 204,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 576
+        }
+      ],
+      "height": 606,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

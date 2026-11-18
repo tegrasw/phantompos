@@ -1,0 +1,1039 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        1
+      ],
+      "command": {
+        "alignment": "center",
+        "type": "setAlignment"
+      },
+      "offset": 2
+    },
+    {
+      "bytes": [
+        29,
+        104,
+        40
+      ],
+      "command": {
+        "dots": 40,
+        "type": "setBarcodeHeight"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        29,
+        119,
+        2
+      ],
+      "command": {
+        "module": 2,
+        "type": "setBarcodeWidth"
+      },
+      "offset": 8
+    },
+    {
+      "bytes": [
+        29,
+        102,
+        0
+      ],
+      "command": {
+        "font": "a",
+        "type": "setHriFont"
+      },
+      "offset": 11
+    },
+    {
+      "bytes": [
+        29,
+        72,
+        0
+      ],
+      "command": {
+        "position": "none",
+        "type": "setHriPosition"
+      },
+      "offset": 14
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        2,
+        52,
+        48,
+        48,
+        54,
+        51,
+        56,
+        49,
+        51,
+        51,
+        51,
+        57,
+        51,
+        49,
+        0
+      ],
+      "command": {
+        "data": "4006381333931",
+        "function": "a",
+        "problem": null,
+        "symbology": "ean13",
+        "type": "barcode",
+        "valid": true
+      },
+      "offset": 17
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        1
+      ],
+      "command": {
+        "alignment": "center",
+        "type": "setAlignment"
+      },
+      "offset": 34
+    },
+    {
+      "bytes": [
+        29,
+        104,
+        40
+      ],
+      "command": {
+        "dots": 40,
+        "type": "setBarcodeHeight"
+      },
+      "offset": 37
+    },
+    {
+      "bytes": [
+        29,
+        119,
+        2
+      ],
+      "command": {
+        "module": 2,
+        "type": "setBarcodeWidth"
+      },
+      "offset": 40
+    },
+    {
+      "bytes": [
+        29,
+        102,
+        0
+      ],
+      "command": {
+        "font": "a",
+        "type": "setHriFont"
+      },
+      "offset": 43
+    },
+    {
+      "bytes": [
+        29,
+        72,
+        1
+      ],
+      "command": {
+        "position": "above",
+        "type": "setHriPosition"
+      },
+      "offset": 46
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        2,
+        52,
+        48,
+        48,
+        54,
+        51,
+        56,
+        49,
+        51,
+        51,
+        51,
+        57,
+        51,
+        49,
+        0
+      ],
+      "command": {
+        "data": "4006381333931",
+        "function": "a",
+        "problem": null,
+        "symbology": "ean13",
+        "type": "barcode",
+        "valid": true
+      },
+      "offset": 49
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        1
+      ],
+      "command": {
+        "alignment": "center",
+        "type": "setAlignment"
+      },
+      "offset": 66
+    },
+    {
+      "bytes": [
+        29,
+        104,
+        40
+      ],
+      "command": {
+        "dots": 40,
+        "type": "setBarcodeHeight"
+      },
+      "offset": 69
+    },
+    {
+      "bytes": [
+        29,
+        119,
+        2
+      ],
+      "command": {
+        "module": 2,
+        "type": "setBarcodeWidth"
+      },
+      "offset": 72
+    },
+    {
+      "bytes": [
+        29,
+        102,
+        0
+      ],
+      "command": {
+        "font": "a",
+        "type": "setHriFont"
+      },
+      "offset": 75
+    },
+    {
+      "bytes": [
+        29,
+        72,
+        2
+      ],
+      "command": {
+        "position": "below",
+        "type": "setHriPosition"
+      },
+      "offset": 78
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        2,
+        52,
+        48,
+        48,
+        54,
+        51,
+        56,
+        49,
+        51,
+        51,
+        51,
+        57,
+        51,
+        49,
+        0
+      ],
+      "command": {
+        "data": "4006381333931",
+        "function": "a",
+        "problem": null,
+        "symbology": "ean13",
+        "type": "barcode",
+        "valid": true
+      },
+      "offset": 81
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        1
+      ],
+      "command": {
+        "alignment": "center",
+        "type": "setAlignment"
+      },
+      "offset": 98
+    },
+    {
+      "bytes": [
+        29,
+        104,
+        40
+      ],
+      "command": {
+        "dots": 40,
+        "type": "setBarcodeHeight"
+      },
+      "offset": 101
+    },
+    {
+      "bytes": [
+        29,
+        119,
+        2
+      ],
+      "command": {
+        "module": 2,
+        "type": "setBarcodeWidth"
+      },
+      "offset": 104
+    },
+    {
+      "bytes": [
+        29,
+        102,
+        0
+      ],
+      "command": {
+        "font": "a",
+        "type": "setHriFont"
+      },
+      "offset": 107
+    },
+    {
+      "bytes": [
+        29,
+        72,
+        3
+      ],
+      "command": {
+        "position": "both",
+        "type": "setHriPosition"
+      },
+      "offset": 110
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        2,
+        52,
+        48,
+        48,
+        54,
+        51,
+        56,
+        49,
+        51,
+        51,
+        51,
+        57,
+        51,
+        49,
+        0
+      ],
+      "command": {
+        "data": "4006381333931",
+        "function": "a",
+        "problem": null,
+        "symbology": "ean13",
+        "type": "barcode",
+        "valid": true
+      },
+      "offset": 113
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        1
+      ],
+      "command": {
+        "alignment": "center",
+        "type": "setAlignment"
+      },
+      "offset": 130
+    },
+    {
+      "bytes": [
+        29,
+        104,
+        40
+      ],
+      "command": {
+        "dots": 40,
+        "type": "setBarcodeHeight"
+      },
+      "offset": 133
+    },
+    {
+      "bytes": [
+        29,
+        119,
+        2
+      ],
+      "command": {
+        "module": 2,
+        "type": "setBarcodeWidth"
+      },
+      "offset": 136
+    },
+    {
+      "bytes": [
+        29,
+        102,
+        1
+      ],
+      "command": {
+        "font": "b",
+        "type": "setHriFont"
+      },
+      "offset": 139
+    },
+    {
+      "bytes": [
+        29,
+        72,
+        3
+      ],
+      "command": {
+        "position": "both",
+        "type": "setHriPosition"
+      },
+      "offset": 142
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        2,
+        52,
+        48,
+        48,
+        54,
+        51,
+        56,
+        49,
+        51,
+        51,
+        51,
+        57,
+        51,
+        49,
+        0
+      ],
+      "command": {
+        "data": "4006381333931",
+        "function": "a",
+        "problem": null,
+        "symbology": "ean13",
+        "type": "barcode",
+        "valid": true
+      },
+      "offset": 145
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        0
+      ],
+      "command": {
+        "alignment": "left",
+        "type": "setAlignment"
+      },
+      "offset": 162
+    },
+    {
+      "bytes": [
+        29,
+        104,
+        80
+      ],
+      "command": {
+        "dots": 80,
+        "type": "setBarcodeHeight"
+      },
+      "offset": 165
+    },
+    {
+      "bytes": [
+        29,
+        119,
+        3
+      ],
+      "command": {
+        "module": 3,
+        "type": "setBarcodeWidth"
+      },
+      "offset": 168
+    },
+    {
+      "bytes": [
+        29,
+        102,
+        0
+      ],
+      "command": {
+        "font": "a",
+        "type": "setHriFont"
+      },
+      "offset": 171
+    },
+    {
+      "bytes": [
+        29,
+        72,
+        2
+      ],
+      "command": {
+        "position": "below",
+        "type": "setHriPosition"
+      },
+      "offset": 174
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        4,
+        67,
+        79,
+        68,
+        69,
+        51,
+        57,
+        0
+      ],
+      "command": {
+        "data": "CODE39",
+        "function": "a",
+        "problem": null,
+        "symbology": "code39",
+        "type": "barcode",
+        "valid": true
+      },
+      "offset": 177
+    },
+    {
+      "bytes": [
+        29,
+        104,
+        20
+      ],
+      "command": {
+        "dots": 20,
+        "type": "setBarcodeHeight"
+      },
+      "offset": 187
+    },
+    {
+      "bytes": [
+        29,
+        119,
+        6
+      ],
+      "command": {
+        "module": 6,
+        "type": "setBarcodeWidth"
+      },
+      "offset": 190
+    },
+    {
+      "bytes": [
+        29,
+        102,
+        0
+      ],
+      "command": {
+        "font": "a",
+        "type": "setHriFont"
+      },
+      "offset": 193
+    },
+    {
+      "bytes": [
+        29,
+        72,
+        2
+      ],
+      "command": {
+        "position": "below",
+        "type": "setHriPosition"
+      },
+      "offset": 196
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        4,
+        49,
+        50,
+        0
+      ],
+      "command": {
+        "data": "12",
+        "function": "a",
+        "problem": null,
+        "symbology": "code39",
+        "type": "barcode",
+        "valid": true
+      },
+      "offset": 199
+    },
+    {
+      "bytes": [
+        27,
+        97,
+        2
+      ],
+      "command": {
+        "alignment": "right",
+        "type": "setAlignment"
+      },
+      "offset": 205
+    },
+    {
+      "bytes": [
+        29,
+        104,
+        30
+      ],
+      "command": {
+        "dots": 30,
+        "type": "setBarcodeHeight"
+      },
+      "offset": 208
+    },
+    {
+      "bytes": [
+        29,
+        119,
+        4
+      ],
+      "command": {
+        "module": 4,
+        "type": "setBarcodeWidth"
+      },
+      "offset": 211
+    },
+    {
+      "bytes": [
+        29,
+        102,
+        0
+      ],
+      "command": {
+        "font": "a",
+        "type": "setHriFont"
+      },
+      "offset": 214
+    },
+    {
+      "bytes": [
+        29,
+        72,
+        1
+      ],
+      "command": {
+        "position": "above",
+        "type": "setHriPosition"
+      },
+      "offset": 217
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        5,
+        49,
+        50,
+        51,
+        52,
+        0
+      ],
+      "command": {
+        "data": "1234",
+        "function": "a",
+        "problem": null,
+        "symbology": "itf",
+        "type": "barcode",
+        "valid": true
+      },
+      "offset": 220
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 40,
+          "data": "zA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzM",
+          "height": 40,
+          "kind": "barcode",
+          "type": "image",
+          "width": 190,
+          "x": 193,
+          "y": 0
+        },
+        {
+          "advance": 24,
+          "alignment": "center",
+          "baseline": 21,
+          "contentWidth": 156,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 13,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "4006381333931",
+              "width": 156,
+              "x": 210,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 40
+        },
+        {
+          "advance": 40,
+          "data": "zA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzM",
+          "height": 40,
+          "kind": "barcode",
+          "type": "image",
+          "width": 190,
+          "x": 193,
+          "y": 64
+        },
+        {
+          "advance": 40,
+          "data": "zA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzM",
+          "height": 40,
+          "kind": "barcode",
+          "type": "image",
+          "width": 190,
+          "x": 193,
+          "y": 104
+        },
+        {
+          "advance": 24,
+          "alignment": "center",
+          "baseline": 21,
+          "contentWidth": 156,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 13,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "4006381333931",
+              "width": 156,
+              "x": 210,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 144
+        },
+        {
+          "advance": 24,
+          "alignment": "center",
+          "baseline": 21,
+          "contentWidth": 156,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 13,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "4006381333931",
+              "width": 156,
+              "x": 210,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 168
+        },
+        {
+          "advance": 40,
+          "data": "zA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzM",
+          "height": 40,
+          "kind": "barcode",
+          "type": "image",
+          "width": 190,
+          "x": 193,
+          "y": 192
+        },
+        {
+          "advance": 24,
+          "alignment": "center",
+          "baseline": 21,
+          "contentWidth": 156,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 13,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "4006381333931",
+              "width": 156,
+              "x": 210,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 232
+        },
+        {
+          "advance": 17,
+          "alignment": "center",
+          "baseline": 16,
+          "contentWidth": 117,
+          "height": 17,
+          "spans": [
+            {
+              "charHeight": 17,
+              "charWidth": 9,
+              "columns": 13,
+              "style": {
+                "bold": false,
+                "font": "b",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "4006381333931",
+              "width": 117,
+              "x": 230,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 256
+        },
+        {
+          "advance": 40,
+          "data": "zA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzMzA8zD8z/P8wMM8PMzAMwDMAz8wwDPDzM",
+          "height": 40,
+          "kind": "barcode",
+          "type": "image",
+          "width": 190,
+          "x": 193,
+          "y": 273
+        },
+        {
+          "advance": 17,
+          "alignment": "center",
+          "baseline": 16,
+          "contentWidth": 117,
+          "height": 17,
+          "spans": [
+            {
+              "charHeight": 17,
+              "charWidth": 9,
+              "columns": 13,
+              "style": {
+                "bold": false,
+                "font": "b",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "4006381333931",
+              "width": 117,
+              "x": 230,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 313
+        },
+        {
+          "advance": 80,
+          "data": "4Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f444Bx/j/HH+P8cA44/xx/jgHHHH+Acf4/xx/gHHH+P8A4444/wDj/HHAOP8f44",
+          "height": 80,
+          "kind": "barcode",
+          "type": "image",
+          "width": 357,
+          "x": 0,
+          "y": 330
+        },
+        {
+          "advance": 24,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 96,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 8,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "*CODE39*",
+              "width": 96,
+              "x": 130,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 410
+        },
+        {
+          "advance": 20,
+          "data": "/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A/AAD8D//wP//A/A//8D8AAPwPwP//A/A//8AAPwPwP//A/AAD8D//wP//A/A",
+          "height": 20,
+          "kind": "barcode",
+          "type": "image",
+          "width": 354,
+          "x": 0,
+          "y": 434
+        },
+        {
+          "advance": 24,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 48,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 4,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "*12*",
+              "width": 48,
+              "x": 153,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 454
+        },
+        {
+          "advance": 24,
+          "alignment": "right",
+          "baseline": 21,
+          "contentWidth": 48,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 4,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "1234",
+              "width": 48,
+              "x": 471,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 478
+        },
+        {
+          "advance": 30,
+          "data": "8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA8PD/w8APDw/8AP/D/w8APDwA/8PA",
+          "height": 30,
+          "kind": "barcode",
+          "type": "image",
+          "width": 162,
+          "x": 414,
+          "y": 502
+        }
+      ],
+      "height": 532,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

@@ -44,22 +44,28 @@
     )
 )]
 
+mod barcode;
+mod bitmap;
 mod codepage;
 mod codepage_tables;
 mod command;
 mod error;
 mod paper;
 mod parser;
+mod qr;
 mod receipt;
 
 pub use codepage::CodePage;
 pub use command::{
-    Alignment, Command, CutFunction, CutMode, DecodedCommand, Font, UnderlineMode, UnknownReason,
+    Alignment, BarcodeFunction, BarcodeProblem, Command, CutFunction, CutMode, DecodedCommand,
+    Font, HriPosition, QrCodeModel, QrErrorCorrection, RasterMode, Symbology, UnderlineMode,
+    UnknownReason,
 };
 pub use error::CoreError;
 pub use paper::{FONT_A, FONT_B, FontMetrics, PaperProfile, font_metrics};
-pub use parser::{MAX_TEXT_RUN, Parser, ParserConfig, parse};
+pub use parser::{MAX_PAYLOAD, MAX_TEXT_RUN, Parser, ParserConfig, SKIP_CHUNK, parse};
 pub use receipt::{
-    DEFAULT_LINE_SPACING, DrawerKick, Effect, Element, Line, Receipt, ReceiptBuilder,
-    ReceiptConfig, RenderOutput, Span, TextStyle, render,
+    DEFAULT_BARCODE_HEIGHT, DEFAULT_BARCODE_MODULE, DEFAULT_LINE_SPACING, DEFAULT_QR_MODULE,
+    DrawerKick, Effect, Element, Image, ImageKind, Line, Receipt, ReceiptBuilder, ReceiptConfig,
+    RenderOutput, Span, TextStyle, render,
 };

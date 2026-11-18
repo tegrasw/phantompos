@@ -19,6 +19,7 @@ Naming: `<name>.bin` is rendered on 80 mm paper; `<name>.58mm.bin` on 58 mm.
 from pathlib import Path
 
 from escpos.printer import Dummy
+from PIL import Image, ImageDraw
 
 OUT = Path(__file__).resolve().parent
 
@@ -262,8 +263,356 @@ def receipt_full():
 
 
 # --------------------------------------------------------------------------
+# Stage 4: images, QR Codes and barcodes (python-escpos)
+# --------------------------------------------------------------------------
+
+
+def logo(scale=1):
+    """PhantomPOS logo drawn with PIL primitives (deterministic, no files):
+    a ghost and a blocky "POS" wordmark, 152 x 64 dots at scale 1."""
+    w, h = 152 * scale, 64 * scale
+    im = Image.new("1", (w, h), 1)  # white
+    d = ImageDraw.Draw(im)
+    s = scale
+    # Ghost: round head, straight body, scalloped hem.
+    d.ellipse((4 * s, 2 * s, 56 * s, 54 * s), fill=0)
+    d.rectangle((4 * s, 28 * s, 56 * s, 54 * s), fill=0)
+    for i in range(4):
+        x0 = (4 + i * 13) * s
+        d.ellipse((x0, 46 * s, x0 + 13 * s, 62 * s), fill=0)
+    for i in range(3):
+        x0 = (10 + i * 13) * s
+        d.ellipse((x0 + 4 * s, 54 * s, x0 + 11 * s, 63 * s), fill=1)
+    # Eyes.
+    d.ellipse((17 * s, 18 * s, 27 * s, 32 * s), fill=1)
+    d.ellipse((34 * s, 18 * s, 44 * s, 32 * s), fill=1)
+    d.ellipse((21 * s, 23 * s, 26 * s, 30 * s), fill=0)
+    d.ellipse((38 * s, 23 * s, 43 * s, 30 * s), fill=0)
+    # "POS" in 6-dot strokes.
+    t = 6 * s
+    top, bottom = 12 * s, 52 * s
+    mid = 32 * s
+    # P
+    x = 66 * s
+    d.rectangle((x, top, x + t, bottom), fill=0)
+    d.rectangle((x, top, x + 22 * s, top + t), fill=0)
+    d.rectangle((x + 16 * s, top, x + 22 * s, mid), fill=0)
+    d.rectangle((x, mid - t, x + 22 * s, mid), fill=0)
+    # O
+    x = 94 * s
+    d.rectangle((x, top, x + 22 * s, bottom), fill=0)
+    d.rectangle((x + t, top + t, x + 16 * s, bottom - t), fill=1)
+    # S
+    x = 122 * s
+    d.rectangle((x, top, x + 24 * s, top + t), fill=0)
+    d.rectangle((x, top, x + t, mid), fill=0)
+    d.rectangle((x, mid - t // 2, x + 24 * s, mid + t // 2), fill=0)
+    d.rectangle((x + 18 * s, mid, x + 24 * s, bottom), fill=0)
+    d.rectangle((x, bottom - t, x + 24 * s, bottom), fill=0)
+    return im
+
+
+def checker(w, h, cell=4):
+    """A small checkerboard, for alignment and scaling cases."""
+    im = Image.new("1", (w, h), 1)
+    d = ImageDraw.Draw(im)
+    for y in range(0, h, cell):
+        for x in range(0, w, cell):
+            if (x // cell + y // cell) % 2 == 0:
+                d.rectangle((x, y, x + cell - 1, y + cell - 1), fill=0)
+    d.rectangle((0, 0, w - 1, h - 1), outline=0)
+    return im
+
+
+def image_raster_logo():
+    p = printer()
+    p.set(align="center")
+    p.image(logo(), impl="bitImageRaster")
+    p.text("PhantomPOS\n")
+    return p.output
+
+
+def image_alignment():
+    p = printer()
+    for align in ("left", "center", "right"):
+        p.set(align=align)
+        p.image(checker(40, 16), impl="bitImageRaster")
+    # python-escpos low density flags select GS v 0 m = 1, 2 and 3.
+    p.set(align="center")
+    p.image(checker(24, 8), impl="bitImageRaster", high_density_horizontal=False)
+    p.image(checker(24, 8), impl="bitImageRaster", high_density_vertical=False)
+    p.image(
+        checker(24, 8),
+        impl="bitImageRaster",
+        high_density_horizontal=False,
+        high_density_vertical=False,
+    )
+    p.text("after images\n")
+    return p.output
+
+
+def image_wider_than_paper():
+    # 640 dots on 80 mm (576) and 58 mm (384): clipped on the right.
+    p = printer()
+    p.set(align="center")
+    p.image(checker(640, 16, cell=8), impl="bitImageRaster")
+    p.text("clipped\n")
+    return p.output
+
+
+def qr_codes():
+    p = printer()
+    p.text("QR model 2, size 3, level L (defaults)\n")
+    p.qr("PhantomPOS", native=True)
+    p.text("size 6, level M, URL\n")
+    p.qr("https://github.com/tegrasw/phantompos", size=6, ec=1, native=True)
+    p.set(align="center")
+    p.text("centred, size 4, level Q, UTF-8\n")
+    p.qr("Pão de queijo — R$ 9,90 · Ação", size=4, ec=2, native=True)
+    p.set(align="right")
+    p.text("right, size 2, level H, numeric\n")
+    p.qr("0123456789012345678901234567890123456789", size=2, ec=3, native=True)
+    p.set(align="left")
+    return p.output
+
+
+def qr_models():
+    p = printer()
+    p.text("model 1 (drawn as model 2)\n")
+    p.qr("MODEL 1", model=1, native=True)
+    p.text("micro QR\n")
+    p.qr("12345", model=3, size=4, native=True)
+    return p.output
+
+
+def barcode_ean13():
+    p = printer()
+    p.text("EAN-13, check digit added (function A)\n")
+    p.barcode("789123456789", "EAN13", function_type="A")
+    p.text("EAN-13 with check digit (function B)\n")
+    p.barcode("7891234567895", "EAN13", function_type="B")
+    return p.output
+
+
+def barcode_symbologies(function_type):
+    p = printer()
+    cases = [
+        ("UPC-A", "03600029145"),
+        ("UPC-E", "01234565"),
+        ("EAN8", "9638507"),
+        ("CODE39", "PHANTOM-42"),
+        ("ITF", "12345678"),
+        ("NW7", "A40156B"),
+    ]
+    if function_type == "B":
+        cases += [
+            ("CODE93", "PhantomPOS 93"),
+            ("CODE128", "{BPhantom-128"),
+            ("CODE128", "{C" + "".join(chr(v) for v in (12, 34, 56, 78))),
+            ("CODE128", "{AABC{B-abc{C" + chr(99) + chr(1)),
+        ]
+    for bc, code in cases:
+        p.set(align="left")
+        p.text(f"{bc} {function_type}\n")
+        p.barcode(code, bc, height=60, width=2, pos="BELOW", function_type=function_type)
+    return p.output
+
+
+def barcode_hri():
+    p = printer()
+    for pos in ("OFF", "ABOVE", "BELOW", "BOTH"):
+        p.barcode("4006381333931", "EAN13", height=40, width=2, pos=pos, font="A")
+    p.barcode("4006381333931", "EAN13", height=40, width=2, pos="BOTH", font="B")
+    p.set(align="left")
+    p.barcode("CODE39", "CODE39", height=80, width=3, pos="BELOW", align_ct=False)
+    p.barcode("12", "CODE39", height=20, width=6, pos="BELOW", align_ct=False)
+    p.set(align="right")
+    p.barcode("1234", "ITF", height=30, width=4, pos="ABOVE", align_ct=False)
+    return p.output
+
+
+def receipt_codes():
+    # The stage 4 acceptance example: logo, items, EAN-13, QR Code, cut.
+    p = printer()
+    p.charcode("CP858")
+    p.set(align="center")
+    p.image(logo(), impl="bitImageRaster")
+    p.set(align="center", bold=True, double_height=True, double_width=True)
+    p.text("PADARIA SÃO JOSÉ\n")
+    p.set(normal_textsize=True, bold=False)
+    p.text("CNPJ 12.345.678/0001-90\n")
+    p.text("-" * 32 + "\n")
+    p.set(align="left")
+    p.text("Pão francês x10        R$ 8,50\n")
+    p.text("Café coado             R$ 4,00\n")
+    p.text("Pão de queijo x3       R$ 9,00\n")
+    p.set(bold=True)
+    p.text("TOTAL                 R$ 21,50\n")
+    p.set(bold=False)
+    p.ln()
+    p.barcode("789123456789", "EAN13", height=64, width=2, pos="BELOW", font="A")
+    p.ln()
+    p.set(align="center")
+    p.text("Consulte pelo QR Code\n")
+    p.qr("https://www.sefaz.example/nfce?p=35261112345678000190650010000012341000012345|2|1|1|ABCDEF0123456789",
+         size=4, ec=1, native=True)
+    p.set(align="center", font="b")
+    p.text("Obrigado pela preferência!\n")
+    p.cut()
+    return p.output
+
+
+def unsupported_graphics():
+    # python-escpos "graphics" (GS ( L fn 112 + fn 50) and "bitImageColumn"
+    # (ESC *) implementations: recognized by length, not drawn.
+    p = printer()
+    p.text("graphics\n")
+    p.image(checker(16, 8), impl="graphics")
+    p.text("bitImageColumn\n")
+    p.image(checker(16, 8), impl="bitImageColumn")
+    p.text("after\n")
+    return p.output
+
+
+# --------------------------------------------------------------------------
 # HAND-WRITTEN raw bytes (edge cases no library emits)
 # --------------------------------------------------------------------------
+
+
+def raster(m, width_bytes, height, data=None):
+    if data is None:
+        data = bytes([0xF0, 0x0F]) * ((width_bytes * height) // 2) + (
+            b"\xff" if (width_bytes * height) % 2 else b""
+        )
+    return (
+        GS + b"v0" + bytes([m])
+        + bytes([width_bytes & 0xFF, width_bytes >> 8, height & 0xFF, height >> 8])
+        + data
+    )
+
+
+def gs_k_a(m, data):
+    return GS + b"k" + bytes([m]) + data + b"\x00"
+
+
+def gs_k_b(m, data):
+    return GS + b"k" + bytes([m, len(data)]) + data
+
+
+def qr_fn(fn, params):
+    body = b"1" + bytes([fn]) + params
+    return GS + b"(k" + bytes([len(body) & 0xFF, len(body) >> 8]) + body
+
+
+def image_edge_cases():
+    # HAND-WRITTEN: zero-size images, ASCII mode, invalid mode, an image
+    # sent mid-line (ignored), and ESC @ restoring defaults.
+    return (
+        b"zero width" + b"\n" + raster(0, 0, 10, b"")
+        + b"zero height\n" + raster(0, 4, 0, b"")
+        + b"ASCII '3' quadruple\n" + raster(ord("3"), 1, 2, b"\x81\x7e")
+        + b"mode 7 consumed, not drawn\n" + raster(7, 1, 2, b"\xff\xff")
+        + b"mid-line " + raster(0, 1, 1, b"\xff") + b"ignored\n"
+        + ESC + b"a\x02" + raster(48, 2, 2, b"\xff\x01\x80\xff")
+        + b"end\n"
+    )
+
+
+def image_truncated_eof():
+    # HAND-WRITTEN: stream ends inside GS v 0 data (10 x 10 declared, 20 sent).
+    return b"before\n" + GS + b"v0\x00\x0a\x00\x0a\x00" + b"\xaa" * 20
+
+
+def image_huge_declared():
+    # HAND-WRITTEN: GS v 0 declaring 65535 x 65535 bytes (> 1 MiB): the header
+    # is emitted at once, the data is skipped; the stream ends early.
+    return b"huge\n" + GS + b"v0\x00\xff\xff\xff\xff" + b"\x55" * 100
+
+
+def barcode_invalid():
+    # HAND-WRITTEN: data the reference rejects (logged, nothing drawn) and a
+    # wrong check digit (printed as sent: the printer does not check it).
+    return (
+        GS + b"H\x02"
+        + b"EAN-13 wrong check digit (printed)\n" + gs_k_a(2, b"7891234567890")
+        + b"EAN-13 11 digits\n" + gs_k_a(2, b"78912345678")
+        + b"EAN-13 letter\n" + gs_k_b(67, b"78912345678X")
+        + b"UPC-A 10 digits\n" + gs_k_a(0, b"0360002914")
+        + b"UPC-E NSC 1\n" + gs_k_a(1, b"11234565")
+        + b"UPC-E not compressible\n" + gs_k_a(1, b"01234567890")
+        + b"EAN-8 9 digits\n" + gs_k_b(68, b"963850741")
+        + b"CODE39 lowercase\n" + gs_k_a(4, b"abc")
+        + b"CODE39 star inside\n" + gs_k_a(4, b"AB*CD")
+        + b"ITF odd count, function B\n" + gs_k_b(70, b"12345")
+        + b"ITF odd count, function A (last digit dropped)\n" + gs_k_a(5, b"12345")
+        + b"CODABAR without start/stop\n" + gs_k_a(6, b"40156")
+        + b"CODE93 byte 0x80\n" + gs_k_b(72, b"AB\x80")
+        + b"CODE128 without code set\n" + gs_k_b(73, b"ABC")
+        + b"CODE128 C value 100\n" + gs_k_b(73, b"{C\x64")
+        + b"GS1-128 (not drawn)\n" + gs_k_b(74, b"{A0123")
+        + b"GS1 DataBar (not drawn)\n" + gs_k_b(75, b"2001234567890")
+        + b"unknown m=10\n" + GS + b"k\x0a" + b"text after m\n"
+        + b"function B n=0\n" + gs_k_b(73, b"")
+        + b"function A missing NUL\n" + GS + b"k\x04" + b"A" * 260 + b"\n"
+    )
+
+
+def barcode_settings():
+    # HAND-WRITTEN: GS h / GS w / GS H / GS f ranges and ESC @ defaults.
+    return (
+        GS + b"h\x00" + GS + b"w\x01" + GS + b"w\x07" + GS + b"H\x04" + GS + b"f\x05"
+        + b"defaults: 162 dots, module 3, no HRI\n" + gs_k_a(3, b"9638507")
+        + GS + b"h\x20" + GS + b"w\x06" + GS + b"H\x33" + GS + b"f\x31"
+        + b"32 dots, module 6, HRI both in font B ('3', '1')\n" + gs_k_a(3, b"9638507")
+        + GS + b"f\x02" + b"font C ignored\n" + gs_k_a(3, b"9638507")
+        + ESC + b"@" + b"after ESC @\n" + gs_k_a(3, b"9638507")
+        + b"too wide: ignored\n" + GS + b"w\x06" + gs_k_b(73, b"{B" + b"W" * 20)
+    )
+
+
+def qr_edge_cases():
+    # HAND-WRITTEN: print without data, data too long, invalid parameters,
+    # a symbol wider than the paper, store with m != 48, mid-line print.
+    return (
+        b"print without data\n" + qr_fn(81, b"0")
+        + b"store with m=49 (ignored)\n" + qr_fn(80, b"1abc") + qr_fn(81, b"0")
+        + b"module 0 and 17 ignored\n" + qr_fn(67, b"\x00") + qr_fn(67, b"\x11")
+        + b"level 52 ignored, model 52 ignored\n" + qr_fn(69, b"4") + qr_fn(65, b"4\x00")
+        + b"wrong length for fn 67\n" + qr_fn(67, b"\x04\x04")
+        + b"unknown fn 70\n" + qr_fn(70, b"0")
+        + b"too long for level H\n" + qr_fn(69, b"3") + qr_fn(80, b"0" + b"x" * 1300)
+        + qr_fn(81, b"0")
+        + b"too wide (module 16)\n" + qr_fn(69, b"0") + qr_fn(67, b"\x10")
+        + qr_fn(80, b"0" + b"y" * 100) + qr_fn(81, b"0")
+        + b"mid-line " + qr_fn(67, b"\x03") + qr_fn(81, b"0") + b"ignored\n"
+        + b"size info (no reply)\n" + qr_fn(82, b"0")
+        + b"stored data survives a print\n" + qr_fn(81, b"0")
+        + b"ESC @ clears it\n" + ESC + b"@" + qr_fn(81, b"0")
+        + b"end\n"
+    )
+
+
+def unsupported_symbols():
+    # HAND-WRITTEN: other GS ( k symbols, GS 8 L, GS * / GS /, FS p and an
+    # unimplemented GS ( E: consumed by their declared length.
+    pdf = b"0P0" + b"PDF417 data"
+    return (
+        b"PDF417\n" + GS + b"(k" + bytes([len(pdf), 0]) + pdf
+        + GS + b"(k\x03\x000Q0"
+        + b"MaxiCode\n" + GS + b"(k\x04\x002A2\x00"
+        + b"DataMatrix\n" + GS + b"(k\x05\x006P0AB"
+        + b"GS 8 L\n" + GS + b"8L\x06\x00\x00\x0002\x01\x02\x03\x04"
+        + b"GS * and GS /\n" + GS + b"*\x01\x01" + b"\xff" * 8 + GS + b"/\x00"
+        + b"FS p\n" + FS + b"p\x01\x00"
+        + b"GS ( E\n" + GS + b"(E\x03\x00\x01\x02\x03"
+        + b"ESC * m=2 (header only)\n" + ESC + b"*\x02\x05\x00"
+        + b"end\n"
+    )
+
+
+def incomplete_qr_eof():
+    # HAND-WRITTEN: stream ends inside GS ( k function 180.
+    return b"line\n" + GS + b"(k\x10\x001P0abc"
 
 
 def print_mode_combos():
@@ -539,6 +888,28 @@ FIXTURES = {
     "cut_drawer_out_of_range": cut_drawer_out_of_range,
     "incomplete_cut_eof": incomplete_cut_eof,
     "incomplete_drawer_eof": incomplete_drawer_eof,
+    "image_raster_logo": image_raster_logo,
+    "image_raster_logo.58mm": image_raster_logo,
+    "image_alignment": image_alignment,
+    "image_wider_than_paper": image_wider_than_paper,
+    "image_wider_than_paper.58mm": image_wider_than_paper,
+    "qr_codes": qr_codes,
+    "qr_models": qr_models,
+    "barcode_ean13": barcode_ean13,
+    "barcode_symbologies_a": lambda: barcode_symbologies("A"),
+    "barcode_symbologies_b": lambda: barcode_symbologies("B"),
+    "barcode_hri": barcode_hri,
+    "receipt_codes": receipt_codes,
+    "receipt_codes.58mm": receipt_codes,
+    "unsupported_graphics": unsupported_graphics,
+    "image_edge_cases": image_edge_cases,
+    "image_truncated_eof": image_truncated_eof,
+    "image_huge_declared": image_huge_declared,
+    "barcode_invalid": barcode_invalid,
+    "barcode_settings": barcode_settings,
+    "qr_edge_cases": qr_edge_cases,
+    "unsupported_symbols": unsupported_symbols,
+    "incomplete_qr_eof": incomplete_qr_eof,
 }
 
 
