@@ -1,7 +1,7 @@
 <!--
   Fixed application header: mark, endpoint status, live connection count
-  with an activity light, the settings gear and the panel toggles (printer
-  state on the left, command log on the right).
+  with an activity light and the settings gear. The side panels are toggled
+  from their own rails and collapse buttons, not from the header.
 
   Endpoint (SPEC "Endereço no cabeçalho"): local mode shows 127.0.0.1:port
   with a copy button. Network mode adds a "Network" badge (it is a
@@ -32,11 +32,7 @@
     printer,
     connections,
     activity,
-    logOpen,
-    stateOpen,
     controls,
-    onToggleLog,
-    onToggleState,
     onShowState,
   }: {
     status: EndpointStatus;
@@ -44,11 +40,7 @@
     connections: ConnectionsStatus;
     /** Increments whenever data arrives; drives the activity light. */
     activity: number;
-    logOpen: boolean;
-    stateOpen: boolean;
     controls: ListenerControls;
-    onToggleLog: () => void;
-    onToggleState: () => void;
     onShowState: () => void;
   } = $props();
 
@@ -248,29 +240,7 @@
     >
       <Icon name="gear" />
     </button>
-    <button
-      type="button"
-      class="icon-btn"
-      aria-pressed={stateOpen}
-      aria-controls="printer-state"
-      title={stateOpen ? t.hideState : t.showState}
-      aria-label={stateOpen ? t.hideState : t.showState}
-      onclick={onToggleState}
-    >
-      <Icon name="panelLeft" />
-    </button>
   {/if}
-  <button
-    type="button"
-    class="icon-btn"
-    aria-pressed={logOpen}
-    aria-controls="command-log"
-    title={logOpen ? t.hideLog : t.showLog}
-    aria-label={logOpen ? t.hideLog : t.showLog}
-    onclick={onToggleLog}
-  >
-    <Icon name="panel" />
-  </button>
 </header>
 
 <style>

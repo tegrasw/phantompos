@@ -28,10 +28,6 @@ export const pt: Messages = {
     connections: (n: number): string => plural(n, "conexão", "conexões"),
     connectedPeers: (peers: readonly string[]): string =>
       peers.length > 0 ? `Conectados: ${peers.join(", ")}` : "Nenhum cliente conectado",
-    showLog: "Mostrar log de comandos",
-    hideLog: "Ocultar log de comandos",
-    showState: "Mostrar estado da impressora",
-    hideState: "Ocultar estado da impressora",
     settings: "Configurações",
     faultChip: (primary: string, more: number): string => (more > 0 ? `${primary} +${more}` : primary),
     faultTitle: (names: string): string =>

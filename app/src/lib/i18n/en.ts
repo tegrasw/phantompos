@@ -34,10 +34,6 @@ export const en = {
     connections: (n: number): string => plural(n, "connection", "connections"),
     connectedPeers: (peers: readonly string[]): string =>
       peers.length > 0 ? `Connected: ${peers.join(", ")}` : "No clients connected",
-    showLog: "Show command log",
-    hideLog: "Hide command log",
-    showState: "Show printer state",
-    hideState: "Hide printer state",
     settings: "Settings",
     /** Header chip while an error state is simulated. */
     faultChip: (primary: string, more: number): string => (more > 0 ? `${primary} +${more}` : primary),

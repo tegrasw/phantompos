@@ -166,7 +166,9 @@ includes visual design work, not just function.
 - The command log keeps only the first 256 bytes of each command (plus its real
   length); raw-bytes export in stage 6 must come from the backend.
 - Layout: state panel on the left (272 px, collapses to a rail), command log on
-  the right. Both can be open only from 912 px of window width; below that,
+  the right, collapsed by default (owner decision). Panels are opened from
+  their rails and closed from their own headers; the app header has no panel
+  toggles. Both can be open only from 912 px of window width; below that,
   opening one collapses the other.
 - Interface in English and Brazilian Portuguese (`app/src/lib/i18n/`): `en.ts`
   defines the shape and `pt.ts` must match it (type-checked). The first `pt*`

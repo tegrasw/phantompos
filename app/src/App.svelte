@@ -64,12 +64,15 @@
   const ROLL_MIN = 260;
   const STATE_W = 272; // keep in sync with --state-w
   const RAIL_W = 44; // keep in sync with --rail-w
-  const STORE_OPEN = "phantompos.commandLog.open";
+  // "expanded" replaced the older "open" key, whose stored value was always
+  // "true": the log now starts collapsed unless the user opened it.
+  const STORE_OPEN = "phantompos.commandLog.expanded";
   const STORE_WIDTH = "phantompos.commandLog.width";
   const STORE_STATE_OPEN = "phantompos.statePanel.open";
 
   let viewportWidth = $state(window.innerWidth);
-  let logOpen = $state(readStored(STORE_OPEN) !== "false");
+  // The command log starts collapsed; its rail (or the panel itself) toggles it.
+  let logOpen = $state(readStored(STORE_OPEN) === "true");
   let stateOpen = $state(readStored(STORE_STATE_OPEN) !== "false");
   /** The panel opened most recently wins when both cannot fit. */
   let lastOpened: "state" | "log" = "log";
@@ -281,11 +284,7 @@
     {printer}
     {connections}
     {activity}
-    {logOpen}
-    {stateOpen}
     {controls}
-    onToggleLog={() => setLogOpen(!logOpen)}
-    onToggleState={() => setStateOpen(!stateOpen)}
     onShowState={() => setStateOpen(true)}
   />
 
