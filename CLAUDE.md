@@ -3,7 +3,7 @@
 Virtual ESC/POS thermal printer: a Tauri 2 desktop app that listens on TCP 9100,
 parses ESC/POS and draws the receipt. `SPEC.md` (Portuguese) is the source of
 truth; work proceeds one stage at a time ("Etapas e critérios de aceite").
-Current stage: **6 (settings and export) done**. All six stages are implemented; what remains is the 0.1.0 release checklist (Apple secrets, a test with real POS receipts).
+Current stage: **6 (settings and export) done**. All six stages are implemented; macOS signing and notarization are set up and verified (tag `v0.1.0-test.3`). What remains before 0.1.0: confirm the crate names on crates.io and test with real POS receipts.
 
 ## Layout
 
