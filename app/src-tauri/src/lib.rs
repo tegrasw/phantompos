@@ -45,7 +45,9 @@ enum CommandError {
     #[error("Couldn't open {url}: {source}")]
     OpenLink {
         url: &'static str,
-        source: tauri_plugin_opener::Error,
+        // Boxed: on Linux the plugin's error embeds a large D-Bus error, which
+        // would bloat every command's `Result` (clippy::result_large_err).
+        source: Box<tauri_plugin_opener::Error>,
     },
 }
 
@@ -196,7 +198,10 @@ fn open_link(app: AppHandle, link: Link) -> Result<(), CommandError> {
     let url = link.url();
     app.opener()
         .open_url(url, None::<&str>)
-        .map_err(|source| CommandError::OpenLink { url, source })
+        .map_err(|source| CommandError::OpenLink {
+            url,
+            source: Box::new(source),
+        })
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
