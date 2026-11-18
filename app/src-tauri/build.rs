@@ -4,8 +4,11 @@ fn main() {
     let attributes =
         tauri_build::Attributes::new().app_manifest(tauri_build::AppManifest::new().commands(&[
             "get_state",
-            "set_paper",
+            "update_settings",
+            "retry_listener",
             "set_printer_status",
+            "clear_receipts",
+            "export_receipt",
         ]));
 
     if let Err(error) = tauri_build::try_build(attributes) {

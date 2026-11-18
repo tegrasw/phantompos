@@ -1,13 +1,16 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Permissions for the main window: listen to backend events, read the state, select the paper and change the simulated printer state.",
+  "description": "Permissions for the main window: listen to backend events, read the state, change the settings and the simulated printer state, retry the listener, and export or forget receipts. No plugin permission: the save dialog is opened by the backend.",
   "windows": ["main"],
   "permissions": [
     "core:event:allow-listen",
     "core:event:allow-unlisten",
     "allow-get-state",
-    "allow-set-paper",
-    "allow-set-printer-status"
+    "allow-update-settings",
+    "allow-retry-listener",
+    "allow-set-printer-status",
+    "allow-clear-receipts",
+    "allow-export-receipt"
   ]
 }
