@@ -11,6 +11,13 @@
 //! progress changed (at most one per read). On disconnect: the flushed
 //! commands, the pending receipt (if any) and `connection:changed`.
 //!
+//! `receipt:updated` carries the whole receipt in progress, images included
+//! (base64 bitmaps), so it is throttled per connection: the first change is
+//! sent at once, later ones at most every [`UPDATE_INTERVAL`] (the latest
+//! snapshot is sent when the interval ends). A snapshot still pending when
+//! its receipt is completed (cut or disconnect) is dropped: the completed
+//! receipt supersedes it.
+//!
 //! The listener is independent of Tauri so it can be tested with a plain
 //! channel as the sink. The Tauri glue lives in `lib.rs`.
 
@@ -29,6 +36,7 @@ use serde::Serialize;
 use tokio::io::AsyncReadExt;
 use tokio::net::{TcpListener, TcpStream};
 use tokio::task::JoinSet;
+use tokio::time::Instant;
 
 /// Port used by network thermal printers ("raw" / JetDirect printing).
 pub const DEFAULT_PORT: u16 = 9100;
@@ -36,6 +44,9 @@ pub const DEFAULT_PORT: u16 = 9100;
 /// Size of the buffer for each socket read; one read produces at most one
 /// `commands:received` event.
 const READ_BUFFER_SIZE: usize = 4096;
+
+/// Minimum time between two `receipt:updated` events of one connection.
+const UPDATE_INTERVAL: Duration = Duration::from_millis(50);
 
 /// Pause after a failed `accept` so a persistent error (e.g. too many open
 /// files) does not turn the accept loop into a busy loop.
@@ -387,6 +398,10 @@ struct Connection {
     builder: ReceiptBuilder,
     state: Arc<ListenerState>,
     sink: Arc<dyn EventSink>,
+    /// Snapshot waiting for the end of the update interval.
+    pending_update: Option<Receipt>,
+    /// When the last `receipt:updated` was sent.
+    last_update: Option<Instant>,
 }
 
 impl Connection {
@@ -402,6 +417,8 @@ impl Connection {
             builder,
             state,
             sink,
+            pending_update: None,
+            last_update: None,
         }
     }
 
@@ -424,6 +441,8 @@ impl Connection {
         for effect in effects {
             match effect {
                 Effect::ReceiptCompleted(receipt) => {
+                    // A snapshot of this receipt is obsolete now.
+                    self.pending_update = None;
                     self.state
                         .complete_receipt(self.id, &self.peer, receipt, self.sink.as_ref());
                 }
@@ -435,10 +454,39 @@ impl Connection {
         }
     }
 
+    /// Parses one chunk and emits its commands and effects. The receipt in
+    /// progress is reported separately by [`queue_update`](Self::queue_update).
     fn feed(&mut self, chunk: &[u8]) {
         let commands = self.parser.feed(chunk);
         self.process(commands);
+    }
+
+    /// Takes the in-progress receipt if it changed, and sends it now or when
+    /// the update interval ends.
+    fn queue_update(&mut self, now: Instant) {
         if let Some(receipt) = self.builder.take_update() {
+            self.pending_update = Some(receipt);
+        }
+        if self.update_due(now).is_some_and(|due| due <= now) {
+            self.flush_update(now);
+        }
+    }
+
+    /// When the pending snapshot may be sent (`now` if no update was sent
+    /// yet), or `None` if nothing is pending.
+    fn update_due(&self, now: Instant) -> Option<Instant> {
+        self.pending_update.as_ref()?;
+        Some(
+            self.last_update
+                .and_then(|last| last.checked_add(UPDATE_INTERVAL))
+                .unwrap_or(now),
+        )
+    }
+
+    /// Sends the pending snapshot, if any.
+    fn flush_update(&mut self, now: Instant) {
+        if let Some(receipt) = self.pending_update.take() {
+            self.last_update = Some(now);
             self.sink
                 .emit(ListenerEvent::ReceiptUpdated(ReceiptUpdated {
                     connection_id: self.id,
@@ -472,22 +520,30 @@ async fn serve_connection(
     let mut buffer = vec![0_u8; READ_BUFFER_SIZE];
 
     loop {
-        match stream.read(&mut buffer).await {
-            // Orderly shutdown by the client.
-            Ok(0) => break,
-            Ok(read) => {
-                let Some(chunk) = buffer.get(..read) else {
+        let due = connection.update_due(Instant::now());
+        tokio::select! {
+            result = stream.read(&mut buffer) => match result {
+                // Orderly shutdown by the client.
+                Ok(0) => break,
+                Ok(read) => {
+                    let Some(chunk) = buffer.get(..read) else {
+                        break;
+                    };
+                    connection.feed(chunk);
+                    connection.queue_update(Instant::now());
+                }
+                Err(error) if error.kind() == io::ErrorKind::Interrupted => {}
+                Err(error) => {
+                    eprintln!(
+                        "phantompos: connection {id} from {} failed: {error}",
+                        connection.peer
+                    );
                     break;
-                };
-                connection.feed(chunk);
-            }
-            Err(error) if error.kind() == io::ErrorKind::Interrupted => {}
-            Err(error) => {
-                eprintln!(
-                    "phantompos: connection {id} from {} failed: {error}",
-                    connection.peer
-                );
-                break;
+                }
+            },
+            // `read` is cancel safe, so racing it with the timer loses nothing.
+            () = tokio::time::sleep_until(due.unwrap_or_else(Instant::now)), if due.is_some() => {
+                connection.flush_update(Instant::now());
             }
         }
     }
@@ -1119,5 +1175,161 @@ mod tests {
             ListenerEvent::Status(expected.clone())
         );
         assert_eq!(state.snapshot().listener, expected);
+    }
+
+    /// Element kinds and sizes of a receipt, for compact assertions.
+    fn layout(receipt: &Receipt) -> Vec<String> {
+        receipt
+            .elements
+            .iter()
+            .map(|element| match element {
+                phantompos_core::Element::Line(line) => format!("line {}", line.y),
+                phantompos_core::Element::Image(image) => format!(
+                    "{:?} {},{} {}x{}",
+                    image.kind, image.x, image.y, image.width, image.height
+                ),
+            })
+            .collect()
+    }
+
+    #[tokio::test]
+    async fn images_qr_codes_and_barcodes_arrive_in_the_completed_receipt() {
+        let mut running = start().await;
+        let (mut client, _) = connect(&mut running).await;
+
+        let mut bytes = b"\x1ba\x01".to_vec();
+        // 16 x 2 raster, quadruple: 32 x 4 dots, centred.
+        bytes.extend_from_slice(b"\x1dv0\x03\x02\x00\x02\x00\xf0\x0f\x0f\xf0");
+        // QR Code "PhantomPOS", module 4: 21 x 4 = 84 dots.
+        bytes
+            .extend_from_slice(b"\x1d(k\x03\x001C\x04\x1d(k\x0d\x001P0PhantomPOS\x1d(k\x03\x001Q0");
+        // EAN-13, module 2, 50 dots, HRI below: 95 x 2 = 190 dots.
+        bytes.extend_from_slice(b"\x1dw\x02\x1dh\x32\x1dH\x02\x1dk\x02789123456789\x00");
+        bytes.extend_from_slice(b"\x1dV\x00");
+        client.write_all(&bytes).await.expect("write");
+
+        let commands = next_commands(&mut running.events).await;
+        assert_eq!(commands.commands.len(), 10);
+        let completed = match next_event(&mut running.events).await {
+            ListenerEvent::ReceiptCompleted(completed) => completed,
+            other => panic!("expected receipt:completed, got {other:?}"),
+        };
+        assert_eq!(
+            layout(&completed.receipt),
+            [
+                "Raster 272,0 32x4",
+                "QrCode 246,4 84x84",
+                "Barcode 193,88 190x50",
+                "line 138",
+            ]
+        );
+        assert_eq!(completed.receipt.height, 138 + 24);
+        // The payload is the documented JSON shape.
+        let value: serde_json::Value = serde_json::from_str(&json(&completed)).expect("valid JSON");
+        let raster = &value["receipt"]["elements"][0];
+        assert_eq!(raster["type"], "image");
+        assert_eq!(raster["kind"], "raster");
+        assert_eq!(raster["advance"], 4);
+        // Source rows F00F / 0FF0, each dot doubled in both directions:
+        // FF0000FF twice, then 00FFFF00 twice.
+        assert_eq!(raster["data"], "/wAA//8AAP8A//8AAP//AA==");
+        drop(client);
+        running.task.abort();
+    }
+
+    #[tokio::test]
+    async fn raster_image_split_across_many_writes_is_one_command() {
+        let mut running = start().await;
+        let (mut client, _) = connect(&mut running).await;
+
+        // 72 bytes x 100 rows (576 x 100 dots), sent 50 bytes at a time.
+        let mut bytes = b"\x1dv0\x00\x48\x00\x64\x00".to_vec();
+        bytes.extend((0..72 * 100).map(|i| if i % 2 == 0 { 0xAA } else { 0x55 }));
+        bytes.extend_from_slice(b"\n");
+        for piece in bytes.chunks(50) {
+            client.write_all(piece).await.expect("write");
+            client.flush().await.expect("flush");
+            tokio::time::sleep(Duration::from_millis(1)).await;
+        }
+        drop(client);
+
+        let events = events_until_disconnect(&mut running.events).await;
+        let commands: Vec<DecodedCommand> = events
+            .iter()
+            .filter_map(|event| match event {
+                ListenerEvent::Commands(batch) => Some(batch.commands.clone()),
+                _ => None,
+            })
+            .flatten()
+            .collect();
+        let rasters: Vec<_> = commands
+            .iter()
+            .filter(|c| matches!(c.command, Command::RasterImage { .. }))
+            .collect();
+        assert_eq!(rasters.len(), 1);
+        assert_eq!(rasters[0].bytes.len(), 8 + 72 * 100);
+        assert_eq!(commands, parse_default(&bytes));
+        let completed: Vec<_> = events
+            .iter()
+            .filter_map(|event| match event {
+                ListenerEvent::ReceiptCompleted(completed) => Some(completed),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(completed.len(), 1);
+        assert_eq!(
+            layout(&completed[0].receipt),
+            ["Raster 0,0 576x100", "line 100"]
+        );
+        running.task.abort();
+    }
+
+    #[tokio::test]
+    async fn updates_are_throttled_and_dropped_when_the_receipt_completes() {
+        let mut running = start().await;
+        let (mut client, _) = connect(&mut running).await;
+
+        // The first change is reported at once.
+        client.write_all(b"first\n").await.expect("write");
+        assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+        assert_eq!(kind(&next_event(&mut running.events).await), "updated");
+
+        // A quick series of lines: one read each, far fewer snapshots, and
+        // the last snapshot has every line.
+        let writes = 20;
+        for i in 0..writes {
+            client
+                .write_all(format!("line {i}\n").as_bytes())
+                .await
+                .expect("write");
+            assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+        }
+        let mut updates = Vec::new();
+        while updates
+            .last()
+            .is_none_or(|r: &Receipt| r.elements.len() < writes + 1)
+        {
+            match next_event(&mut running.events).await {
+                ListenerEvent::ReceiptUpdated(updated) => updates.push(updated.receipt),
+                other => panic!("expected receipt:updated, got {other:?}"),
+            }
+        }
+        assert!(updates.len() < writes, "{} updates", updates.len());
+
+        // A snapshot still pending when the cut arrives is dropped: nothing
+        // follows the completed receipt. (The interval may end before the cut
+        // is read, so an update may come first.)
+        client.write_all(b"last\n").await.expect("write");
+        assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+        client.write_all(b"\x1dV\x00").await.expect("write");
+        drop(client);
+        let tail = events_until_disconnect(&mut running.events).await;
+        let kinds: Vec<_> = tail
+            .iter()
+            .map(kind)
+            .skip_while(|&k| k == "updated")
+            .collect();
+        assert_eq!(kinds, ["commands", "completed", "connections"]);
+        running.task.abort();
     }
 }
