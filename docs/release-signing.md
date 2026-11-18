@@ -20,6 +20,10 @@ shows a warning on first run), and the workflow uploads with the automatic
   under `$RUNNER_TEMP`, points `APPLE_API_KEY_PATH` at it, and the bundler notarizes and
   staples the app before packing it into the `.dmg`. The file is deleted at the end of
   the job.
+- The bundler does not notarize the `.dmg` container itself, so a further step submits
+  the `.dmg` with `notarytool`, staples the ticket to it and replaces the asset already
+  uploaded to the release. Without it Gatekeeper reports the disk image as
+  "Unnotarized Developer ID" even though the app inside is notarized.
 - Signing is optional. If no signing secrets are set, the job still succeeds and emits a
   warning: the `.dmg` is ad-hoc signed (no Apple identity) and not notarized, so
   Gatekeeper warns users. If only some secrets of a group are set, the job fails, since
@@ -27,7 +31,8 @@ shows a warning on first run), and the workflow uploads with the automatic
 - If the certificate is set but the App Store Connect secrets are not, the app is signed
   but not notarized, and the job emits a warning. Gatekeeper blocks such a build.
 - After the build, a verification step checks the signature, that the authority is a
-  Developer ID Application certificate, and (when notarized) the stapled ticket.
+  Developer ID Application certificate, and (when notarized) the stapled ticket on both
+  the app and the `.dmg`, and that Gatekeeper accepts both.
 
 ## Secrets
 
@@ -153,7 +158,13 @@ spctl --assess --type execute --verbose=2 /Applications/PhantomPOS.app
 xcrun stapler validate /Applications/PhantomPOS.app
 ```
 
-A notarized build reports `source=Notarized Developer ID`.
+A notarized build reports `source=Notarized Developer ID`. The downloaded `.dmg` can be
+checked the same way:
+
+```sh
+spctl --assess --type open --context context:primary-signature --verbose=2 PhantomPOS_0.1.0_aarch64.dmg
+xcrun stapler validate PhantomPOS_0.1.0_aarch64.dmg
+```
 
 To discard a test release together with its tag:
 

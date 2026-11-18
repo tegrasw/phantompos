@@ -266,6 +266,63 @@ jobs:
           uploadUpdaterJson: false
           uploadUpdaterSignatures: false
 
+      - name: Notarize and staple the .dmg
+        # The Tauri bundler notarizes and staples the .app and signs the .dmg,
+        # but does not submit the .dmg itself, which Gatekeeper then reports as
+        # "Unnotarized Developer ID". Submit the disk image too, staple the
+        # ticket to it and replace the asset tauri-action already uploaded.
+        if: runner.os == 'macOS' && steps.apple.outputs.notarized == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+          TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          dmgs=(target/"$TARGET"/release/bundle/dmg/*.dmg)
+          if [ "${#dmgs[@]}" -ne 1 ]; then
+            echo "::error::Expected exactly one .dmg under target/$TARGET/release/bundle/dmg, found ${#dmgs[@]}."
+            exit 1
+          fi
+          dmg="${dmgs[0]}"
+          name="$(basename "$dmg")"
+
+          # Make sure the stapled file will replace the uploaded asset rather
+          # than add a second one under a different name.
+          if ! gh release view "$TAG" --json assets --jq '.assets[].name' | grep -Fxq "$name"; then
+            echo "::error title=Asset not found::The release for $TAG has no asset named $name to replace."
+            gh release view "$TAG" --json assets --jq '.assets[].name'
+            exit 1
+          fi
+
+          result="$RUNNER_TEMP/notarytool-dmg.json"
+          xcrun notarytool submit "$dmg" \
+            --key "$APPLE_API_KEY_PATH" \
+            --key-id "$APPLE_API_KEY" \
+            --issuer "$APPLE_API_ISSUER" \
+            --wait --timeout 30m \
+            --output-format json > "$result" || true
+          status="$(plutil -extract status raw -o - "$result" 2>/dev/null || echo unknown)"
+          id="$(plutil -extract id raw -o - "$result" 2>/dev/null || echo unknown)"
+          echo "Notarization of $name: status=$status id=$id"
+          if [ "$status" != "Accepted" ]; then
+            echo "::error title=DMG notarization failed::notarytool reported status '$status' for $name."
+            cat "$result" || true
+            if [ "$id" != "unknown" ]; then
+              xcrun notarytool log "$id" \
+                --key "$APPLE_API_KEY_PATH" \
+                --key-id "$APPLE_API_KEY" \
+                --issuer "$APPLE_API_ISSUER" || true
+            fi
+            exit 1
+          fi
+
+          xcrun stapler staple "$dmg"
+          gh release upload "$TAG" "$dmg" --clobber
+          echo "The .dmg ($name) is notarized and stapled." >> "$GITHUB_STEP_SUMMARY"
+
       - name: Verify macOS signature
         if: runner.os == 'macOS'
         shell: bash
@@ -299,10 +356,9 @@ jobs:
           if [ "$NOTARIZED" = true ]; then
             xcrun stapler validate "$app"
             spctl --assess --type execute --verbose=2 "$app"
-            # The .dmg itself is signed but not notarized by the Tauri bundler;
-            # report Gatekeeper's verdict on it without failing the job.
-            spctl --assess --type open --context context:primary-signature --verbose=2 "$dmg" \
-              || echo "::warning title=DMG assessment::spctl did not accept the .dmg container itself; the notarized app inside is stapled."
+            # The .dmg was notarized and stapled by the previous step.
+            xcrun stapler validate "$dmg"
+            spctl --assess --type open --context context:primary-signature --verbose=2 "$dmg"
           fi
 
       - name: Remove App Store Connect key
