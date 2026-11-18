@@ -3,7 +3,7 @@
 // parser produced into something readable in the command log.
 
 import type { CommandBody, CommandParam } from "./backend";
-import { messages } from "./messages";
+import { i18n, lookup } from "./i18n";
 
 const CONTROL_NAMES: readonly string[] = [
   "NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL",
@@ -95,11 +95,26 @@ export interface DisplayParam {
 
 function formatValue(value: CommandParam | undefined): string {
   if (value === null || value === undefined) return "–";
-  if (typeof value === "boolean") return value ? "on" : "off";
+  if (typeof value === "boolean") return value ? i18n.t.log.on : i18n.t.log.off;
   if (typeof value === "number") return String(value);
   if (typeof value === "string") return value;
   // Not part of the contract, but never let an unexpected shape break the log.
   return JSON.stringify(value);
+}
+
+/** "setCharacterSize" → "Set character size" (or the locale's name for it). */
+export function commandLabel(type: string): string {
+  return lookup(i18n.t.log.commandTypes, type, humanize(type));
+}
+
+/** "bytesExpected" → "bytes expected" (or the locale's label). */
+export function paramLabel(key: string): string {
+  return lookup(i18n.t.log.params, key, humanize(key).toLowerCase());
+}
+
+/** `unknown.reason` for display, e.g. "incomplete" → "incomplete". */
+export function reasonLabel(reason: string): string {
+  return lookup(i18n.t.log.reasons, reason, humanize(reason).toLowerCase());
 }
 
 /** All parameters except `type` (and fields the caller renders itself). */
@@ -110,7 +125,7 @@ export function displayParams(
   const params: DisplayParam[] = [];
   for (const [key, value] of Object.entries(command)) {
     if (key === "type" || skip.includes(key)) continue;
-    params.push({ key: humanize(key).toLowerCase(), value: formatValue(value) });
+    params.push({ key: paramLabel(key), value: formatValue(value) });
   }
   return params;
 }
@@ -207,28 +222,29 @@ export function commandSummary(command: CommandBody): { summary: string | null; 
   const width = command.width;
   const height = command.height;
   if (IMAGE_TYPE.test(type) && typeof width === "number" && typeof height === "number") {
-    return { summary: messages.log.summary.dots(width, height), skip: ["width", "height"] };
+    return { summary: i18n.t.log.summary.dots(width, height), skip: ["width", "height"] };
   }
   if (/barcode/i.test(type) && typeof command.symbology === "string") {
     const data = typeof command.data === "string" ? command.data : null;
     return {
-      summary: messages.log.summary.barcode(symbologyName(command.symbology), data, command.valid === false),
+      summary: i18n.t.log.summary.barcode(symbologyName(command.symbology), data, command.valid === false),
       skip: ["symbology", "data", "valid"],
     };
   }
   if (/^qr/i.test(type) && /store|data/i.test(type) && typeof command.length === "number") {
-    return { summary: messages.log.summary.storedData(command.length), skip: ["length"] };
+    return { summary: i18n.t.log.summary.storedData(command.length), skip: ["length"] };
   }
   if (/status/i.test(type)) {
     // GS a: the mask's bits select what Automatic Status Back reports.
     if (typeof command.mask === "number") {
-      const names = messages.log.asbBits.filter((_, bit) => (command.mask as number) & (1 << bit));
-      return { summary: messages.log.asbMask(names), skip: ["mask"] };
+      const names = i18n.t.log.asbBits.filter((_, bit) => (command.mask as number) & (1 << bit));
+      return { summary: i18n.t.log.asbMask(names), skip: ["mask"] };
     }
     // DLE EOT n / GS r n: which status is requested ("printer", "paperSensor"...).
     for (const key of STATUS_REQUEST_KEYS) {
       const value = command[key];
-      if (typeof value === "string") return { summary: humanize(value).toLowerCase(), skip: [key] };
+      if (typeof value === "string")
+        return { summary: lookup(i18n.t.log.statusRequests, value, humanize(value).toLowerCase()), skip: [key] };
     }
   }
   return { summary: null, skip: [] };
@@ -243,7 +259,7 @@ const STATUS_REQUEST_KEYS = ["request", "status", "kind", "target", "which"] as 
 
 /** "coverOpen" → "Cover open"; unknown codes are humanised. */
 export function flagLabel(code: string): string {
-  return messages.log.flags[code] ?? humanize(code);
+  return lookup(i18n.t.log.flags, code, humanize(code));
 }
 
 /** Flags describing a condition that stops printing (or an error). */

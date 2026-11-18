@@ -21,13 +21,13 @@
   import { flip } from "svelte/animate";
   import CodePreview, { type InspectedCode } from "./CodePreview.svelte";
   import { fade, fly } from "svelte/transition";
-  import { activeFaults, type Paper, type PrinterStatus } from "../backend";
+  import { activeFaults, type ExportFormat, type Paper, type PrinterStatus } from "../backend";
   import type { SessionStats } from "../commandLog.svelte";
-  import { formatBytes, formatCount } from "../format";
-  import { messages } from "../messages";
+  import { formatBytes } from "../format";
+  import { i18n } from "../i18n";
   import { duration, easeOut } from "../motion";
   import { isNotice, type Roll, type RollEntry, type RollItem } from "../roll.svelte";
-  import type { EndpointStatus } from "../status";
+  import type { EndpointStatus, ListenerControls } from "../status";
   import Icon from "./Icon.svelte";
   import IdleState from "./IdleState.svelte";
   import PaperSelect from "./PaperSelect.svelte";
@@ -40,17 +40,24 @@
     stats,
     roll,
     paper,
+    controls,
     onPaperChange,
+    onClear,
+    onSave,
   }: {
     status: EndpointStatus;
     printer: PrinterStatus;
     stats: SessionStats;
     roll: Roll;
     paper: Paper;
+    controls: ListenerControls;
     onPaperChange: (paper: Paper) => Promise<void>;
+    /** After the roll was cleared here (the backend is told). */
+    onClear: () => void;
+    onSave: (item: RollItem, format: ExportFormat) => Promise<void>;
   } = $props();
 
-  const t = messages.roll;
+  const t = $derived(i18n.t.roll);
   /** Widest paper, in dots: the zoom is computed for it. */
   const MAX_PAPER_DOTS = 576;
   const MAX_ZOOM = 1;
@@ -165,6 +172,7 @@
   function clear(): void {
     roll.clear();
     follow = true;
+    onClear();
   }
 
   // Edges: a sheet's top edge mirrors how the previous sheet was separated.
@@ -193,7 +201,7 @@
       case "idle":
         return t.slotOffline;
       case "fault":
-        return t.slotFault(messages.printer.faults[faults[0]], faults.length - 1);
+        return t.slotFault(i18n.t.printer.faults[faults[0]], faults.length - 1);
       case "printing":
         return t.slotPrinting(printing);
       default:
@@ -237,7 +245,8 @@
     <IdleState
       {status}
       {stats}
-      fault={faults.length > 0 ? messages.printer.list(faults.map((f) => messages.printer.faults[f])) : null}
+      {controls}
+      fault={faults.length > 0 ? i18n.t.printer.list(faults.map((f) => i18n.t.printer.faults[f])) : null}
     />
   {:else}
     <!-- The listeners only observe scroll intent; the roll stays a focusable,
@@ -278,6 +287,7 @@
                 inSlot={entry.live && index === items.length - 1}
                 hasNext={hasNextSheet(index)}
                 onInspect={(image, source) => (inspected = { image, source })}
+                {onSave}
               />
             {/if}
           </div>
@@ -296,7 +306,7 @@
             </span>
           {:else}
             <span class="lip-stats" aria-hidden="true">
-              <span>{formatCount(stats.commands)} cmd</span>
+              <span>{t.slotCommands(stats.commands)}</span>
               <span>{formatBytes(stats.bytes)}</span>
             </span>
           {/if}

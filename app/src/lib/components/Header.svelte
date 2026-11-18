@@ -1,20 +1,31 @@
 <!--
-  Fixed application header: mark, endpoint status (state + address + copy, or
-  the error in place of the address), live connection count with an activity
-  light, and the panel toggles (printer state on the left, command log on the
-  right). While an error state is simulated, a --fault chip beside the
-  endpoint names it (and opens the printer state); it never uses the listener
-  error colours, since the listener is fine.
+  Fixed application header: mark, endpoint status, live connection count
+  with an activity light, the settings gear and the panel toggles (printer
+  state on the left, command log on the right).
+
+  Endpoint (SPEC "Endereço no cabeçalho"): local mode shows 127.0.0.1:port
+  with a copy button. Network mode adds a "Network" badge (it is a
+  security-relevant state; the badge opens the settings) and shows the first
+  address; the others sit behind a "+N" button whose popover lists every
+  address with its own copy button. No address in network mode reads "No
+  network address". A listener error replaces the address, worded by its
+  `code`, followed by its explicit actions (ListenerActions).
+
+  While an error state is simulated, a --fault chip beside the endpoint names
+  it (and opens the printer state); it never uses the listener error colours,
+  since the listener is fine.
 -->
 <script lang="ts">
   import { fade, fly } from "svelte/transition";
   import { activeFaults, type ConnectionsStatus, type PrinterStatus } from "../backend";
-  import { messages } from "../messages";
+  import { i18n } from "../i18n";
   import { duration, easeOut } from "../motion";
-  import type { EndpointStatus } from "../status";
+  import type { EndpointStatus, ListenerControls } from "../status";
   import AppMark from "./AppMark.svelte";
   import CopyButton from "./CopyButton.svelte";
   import Icon from "./Icon.svelte";
+  import ListenerActions from "./ListenerActions.svelte";
+  import Popover from "./Popover.svelte";
 
   let {
     status,
@@ -23,6 +34,7 @@
     activity,
     logOpen,
     stateOpen,
+    controls,
     onToggleLog,
     onToggleState,
     onShowState,
@@ -34,13 +46,14 @@
     activity: number;
     logOpen: boolean;
     stateOpen: boolean;
+    controls: ListenerControls;
     onToggleLog: () => void;
     onToggleState: () => void;
     onShowState: () => void;
   } = $props();
 
-  const t = messages.header;
-  const p = messages.printer;
+  const t = $derived(i18n.t.header);
+  const p = $derived(i18n.t.printer);
 
   const faults = $derived(activeFaults(printer));
 
@@ -68,32 +81,39 @@
         : "idle",
   );
 
-  const detail = $derived.by((): { text: string; mono: boolean } | null => {
+  /** Text after the divider (errors and notes; addresses render separately). */
+  const detail = $derived.by((): string | null => {
     switch (status.kind) {
-      case "listening":
-      case "stopped":
-        return { text: status.address, mono: true };
       case "error":
+        return i18n.t.listener.errorShort[status.code](status.port);
       case "backendError":
-        return { text: status.message, mono: false };
+        return status.message;
       case "disconnected":
-        return { text: t.disconnectedDetail, mono: false };
-      case "starting":
+        return t.disconnectedDetail;
+      default:
         return null;
     }
   });
 
-  const copyable = $derived(status.kind === "listening" || status.kind === "stopped");
+  const reach = $derived(status.kind === "listening" || status.kind === "stopped" ? status : null);
+  const primary = $derived(reach?.addresses[0] ?? null);
+  const extra = $derived(reach ? reach.addresses.length - 1 : 0);
   const hasBackend = $derived(status.kind !== "disconnected");
+
+  let moreButton: HTMLButtonElement | undefined = $state();
+  let listOpen = $state(false);
+  $effect(() => {
+    if (extra <= 0) listOpen = false;
+  });
 </script>
 
 <header class="header">
   <div class="brand">
     <AppMark size={22} />
-    <span class="name">{messages.appName}</span>
+    <span class="name">{i18n.t.appName}</span>
   </div>
 
-  <div class="endpoint" class:no-copy={!copyable} data-tone={tone} role="status">
+  <div class="endpoint" class:no-copy={!primary} data-tone={tone} role="status">
     <span class="indicator" aria-hidden="true">
       <span class="dot"></span>
       {#if status.kind === "listening"}<span class="pulse"></span>{/if}
@@ -103,25 +123,81 @@
         {label}
       </span>
     {/key}
-    {#if detail}
+    {#if reach}
       <span class="divider" aria-hidden="true"></span>
-      {#key detail.text}
-        <span
-          class="detail"
-          class:mono={detail.mono}
-          class:muted={status.kind === "stopped"}
-          title={detail.text}
+      {#if reach.network}
+        <button
+          type="button"
+          class="network"
+          title={t.networkTitle}
+          aria-label={`${t.network}. ${t.networkTitle}`}
+          onclick={controls.openSettings}
           in:fade={{ duration: duration("base") }}
         >
+          <Icon name="globe" size={12} /><span class="network-text">{t.network}</span>
+        </button>
+      {/if}
+      {#key primary}
+        {#if primary}
+          <span class="detail mono" class:muted={status.kind === "stopped"} title={primary} in:fade={{ duration: duration("base") }}>
+            <span class="detail-text">{primary}</span>
+          </span>
+        {:else}
+          <span class="detail note" title={t.noNetworkAddressTitle} in:fade={{ duration: duration("base") }}>
+            <span class="detail-text">{t.noNetworkAddress}</span>
+          </span>
+        {/if}
+      {/key}
+      {#if primary}
+        <CopyButton text={primary} label={t.copyAddress} />
+      {/if}
+      {#if extra > 0}
+        <button
+          type="button"
+          class="more"
+          bind:this={moreButton}
+          aria-expanded={listOpen}
+          aria-haspopup="dialog"
+          aria-label={t.moreAddressesLabel(extra)}
+          title={t.moreAddressesLabel(extra)}
+          onclick={() => (listOpen = !listOpen)}
+        >
+          {t.moreAddresses(extra)}
+        </button>
+      {/if}
+    {:else if detail}
+      <span class="divider" aria-hidden="true"></span>
+      {#key detail}
+        <span class="detail" title={detail} in:fade={{ duration: duration("base") }}>
           {#if tone === "error"}<Icon name="alert" size={13} />{/if}
-          <span class="detail-text">{detail.text}</span>
+          <span class="detail-text">{detail}</span>
         </span>
       {/key}
     {/if}
-    {#if status.kind === "listening" || status.kind === "stopped"}
-      <CopyButton text={status.address} label={t.copyAddress} />
-    {/if}
   </div>
+
+  {#if status.kind === "error"}
+    <div class="error-actions" in:fade={{ duration: duration("base") }}>
+      <ListenerActions {status} {controls} compact />
+    </div>
+  {/if}
+
+  {#if listOpen && moreButton && reach}
+    <Popover anchor={moreButton} label={t.addressesTitle} onClose={() => (listOpen = false)}>
+      <div class="addresses">
+        <p class="addresses-title caps-label">{t.addressesTitle}</p>
+        <ul>
+          {#each reach.addresses as address (address)}
+            <li>
+              <code>{address}</code>
+              <CopyButton text={address} label={t.copyAddressOf(address)} />
+            </li>
+          {/each}
+        </ul>
+        <p class="addresses-hint">{t.addressesHint}</p>
+      </div>
+    </Popover>
+  {/if}
 
   {#if hasBackend && faults.length > 0}
     {@const names = p.list(faults.map((f) => p.faults[f]))}
@@ -162,9 +238,16 @@
       {/key}
     </div>
     <span class="rule" aria-hidden="true"></span>
-  {/if}
-
-  {#if hasBackend}
+    <button
+      type="button"
+      class="icon-btn"
+      aria-haspopup="dialog"
+      title={t.settings}
+      aria-label={t.settings}
+      onclick={controls.openSettings}
+    >
+      <Icon name="gear" />
+    </button>
     <button
       type="button"
       class="icon-btn"
@@ -338,6 +421,102 @@
     color: var(--text-secondary);
   }
 
+  .detail.note {
+    color: var(--text-secondary);
+  }
+
+  /* Network mode badge: neutral but unmistakable (an outlined chip with a
+     globe), since the printer is reachable from other machines. */
+  .network {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    flex: none;
+    height: 20px;
+    padding: 0 var(--space-1-5);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
+    background: var(--bg-raised);
+    color: var(--text);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
+  }
+  .network:hover {
+    border-color: var(--text-tertiary);
+  }
+
+  /* "+2": the other network addresses. */
+  .more {
+    flex: none;
+    height: 20px;
+    min-width: 26px;
+    padding: 0 var(--space-1-5);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--bg-active);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+  }
+  .more:hover,
+  .more[aria-expanded="true"] {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+
+  .error-actions {
+    flex: none;
+  }
+
+  /* Address list popover. */
+  .addresses {
+    padding: var(--space-2) var(--space-1) var(--space-1);
+    min-width: 240px;
+  }
+  .addresses-title {
+    margin: 0 var(--space-2) var(--space-1-5);
+  }
+  .addresses ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .addresses li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    height: 32px;
+    padding: 0 var(--space-1) 0 var(--space-2);
+    border-radius: var(--radius-md);
+  }
+  .addresses li:hover {
+    background: var(--bg-hover);
+  }
+  .addresses code {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 700;
+  }
+  .addresses-hint {
+    max-width: 30ch;
+    margin: var(--space-1-5) var(--space-2) var(--space-1);
+    color: var(--text-tertiary);
+    font-size: var(--text-xs);
+    line-height: var(--leading-tight);
+  }
+
   .spacer {
     flex: 1;
     min-width: var(--space-2);
@@ -435,6 +614,16 @@
   @media (max-width: 760px) {
     .connections .count {
       display: none;
+    }
+  }
+  @media (max-width: 860px) {
+    .network-text {
+      display: none;
+    }
+    .network {
+      width: 20px;
+      padding: 0;
+      justify-content: center;
     }
   }
 

@@ -5,11 +5,11 @@
 -->
 <script lang="ts">
   import { activeFaults, type PrinterStatus } from "../backend";
-  import { messages } from "../messages";
+  import { i18n } from "../i18n";
   import Icon from "./Icon.svelte";
 
   let { printer, onExpand }: { printer: PrinterStatus; onExpand: () => void } = $props();
-  const t = messages.printer;
+  const t = $derived(i18n.t.printer);
 
   const faults = $derived(activeFaults(printer));
   const title = $derived(

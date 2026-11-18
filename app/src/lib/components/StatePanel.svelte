@@ -10,7 +10,7 @@
   import type { LastReply } from "../commandLog.svelte";
   import { formatClock } from "../format";
   import { hexByte } from "../escpos";
-  import { messages } from "../messages";
+  import { i18n } from "../i18n";
   import { duration } from "../motion";
   import DrawerIndicator from "./DrawerIndicator.svelte";
   import Icon from "./Icon.svelte";
@@ -39,8 +39,8 @@
     onCollapse: () => void;
   } = $props();
 
-  const t = messages.printer;
-  const r = t.reports;
+  const t = $derived(i18n.t.printer);
+  const r = $derived(t.reports);
 
   const faults = $derived(activeFaults(printer));
   const halted = $derived(faults.length > 0);

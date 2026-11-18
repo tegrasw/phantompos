@@ -15,13 +15,14 @@
 
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { ImageElement } from "../backend";
+  import type { ExportFormat, ImageElement } from "../backend";
   import { formatClock } from "../format";
-  import { messages } from "../messages";
+  import { i18n } from "../i18n";
   import { isCode, isImage } from "../receipt/images";
   import { ReceiptTiles } from "../receipt/tiles";
   import type { RollItem } from "../roll.svelte";
   import Icon from "./Icon.svelte";
+  import ReceiptActions from "./ReceiptActions.svelte";
 
   let {
     item,
@@ -30,6 +31,7 @@
     inSlot,
     hasNext,
     onInspect,
+    onSave,
   }: {
     item: RollItem;
     /** CSS pixels per printer dot. */
@@ -41,9 +43,11 @@
     hasNext: boolean;
     /** Opens the close-up of a QR code or barcode. */
     onInspect?: (image: ImageElement, source: string) => void;
+    /** Saves this (completed) receipt; absent while printing. */
+    onSave?: (item: RollItem, format: ExportFormat) => Promise<void>;
   } = $props();
 
-  const t = messages.roll;
+  const t = $derived(i18n.t.roll);
 
   let sheet: HTMLElement | undefined = $state();
   let tiles: ReceiptTiles | null = null;
@@ -58,11 +62,11 @@
   const cutLabel = $derived(
     item.live ? t.printing : receipt.cut === "full" ? t.cutFull : receipt.cut === "partial" ? t.cutPartial : t.cutNoneShort,
   );
-  const paperName = $derived(messages.paper.names[receipt.paper] ?? receipt.paper);
+  const paperName = $derived(i18n.t.paper.names[receipt.paper] ?? receipt.paper);
   const time = $derived(formatClock(item.completedAt ?? item.startedAt));
   const codes = $derived(receipt.elements.filter(isImage).filter(isCode));
-  const source = $derived(messages.code.source(item.id));
-  const kindName = (image: ImageElement): string => messages.code.kinds[image.kind] ?? messages.code.fallbackKind;
+  const source = $derived(i18n.t.code.source(item.id));
+  const kindName = (image: ImageElement): string => i18n.t.code.kinds[image.kind] ?? i18n.t.code.fallbackKind;
 
   onMount(() => {
     if (!sheet) return;
@@ -114,6 +118,10 @@
       <span class="sep" aria-hidden="true">·</span>
       <span class="detail" class:soft={receipt.cut == null}>{cutLabel}</span>
     {/if}
+    {#if !item.live && item.id !== null && onSave}
+      {@const id = item.id}
+      <ReceiptActions {id} width={receipt.width} height={receipt.height} onSave={(format) => onSave(item, format)} />
+    {/if}
   </header>
 
   <div
@@ -140,8 +148,8 @@
             style:top="{code.y * zoom}px"
             style:width="{code.width * zoom}px"
             style:height="{code.height * zoom}px"
-            aria-label={messages.code.inspect(kindName(code))}
-            title={messages.code.inspect(kindName(code))}
+            aria-label={i18n.t.code.inspect(kindName(code))}
+            title={i18n.t.code.inspect(kindName(code))}
             onclick={() => onInspect?.(code, source)}
           >
             <span class="badge" aria-hidden="true"><Icon name="zoom" size={12} /></span>

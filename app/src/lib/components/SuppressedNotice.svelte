@@ -8,16 +8,16 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
   import { formatBytes, formatClock } from "../format";
-  import { messages } from "../messages";
+  import { i18n } from "../i18n";
   import { duration } from "../motion";
   import type { SuppressedNotice } from "../roll.svelte";
   import Icon from "./Icon.svelte";
 
   let { notice }: { notice: SuppressedNotice } = $props();
-  const t = messages.roll;
+  const t = $derived(i18n.t.roll);
 
   const bytes = $derived(notice.bytes < 1024 ? t.bytes(notice.bytes) : formatBytes(notice.bytes));
-  const reason = $derived(messages.printer.faultsLower[notice.reason] ?? notice.reason);
+  const reason = $derived(i18n.t.printer.faultsLower[notice.reason] ?? notice.reason);
   const first = $derived(formatClock(notice.firstAt));
   const last = $derived(formatClock(notice.lastAt));
   const range = $derived(first === last ? first : `${first}–${last}`);

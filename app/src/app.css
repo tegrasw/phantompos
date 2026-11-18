@@ -415,3 +415,82 @@ button {
 .btn:active:not(:disabled) {
   background-image: linear-gradient(var(--bg-active), var(--bg-active));
 }
+.btn:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+/* The one filled button of a group: the recommended action. */
+.btn.primary {
+  border-color: transparent;
+  background: var(--accent);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 rgb(255 255 255 / 0.18);
+  color: var(--accent-fg);
+}
+.btn.primary:hover:not(:disabled) {
+  border-color: transparent;
+  background-image: linear-gradient(rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.08));
+}
+.btn.primary:active:not(:disabled) {
+  background-image: linear-gradient(rgb(0 0 0 / 0.08), rgb(0 0 0 / 0.08));
+}
+
+.btn.primary:disabled:not([aria-busy="true"]) {
+  background: var(--bg-active);
+  box-shadow: none;
+  color: var(--text-tertiary);
+  opacity: 1;
+}
+
+/* Text-only action inside running text ("Open settings"). */
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: inherit;
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--accent-border);
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--dur-fast) var(--ease-out);
+}
+.link-btn:hover {
+  text-decoration-color: currentColor;
+}
+
+/* Busy indicator for a pending action (a static ring under reduced motion). */
+.spinner {
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+/* Section label in caps (cards, dialogs). */
+.caps-label {
+  color: var(--text-tertiary);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}

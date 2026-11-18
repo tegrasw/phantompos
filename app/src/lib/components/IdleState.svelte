@@ -6,24 +6,28 @@
   import { fade } from "svelte/transition";
   import type { SessionStats } from "../commandLog.svelte";
   import { formatBytes, formatClock, formatCount } from "../format";
-  import { messages } from "../messages";
+  import { i18n } from "../i18n";
   import { duration } from "../motion";
-  import type { EndpointStatus } from "../status";
+  import { loopbackAddress, type EndpointStatus, type ListenerControls } from "../status";
   import CopyButton from "./CopyButton.svelte";
   import Icon from "./Icon.svelte";
+  import ListenerActions from "./ListenerActions.svelte";
 
   let {
     status,
     stats,
+    controls,
     fault = null,
   }: {
     status: EndpointStatus;
     stats: SessionStats;
+    controls: ListenerControls;
     /** Names of the simulated error states, when any is on. */
     fault?: string | null;
   } = $props();
 
-  const t = messages.roll;
+  const t = $derived(i18n.t.roll);
+  const l = $derived(i18n.t.listener);
 
   const tone = $derived(
     status.kind === "listening"
@@ -40,9 +44,9 @@
       case "stopped":
         return t.stoppedTitle;
       case "error":
-        return t.errorTitle(status.port);
+        return l.errorTitle[status.code](status.port);
       case "backendError":
-        return messages.header.stateUnavailable;
+        return i18n.t.header.stateUnavailable;
       case "starting":
         return t.startingTitle;
       case "disconnected":
@@ -53,11 +57,11 @@
   const body = $derived.by(() => {
     switch (status.kind) {
       case "listening":
-        return t.readyBody;
+        return status.addresses.length > 1 ? t.readyBodyNetwork : t.readyBody;
       case "stopped":
         return t.stoppedBody;
       case "error":
-        return t.errorBody;
+        return l.errorBody[status.code];
       case "backendError":
         return status.message;
       case "starting":
@@ -66,6 +70,8 @@
         return t.disconnectedBody;
     }
   });
+
+  const reach = $derived(status.kind === "listening" || status.kind === "stopped" ? status : null);
 </script>
 
 <div class="empty" data-tone={tone}>
@@ -106,29 +112,46 @@
         </p>
       {/if}
 
-      {#if status.kind === "listening" || status.kind === "stopped"}
+      {#if reach}
         <div class="card">
           <div class="field">
-            <span class="field-label">{t.addressLabel}</span>
-            <div class="field-row">
-              <code class="address">{status.address}</code>
-              <CopyButton text={status.address} label={messages.header.copyAddress} bubble="above" />
-            </div>
+            <span class="field-label">
+              {reach.addresses.length > 1 ? t.addressesLabel : t.addressLabel}
+              {#if reach.network}
+                <button type="button" class="network" onclick={controls.openSettings} title={i18n.t.header.networkTitle}>
+                  <Icon name="globe" size={11} />{t.networkBadge}
+                </button>
+              {/if}
+            </span>
+            {#each reach.addresses as address (address)}
+              <div class="field-row" class:list={reach.addresses.length > 1}>
+                <code class="address">{address}</code>
+                <CopyButton text={address} label={i18n.t.header.copyAddressOf(address)} bubble="above" />
+              </div>
+            {:else}
+              <p class="no-address">
+                <span class="no-address-value">{t.noAddressValue}</span>
+                <span class="no-address-hint">{t.noAddressHint(loopbackAddress(reach.port))}</span>
+              </p>
+            {/each}
           </div>
           {#if status.kind === "listening"}
+            {@const command = t.testCommand(reach.host, reach.port)}
             <div class="field">
               <span class="field-label"><Icon name="terminal" size={13} />{t.testLabel}</span>
               <div class="field-row command">
-                <code class="cmd">{t.testCommand(status.host, status.port)}</code>
-                <CopyButton text={t.testCommand(status.host, status.port)} label={t.copyCommand} bubble="above" />
+                <code class="cmd">{command}</code>
+                <CopyButton text={command} label={t.copyCommand} bubble="above" />
               </div>
             </div>
           {/if}
         </div>
       {:else if status.kind === "error"}
         <div class="callout">
-          <Icon name="alert" size={14} />
-          <span>{status.message}</span>
+          <ListenerActions {status} {controls} settingsLink />
+          {#if status.code === "other" && status.message}
+            <p class="details"><span class="caps-label">{l.details}</span> <code>{status.message}</code></p>
+          {/if}
         </div>
       {/if}
 
@@ -299,7 +322,7 @@
     border-top: 1px solid var(--border-subtle);
   }
   .field-label {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: var(--space-1-5);
     color: var(--text-tertiary);
@@ -369,23 +392,69 @@
     stroke-width: 2.25;
   }
 
+  /* Listener error: the way out, centred under the explanation. */
   .callout {
     display: flex;
-    align-items: flex-start;
-    gap: var(--space-2);
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
     width: 100%;
-    padding: var(--space-3) var(--space-4);
-    border: 1px solid var(--danger-border);
-    border-radius: var(--radius-lg);
-    background: var(--danger-soft);
-    color: var(--danger);
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    text-align: left;
+  }
+  .callout :global(.actions) {
+    justify-content: center;
+  }
+  .details {
+    max-width: 100%;
+    margin: 0;
+    color: var(--text-tertiary);
+    font-size: var(--text-xs);
     overflow-wrap: anywhere;
   }
-  .callout :global(.icon) {
-    margin-top: 2px;
+  .details code {
+    font-family: var(--font-mono);
+  }
+
+  /* Network mode: a neutral outlined badge beside the label. */
+  .network {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-left: auto;
+    height: 18px;
+    padding: 0 var(--space-1-5);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
+    background: var(--bg-raised);
+    color: var(--text);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.01em;
+    text-transform: none;
+    white-space: nowrap;
+    flex: none;
+    cursor: pointer;
+  }
+  .network:hover {
+    border-color: var(--text-tertiary);
+  }
+  .field-row.list .address {
+    font-size: var(--text-md);
+  }
+  .no-address {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+  }
+  .no-address-value {
+    color: var(--text);
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+  }
+  .no-address-hint {
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    line-height: var(--leading);
   }
 
   /* Session stats --------------------------------------------------------- */

@@ -12,7 +12,7 @@
   import { fade, fly } from "svelte/transition";
   import { hexLines, type CommandLog, type LogRow } from "../commandLog.svelte";
   import { formatBytes, formatCount, formatOffset, formatTime } from "../format";
-  import { messages } from "../messages";
+  import { i18n } from "../i18n";
   import { duration, easeOut } from "../motion";
   import Icon from "./Icon.svelte";
 
@@ -27,7 +27,7 @@
     onCollapse: () => void;
   } = $props();
 
-  const t = messages.log;
+  const t = $derived(i18n.t.log);
   const STICKY_THRESHOLD_PX = 24;
   /** Height of one hex line plus row padding; keep in sync with the CSS. */
   const LINE_PX = 18;

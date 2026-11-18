@@ -7,7 +7,7 @@
   import { onDestroy } from "svelte";
   import { fly } from "svelte/transition";
   import { PAPERS, type Paper } from "../backend";
-  import { messages } from "../messages";
+  import { i18n } from "../i18n";
   import { duration, easeOut } from "../motion";
   import Icon from "./Icon.svelte";
 
@@ -22,7 +22,7 @@
     onChange: (paper: Paper) => Promise<void>;
   } = $props();
 
-  const t = messages.paper;
+  const t = $derived(i18n.t.paper);
   let note = $state<{ text: string; failed: boolean } | null>(null);
   let timer: ReturnType<typeof setTimeout> | undefined;
 

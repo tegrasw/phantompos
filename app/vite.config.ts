@@ -1,6 +1,10 @@
+import { readFileSync } from "node:fs";
 import process from "node:process";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vite";
+
+// The UI shows the version in the settings' about line (no Tauri API call).
+const { version } = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")) as { version: string };
 
 // Set by the Tauri CLI when developing on a physical mobile device.
 const host = process.env.TAURI_DEV_HOST;
@@ -9,6 +13,10 @@ const host = process.env.TAURI_DEV_HOST;
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [svelte()],
+
+  define: {
+    __APP_VERSION__: JSON.stringify(version),
+  },
 
   // Keep Rust compiler output visible in the `tauri dev` terminal.
   clearScreen: false,

@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
   import type { DrawerKicked } from "../backend";
-  import { messages } from "../messages";
+  import { i18n } from "../i18n";
   import Icon from "./Icon.svelte";
 
   let {
@@ -23,7 +23,7 @@
     onClose: () => void;
   } = $props();
 
-  const t = messages.drawer;
+  const t = $derived(i18n.t.drawer);
   const detail = $derived(open && lastKick ? t.kicked(lastKick.pin, lastKick.onMs, lastKick.offMs) : t.closedHint);
   const detailTitle = $derived(
     open && lastKick ? t.kickedBy(lastKick.peer, lastKick.pin, lastKick.onMs, lastKick.offMs) : t.closedHint,

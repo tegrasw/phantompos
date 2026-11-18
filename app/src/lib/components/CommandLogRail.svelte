@@ -2,11 +2,11 @@
 <script lang="ts">
   import type { CommandLog } from "../commandLog.svelte";
   import { formatCount } from "../format";
-  import { messages } from "../messages";
+  import { i18n } from "../i18n";
   import Icon from "./Icon.svelte";
 
   let { log, onExpand }: { log: CommandLog; onExpand: () => void } = $props();
-  const t = messages.log;
+  const t = $derived(i18n.t.log);
 </script>
 
 <button type="button" class="rail" title={t.expand} aria-label={t.expand} aria-controls="command-log" onclick={onExpand}>

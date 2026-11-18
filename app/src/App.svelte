@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import {
     connectBackend,
+    DEFAULT_SETTINGS,
     runningInTauri,
     type BackendConnector,
     type BackendHandlers,
@@ -9,24 +10,30 @@
     NORMAL_STATUS,
     type ConnectionsStatus,
     type DrawerKicked,
+    type ExportFormat,
     type ListenerStatus,
     type Paper,
     type PrinterFault,
     type PrinterStatus,
+    type Settings,
   } from "./lib/backend";
   import { CommandLog } from "./lib/commandLog.svelte";
   import CommandLogPanel from "./lib/components/CommandLog.svelte";
   import CommandLogRail from "./lib/components/CommandLogRail.svelte";
   import Header from "./lib/components/Header.svelte";
   import RollView from "./lib/components/RollView.svelte";
+  import SettingsDialog from "./lib/components/SettingsDialog.svelte";
+  import Toaster from "./lib/components/Toaster.svelte";
   import SidePanel from "./lib/components/SidePanel.svelte";
   import StatePanel from "./lib/components/StatePanel.svelte";
   import StatePanelRail from "./lib/components/StatePanelRail.svelte";
-  import { messages } from "./lib/messages";
-  import { Roll } from "./lib/roll.svelte";
-  import { endpointStatus } from "./lib/status";
+  import { i18n } from "./lib/i18n";
+  import { errorText, saveReceipt } from "./lib/receiptExport";
+  import { Roll, type RollItem } from "./lib/roll.svelte";
+  import { endpointStatus, type ListenerControls } from "./lib/status";
+  import { toasts } from "./lib/toast.svelte";
 
-  const t = messages;
+  const t = $derived(i18n.t);
 
   let hasBackend = $state(runningInTauri());
   let listener = $state<ListenerStatus | null>(null);
@@ -37,8 +44,9 @@
 
   const log = new CommandLog();
   const roll = new Roll();
-  /** Paper for new receipts (memory only until the settings of stage 6). */
-  let paper = $state<Paper>("80mm");
+  /** Persistent settings (`settings:changed`); changes are optimistic. */
+  let settings = $state<Settings>({ ...DEFAULT_SETTINGS });
+  let settingsOpen = $state(false);
   /** The simulated printer state (`printer:status`). */
   let printer = $state<PrinterStatus>({ ...NORMAL_STATUS });
   /** Drawer kicks since launch (replays the pulse) and the latest one. */
@@ -140,11 +148,12 @@
     onPrinterStatus: (next) => (printer = next),
     onStatusSent: (sent) => log.pushReply(sent),
     onPrintSuppressed: (suppressed) => roll.suppressed(suppressed),
+    onSettingsChanged: (next) => (settings = { ...settings, ...next }),
     onInitialState: (state) => {
       listener = state.listener;
       connections = state.connections;
       // Tolerate a backend that predates these fields.
-      if (state.paper) paper = state.paper;
+      if (state.settings) settings = { ...DEFAULT_SETTINGS, ...state.settings };
       if (state.status) printer = { ...NORMAL_STATUS, ...state.status };
       backendError = null;
     },
@@ -153,17 +162,61 @@
     },
   };
 
-  /** Optimistic: shows the new paper at once, rolls back if refused. */
-  async function changePaper(next: Paper): Promise<void> {
-    const previous = paper;
-    paper = next;
+  /**
+   * Optimistic: shows the change at once; if `update_settings` rejects, only
+   * the fields this call changed go back (anything `settings:changed` set
+   * meanwhile stays) and the rejection propagates to the caller.
+   */
+  async function changeSettings(patch: Partial<Settings>): Promise<void> {
+    const keys = Object.keys(patch) as (keyof Settings)[];
+    const previous: Partial<Settings> = {};
+    for (const key of keys) Object.assign(previous, { [key]: settings[key] });
+    settings = { ...settings, ...patch };
     try {
       if (!session) throw new Error("No backend");
-      paper = await session.setPaper(next);
+      settings = await session.updateSettings(patch);
     } catch (error) {
-      paper = previous;
+      const reverted = { ...settings };
+      for (const key of keys) if (settings[key] === patch[key]) Object.assign(reverted, { [key]: previous[key] });
+      settings = reverted;
       throw error;
     }
+  }
+
+  function changePaper(next: Paper): Promise<void> {
+    return changeSettings({ paper: next });
+  }
+
+  /** The actions offered on a listener error (and in the settings). */
+  const controls: ListenerControls = {
+    usePort: async (port) => {
+      try {
+        await changeSettings({ port });
+      } catch (error) {
+        toasts.show({ tone: "neutral", title: i18n.t.listener.actionFailed, detail: errorText(error) });
+        throw error;
+      }
+    },
+    retry: async () => {
+      try {
+        if (!session) throw new Error("No backend");
+        await session.retryListener();
+      } catch (error) {
+        toasts.show({ tone: "neutral", title: i18n.t.listener.actionFailed, detail: errorText(error) });
+        throw error;
+      }
+    },
+    openSettings: () => (settingsOpen = true),
+  };
+
+  function clearReceipts(): void {
+    // The roll is already empty; the backend may drop the receipts' bytes.
+    session?.clearReceipts().catch((error: unknown) => console.warn("clear_receipts failed:", error));
+  }
+
+  function save(item: RollItem, format: ExportFormat): Promise<void> {
+    if (item.id === null) return Promise.resolve();
+    return saveReceipt(session, { id: item.id, receipt: item.receipt }, format);
   }
 
   /**
@@ -187,11 +240,11 @@
   }
 
   function toggleFault(fault: PrinterFault): void {
-    void changePrinter({ [fault]: !printer[fault] }, messages.printer.changeFailed);
+    void changePrinter({ [fault]: !printer[fault] }, i18n.t.printer.changeFailed);
   }
 
   function closeDrawer(): void {
-    if (printer.drawerOpen) void changePrinter({ drawerOpen: false }, messages.drawer.closeFailed);
+    if (printer.drawerOpen) void changePrinter({ drawerOpen: false }, i18n.t.drawer.closeFailed);
   }
 
   onMount(() => {
@@ -230,6 +283,7 @@
     {activity}
     {logOpen}
     {stateOpen}
+    {controls}
     onToggleLog={() => setLogOpen(!logOpen)}
     onToggleState={() => setStateOpen(!stateOpen)}
     onShowState={() => setStateOpen(true)}
@@ -263,7 +317,17 @@
       </SidePanel>
     {/if}
 
-    <RollView {status} {printer} stats={log.stats} {roll} {paper} onPaperChange={changePaper} />
+    <RollView
+      {status}
+      {printer}
+      stats={log.stats}
+      {roll}
+      paper={settings.paper}
+      {controls}
+      onPaperChange={changePaper}
+      onClear={clearReceipts}
+      onSave={save}
+    />
 
     <SidePanel
       id="command-log"
@@ -281,6 +345,18 @@
     </SidePanel>
   </div>
 </div>
+
+{#if hasBackend}
+  <SettingsDialog
+    open={settingsOpen}
+    {settings}
+    {status}
+    {controls}
+    onChange={changeSettings}
+    onClose={() => (settingsOpen = false)}
+  />
+{/if}
+<Toaster />
 
 <style>
   .shell {

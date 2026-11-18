@@ -22,13 +22,14 @@
 
 import type { CommandsReceived, DecodedCommand, StatusSent } from "./backend";
 import {
+  commandLabel,
   commandSummary,
   displayParams,
   flagLabel,
   flagTone,
   hexByte,
-  humanize,
   mnemonic,
+  reasonLabel,
   textSegments,
   type DisplayParam,
   type TextSegment,
@@ -162,7 +163,7 @@ function toRow(decoded: DecodedCommand, key: number, enter: boolean): LogRow {
     return { ...base, kind: "text", segments: textSegments(text), charCount: text.length };
   }
   if (command.type === "unknown") {
-    const reason = typeof command.reason === "string" ? humanize(command.reason).toLowerCase() : null;
+    const reason = typeof command.reason === "string" ? reasonLabel(command.reason) : null;
     return { ...base, kind: "unknown", reason, params: displayParams(command, ["reason"]) };
   }
   const { summary, skip } = commandSummary(command);
@@ -170,7 +171,7 @@ function toRow(decoded: DecodedCommand, key: number, enter: boolean): LogRow {
     ...base,
     kind: "command",
     type: command.type,
-    label: humanize(command.type),
+    label: commandLabel(command.type),
     summary,
     params: displayParams(command, skip),
   };

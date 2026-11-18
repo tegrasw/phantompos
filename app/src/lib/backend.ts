@@ -11,14 +11,65 @@ import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 
 export type ListenerState = "listening" | "error" | "stopped";
 
+/** Why the listener could not bind; the UI words each one itself. */
+export type ListenerErrorCode = "portInUse" | "permissionDenied" | "other";
+
 /** Payload of `listener:status`. */
 export interface ListenerStatus {
   state: ListenerState;
+  /** Bind address ("127.0.0.1" in local mode, "0.0.0.0" in network mode). */
   address: string;
   port: number;
-  /** Present when `state` is `"error"`, e.g. "port already in use". */
+  /**
+   * Addresses to show: ["127.0.0.1"] in local mode; in network mode every
+   * non-loopback IPv4 address of the machine (may be empty).
+   */
+  addresses?: string[];
+  /** English description of an error, for logs (the UI words `code`). */
   message?: string;
+  code?: ListenerErrorCode | (string & {});
+  /** With `portInUse`: a port that was free when the error happened. */
+  suggestedPort?: number;
 }
+
+export type NetworkMode = "local" | "network";
+export type CodePage = "cp437" | "cp850" | "cp860" | "cp858" | "windows1252";
+
+/** The code pages a user can pick as default, with their usual names. */
+export const CODE_PAGES: readonly { id: CodePage; name: string }[] = [
+  { id: "cp437", name: "CP437" },
+  { id: "cp850", name: "CP850" },
+  { id: "cp860", name: "CP860" },
+  { id: "cp858", name: "CP858" },
+  { id: "windows1252", name: "Windows-1252" },
+];
+
+/**
+ * Persistent settings (`get_state().settings`, `settings:changed`, result of
+ * `update_settings`). `port` and `networkMode` restart only the listener;
+ * `paper` applies to the next receipt, `defaultCodePage` to the next
+ * connection.
+ */
+export interface Settings {
+  port: number;
+  networkMode: NetworkMode;
+  paper: Paper;
+  defaultCodePage: CodePage;
+}
+
+export const DEFAULT_SETTINGS: Settings = {
+  port: 9100,
+  networkMode: "local",
+  paper: "80mm",
+  defaultCodePage: "cp437",
+};
+
+export const PORT_MIN = 1;
+export const PORT_MAX = 65535;
+
+/** Result of `export_receipt`: the saved path, or `saved: false` if cancelled. */
+export type ExportResult = { saved: true; path: string } | { saved: false };
+export type ExportFormat = "png" | "bin";
 
 /** Payload of `connection:changed`. */
 export interface ConnectionsStatus {
@@ -226,7 +277,7 @@ export interface PrintSuppressed {
 export interface BackendState {
   listener: ListenerStatus;
   connections: ConnectionsStatus;
-  paper: Paper;
+  settings: Settings;
   status: PrinterStatus;
 }
 
@@ -244,12 +295,16 @@ export const EVENTS = {
   printerStatus: "printer:status",
   statusSent: "status:sent",
   printSuppressed: "print:suppressed",
+  settingsChanged: "settings:changed",
 } as const;
 
 export const COMMANDS = {
   getState: "get_state",
-  setPaper: "set_paper",
   setPrinterStatus: "set_printer_status",
+  updateSettings: "update_settings",
+  retryListener: "retry_listener",
+  exportReceipt: "export_receipt",
+  clearReceipts: "clear_receipts",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -265,8 +320,32 @@ export function getState(): Promise<BackendState> {
   return invoke<BackendState>(COMMANDS.getState);
 }
 
-export function setPaper(paper: Paper): Promise<Paper> {
-  return invoke<Paper>(COMMANDS.setPaper, { paper });
+/** Changes some settings; resolves with all of them, rejects on invalid values. */
+export function updateSettings(settings: Partial<Settings>): Promise<Settings> {
+  return invoke<Settings>(COMMANDS.updateSettings, { settings });
+}
+
+/** Binds the listener again with the current settings (`listener:status` follows). */
+export function retryListener(): Promise<void> {
+  return invoke<void>(COMMANDS.retryListener);
+}
+
+/**
+ * Saves a completed receipt through the native save dialog. `png` carries the
+ * PNG file bytes for `format: "png"`; `.bin` is written from the receipt's
+ * own bytes by the backend.
+ */
+export function exportReceipt(id: number, format: ExportFormat, png?: Uint8Array): Promise<ExportResult> {
+  return invoke<ExportResult>(COMMANDS.exportReceipt, {
+    id,
+    format,
+    ...(png ? { png: Array.from(png) } : {}),
+  });
+}
+
+/** Tells the backend the roll was cleared (it may drop the receipts' bytes). */
+export function clearReceipts(): Promise<void> {
+  return invoke<void>(COMMANDS.clearReceipts);
 }
 
 /** Changes some simulated states; resolves with the whole new state. */
@@ -284,6 +363,7 @@ export interface BackendHandlers {
   onPrinterStatus(status: PrinterStatus): void;
   onStatusSent(reply: StatusSent): void;
   onPrintSuppressed(suppressed: PrintSuppressed): void;
+  onSettingsChanged(settings: Settings): void;
   /** Called with the initial snapshot once all listeners are registered. */
   onInitialState(state: BackendState): void;
   /** Called if the initial snapshot or a listener registration fails. */
@@ -292,8 +372,11 @@ export interface BackendHandlers {
 
 /** A connected backend: the commands the UI may call, plus cleanup. */
 export interface BackendSession {
-  setPaper(paper: Paper): Promise<Paper>;
   setPrinterStatus(status: Partial<PrinterStatus>): Promise<PrinterStatus>;
+  updateSettings(settings: Partial<Settings>): Promise<Settings>;
+  retryListener(): Promise<void>;
+  exportReceipt(id: number, format: ExportFormat, png?: Uint8Array): Promise<ExportResult>;
+  clearReceipts(): Promise<void>;
   /** Synchronous cleanup, safe to call at any time. */
   disconnect(): void;
 }
@@ -345,6 +428,9 @@ export const connectBackend: BackendConnector = (handlers) => {
         listen<PrintSuppressed>(EVENTS.printSuppressed, (e) => {
           if (!disposed) handlers.onPrintSuppressed(e.payload);
         }).then(track),
+        listen<Settings>(EVENTS.settingsChanged, (e) => {
+          if (!disposed) handlers.onSettingsChanged(e.payload);
+        }).then(track),
       ]);
       if (disposed) return;
       const state = await getState();
@@ -355,8 +441,11 @@ export const connectBackend: BackendConnector = (handlers) => {
   })();
 
   return {
-    setPaper,
     setPrinterStatus,
+    updateSettings,
+    retryListener,
+    exportReceipt,
+    clearReceipts,
     disconnect: () => {
       disposed = true;
       for (const unlisten of unlisteners.splice(0)) unlisten();
@@ -367,6 +456,11 @@ export const connectBackend: BackendConnector = (handlers) => {
 /** The active error states, in display order (empty when printing normally). */
 export function activeFaults(status: PrinterStatus): PrinterFault[] {
   return PRINTER_FAULTS.filter((fault) => status[fault]);
+}
+
+/** True for a port the backend accepts. */
+export function isValidPort(port: number): boolean {
+  return Number.isInteger(port) && port >= PORT_MIN && port <= PORT_MAX;
 }
 
 /** Formats `address:port`, bracketing IPv6 literals. */

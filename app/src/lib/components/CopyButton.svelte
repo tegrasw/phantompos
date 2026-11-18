@@ -6,7 +6,7 @@
   import { onDestroy } from "svelte";
   import { fly, scale } from "svelte/transition";
   import { copyText } from "../clipboard";
-  import { messages } from "../messages";
+  import { i18n } from "../i18n";
   import { duration, easeOut } from "../motion";
   import Icon from "./Icon.svelte";
 
@@ -16,7 +16,7 @@
     bubble = "below",
   }: { text: string; label: string; bubble?: "below" | "above" } = $props();
 
-  const t = messages.header;
+  const t = $derived(i18n.t.header);
   let status = $state<"idle" | "copied" | "failed">("idle");
   let timer: ReturnType<typeof setTimeout> | undefined;
 

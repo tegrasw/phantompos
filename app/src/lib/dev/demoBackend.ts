@@ -14,7 +14,14 @@
 //                    receipt that stops half-way and stays "printing"
 //   ?demo=cap        prints 205 small receipts (exercises the retention cap)
 //   ?demo=empty      listening, no traffic
-//   ?demo=error      listener error (port in use)
+//   ?demo=portinuse  listener error: port 9100 in use, port 9101 suggested
+//                    ("Try again" keeps failing until phantomDemo.freePort())
+//   ?demo=error      same as portinuse
+//   ?demo=denied     listener error: permission denied (port 80)
+//   ?demo=failed     listener error with code "other"
+//   ?demo=network    network mode with three addresses, no traffic
+//                    (&addrs=1 for a single address)
+//   ?demo=noaddr     network mode, but the machine has no network address
 //   ?demo=stopped    listener stopped
 //   ?demo=starting   never answers get_state
 //   ?demo=burst      listening; floods ~2,000 commands from three connections
@@ -23,12 +30,20 @@
 //                    then a client queries the status (DLE EOT 1-4, GS r 1/2)
 //                    and enables ASB, staying connected for a minute so every
 //                    switch change sends an automatic status reply
+//   ?demo=tall       one completed receipt 36,000 dots tall (PNG export
+//                    beyond any single-canvas limit)
 //   &paper=58mm      initial paper; &drawer=open  initial drawer state
+//   &failsettings    update_settings always fails (tests the rollback)
+//   &exportfail      export_receipt rejects ("no longer available")
+//   &exportcancel    export_receipt reports a cancelled save dialog
+//   &nodownload      export_receipt does not trigger a browser download
 //   &status=paperOut,coverOpen,offline   initial simulated error states
 //   &failstatus      set_printer_status always fails (tests the rollback)
 //   &devpanel=0      hide the floating demo controls (for screenshots)
 //
 // The same actions are scriptable from the console via `window.phantomDemo`.
+// `export_receipt` downloads the file in the browser (so the PNG can be
+// inspected) and keeps the last one in `phantomDemo.lastExport`.
 
 import type {
   BackendConnector,
@@ -36,12 +51,16 @@ import type {
   ConnectionsStatus,
   Cut,
   DecodedCommand,
+  ExportFormat,
+  ExportResult,
   ListenerState,
   ListenerStatus,
   Paper,
   PrinterStatus,
+  Settings,
   StatusSent,
 } from "../backend";
+import { DEFAULT_SETTINGS, isValidPort } from "../backend";
 import {
   ean13,
   ean13Bitmap,
@@ -532,6 +551,13 @@ function asbReply(status: PrinterStatus): StatusSent["reply"] {
 
 const FAULT_ORDER = ["coverOpen", "paperOut", "offline"] as const;
 
+/** The last file `export_receipt` produced (base64), for inspection. */
+interface DemoExport {
+  name: string;
+  format: ExportFormat;
+  base64: string;
+}
+
 // ---------------------------------------------------------------------------
 // Backend
 // ---------------------------------------------------------------------------
@@ -543,7 +569,18 @@ export const connectDemo: BackendConnector = (handlers) => {
   let nextConnection = 1;
   let nextReceipt = 1;
   const peers = new Map<number, string>();
-  let paper: Paper = params.get("paper") === "58mm" ? "58mm" : "80mm";
+  const NETWORK_ADDRESSES = ["192.168.0.23", "10.8.0.5", "172.20.10.2"].slice(0, Number(params.get("addrs")) || 3);
+  let settings: Settings = {
+    ...DEFAULT_SETTINGS,
+    paper: params.get("paper") === "58mm" ? "58mm" : "80mm",
+    networkMode: scenario === "network" || scenario === "noaddr" ? "network" : "local",
+    port: scenario === "denied" ? 80 : 9100,
+  };
+  /** Ports "taken by another program". */
+  const occupied = new Set<number>(scenario === "portinuse" || scenario === "error" ? [9100] : []);
+  /** Receipt id → its own bytes (for the `.bin` export). */
+  const receiptBytes = new Map<number, number[]>();
+  let lastExport: DemoExport | null = null;
   const initialFaults = (params.get("status") ?? "").split(",");
   let printer: PrinterStatus = {
     paperOut: initialFaults.includes("paperOut"),
@@ -585,12 +622,35 @@ export const connectDemo: BackendConnector = (handlers) => {
     }
   }
 
-  let listener: ListenerStatus = {
-    state: scenario === "error" ? "error" : scenario === "stopped" ? "stopped" : "listening",
-    address: "127.0.0.1",
-    port: 9100,
-    ...(scenario === "error" ? { message: "Port 9100 is already in use" } : {}),
-  };
+  function listenerStatus(state: ListenerState): ListenerStatus {
+    const network = settings.networkMode === "network";
+    const base = { state, address: network ? "0.0.0.0" : "127.0.0.1", port: settings.port };
+    if (state !== "error") {
+      const addresses = network ? (scenario === "noaddr" ? [] : NETWORK_ADDRESSES) : ["127.0.0.1"];
+      return { ...base, addresses };
+    }
+    if (occupied.has(settings.port)) {
+      let free = settings.port + 1;
+      while (occupied.has(free)) free++;
+      return {
+        ...base,
+        addresses: [],
+        code: "portInUse",
+        suggestedPort: free,
+        message: `Address already in use (os error 48): ${base.address}:${settings.port}`,
+      };
+    }
+    if (settings.port < 1024)
+      return { ...base, addresses: [], code: "permissionDenied", message: `Permission denied (os error 13)` };
+    return { ...base, addresses: [], code: "other", message: "Can't assign requested address (os error 49)" };
+  }
+
+  /** Whether binding the current port would work. */
+  const bindable = (): boolean => !occupied.has(settings.port) && settings.port >= 1024 && scenario !== "failed";
+
+  let listener: ListenerStatus = listenerStatus(
+    scenario === "stopped" ? "stopped" : bindable() ? "listening" : "error",
+  );
 
   const connectionsStatus = (): ConnectionsStatus => ({
     active: peers.size,
@@ -598,13 +658,20 @@ export const connectDemo: BackendConnector = (handlers) => {
   });
 
   function setListener(state: ListenerState): void {
-    listener = {
-      state,
-      address: "127.0.0.1",
-      port: 9100,
-      ...(state === "error" ? { message: "Port 9100 is already in use" } : {}),
-    };
+    listener = listenerStatus(state);
     if (!disposed) handlers.onListenerStatus(listener);
+  }
+
+  /** Restarts the listener like the backend: stopped, connections dropped, bind. */
+  async function restartListener(): Promise<void> {
+    setListener("stopped");
+    if (peers.size > 0) {
+      peers.clear();
+      asb.clear();
+      if (!disposed) handlers.onConnectionsChanged(connectionsStatus());
+    }
+    await delay(450);
+    setListener(bindable() ? "listening" : "error");
   }
 
   function open(): { id: number; peer: string } {
@@ -636,9 +703,15 @@ export const connectDemo: BackendConnector = (handlers) => {
   async function print(commands: DecodedCommand[], options: PrintOptions = {}): Promise<void> {
     if (listener.state !== "listening") return;
     const { id, peer } = open();
-    const paperFor = (): Paper => options.paper ?? paper;
+    const paperFor = (): Paper => options.paper ?? settings.paper;
     const layout = new DemoLayout(paperFor());
     const batches = byLine(commands);
+    /** Bytes since the last receipt closed (the next receipt's own bytes). */
+    let pending: number[] = [];
+    const keep = (id: number): void => {
+      receiptBytes.set(id, pending);
+      pending = [];
+    };
     for (let i = 0; i < batches.length && !disposed; i++) {
       const batch = batches[i];
       handlers.onCommandsReceived({ connectionId: id, peer, commands: batch });
@@ -653,11 +726,15 @@ export const connectDemo: BackendConnector = (handlers) => {
         continue;
       }
       let closed = false;
-      for (const { command } of batch) {
+      for (const { command, bytes } of batch) {
         layout.apply(command);
+        for (const byte of bytes) pending.push(byte);
         if (command.type === "cut") {
           const receipt = layout.close(command.mode as Cut, paperFor());
-          if (receipt) handlers.onReceiptCompleted({ id: nextReceipt++, connectionId: id, peer, receipt });
+          if (receipt) {
+            keep(nextReceipt);
+            handlers.onReceiptCompleted({ id: nextReceipt++, connectionId: id, peer, receipt });
+          }
           closed = true;
         } else if (command.type === "drawerKick") {
           handlers.onDrawerKicked({ connectionId: id, peer, pin: command.pin === 5 ? 5 : 2, onMs: 100, offMs: 200 });
@@ -671,8 +748,40 @@ export const connectDemo: BackendConnector = (handlers) => {
     await delay(250);
     if (disposed) return;
     const tail = layout.close(null, paperFor());
-    if (tail) handlers.onReceiptCompleted({ id: nextReceipt++, connectionId: id, peer, receipt: tail });
+    if (tail) {
+      keep(nextReceipt);
+      handlers.onReceiptCompleted({ id: nextReceipt++, connectionId: id, peer, receipt: tail });
+    }
     close(id);
+  }
+
+  /** Prints a receipt as one completed event (no live phase). */
+  function printInstant(stream: Stream, paperName: Paper): void {
+    const { id, peer } = open();
+    const layout = new DemoLayout(paperName);
+    for (const { command } of stream.commands) if (command.type !== "cut") layout.apply(command);
+    const receipt = layout.close("full", paperName);
+    if (receipt) {
+      receiptBytes.set(nextReceipt, stream.commands.flatMap((c) => c.bytes));
+      handlers.onReceiptCompleted({ id: nextReceipt++, connectionId: id, peer, receipt });
+    }
+    close(id);
+  }
+
+  /** About 1,200 lines (36,000 dots): taller than any single canvas allows. */
+  function tallReceipt(): Stream {
+    const s = new Stream().init().align("center").bold(true).line("RELATÓRIO DE FECHAMENTO").bold(false).align("left");
+    for (let i = 1; i <= 1196; i++) s.columns(`Item ${String(i).padStart(4, "0")}`, `R$ ${(i * 1.37).toFixed(2).replace(".", ",")}`);
+    return s.align("center").line("── fim ──").cut("full");
+  }
+
+  function download(name: string, bytes: Uint8Array, type: string): void {
+    const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = name;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
   }
 
   async function burst(): Promise<void> {
@@ -750,7 +859,7 @@ export const connectDemo: BackendConnector = (handlers) => {
     kitchen: () => print(kitchenOrder().commands),
     noCut: () => print(noteSlip().commands),
     parallel: () => Promise.all([print(kitchenOrder().commands), print(noteSlip().commands, { gapMs: 110 })]),
-    ruler: () => print(ruler(paper === "58mm" ? 32 : 48).commands),
+    ruler: () => print(ruler(settings.paper === "58mm" ? 32 : 48).commands),
     codes: () => print(codesReceipt().commands),
     poster: () => print(posterSlip().commands),
     slowCodes: () => print(codesReceipt().commands, { gapMs: 600 }),
@@ -771,17 +880,41 @@ export const connectDemo: BackendConnector = (handlers) => {
     sequence: () => sequence(70),
     unknown: () => print(unknownSamples()),
     burst,
+    tall: () => printInstant(tallReceipt(), "80mm"),
     listening: () => setListener("listening"),
-    error: () => setListener("error"),
     stopped: () => setListener("stopped"),
+    /** Another program grabs the current port; the listener fails. */
+    portInUse: () => {
+      occupied.add(settings.port);
+      setListener("error");
+    },
+    /** Frees every "occupied" port ("Try again" then succeeds). */
+    freePort: () => occupied.clear(),
+    network: () => applySettings({ networkMode: "network" }),
+    local: () => applySettings({ networkMode: "local" }),
   };
-  (window as unknown as { phantomDemo: typeof api }).phantomDemo = api;
+  (window as unknown as { phantomDemo: typeof api & { readonly lastExport: DemoExport | null } }).phantomDemo = {
+    ...api,
+    get lastExport() {
+      return lastExport;
+    },
+  };
+
+  /** Applies a validated patch like the backend: event, then listener restart. */
+  async function applySettings(patch: Partial<Settings>): Promise<Settings> {
+    const next = { ...settings, ...patch };
+    const restart = next.port !== settings.port || next.networkMode !== settings.networkMode;
+    settings = next;
+    if (!disposed) handlers.onSettingsChanged({ ...settings });
+    if (restart) void restartListener();
+    return { ...settings };
+  }
 
   // Initial snapshot, as `get_state` would deliver it.
   if (scenario !== "starting") {
     void delay(250).then(async () => {
       if (disposed) return;
-      handlers.onInitialState({ listener, connections: connectionsStatus(), paper, status: { ...printer } });
+      handlers.onInitialState({ listener, connections: connectionsStatus(), settings: { ...settings }, status: { ...printer } });
       if (scenario === "") {
         await delay(600);
         await sequence(70);
@@ -802,12 +935,20 @@ export const connectDemo: BackendConnector = (handlers) => {
         const { id, peer } = open();
         for (let i = 0; i < 205 && !disposed; i++) {
           const layout = new DemoLayout("58mm");
-          for (const { command } of ruler(32).commands) if (command.type !== "cut") layout.apply(command);
+          const stream = ruler(32);
+          for (const { command } of stream.commands) if (command.type !== "cut") layout.apply(command);
           const receipt = layout.close("full", "58mm");
-          if (receipt) handlers.onReceiptCompleted({ id: nextReceipt++, connectionId: id, peer, receipt });
+          if (receipt) {
+            receiptBytes.set(nextReceipt, stream.commands.flatMap((c) => c.bytes));
+            handlers.onReceiptCompleted({ id: nextReceipt++, connectionId: id, peer, receipt });
+          }
           if (i % 20 === 19) await delay(16);
         }
         close(id);
+      } else if (scenario === "tall") {
+        await delay(300);
+        printInstant(tallReceipt(), "80mm");
+        printInstant(codesReceipt(), "80mm");
       } else if (scenario === "burst") {
         await delay(300);
         await burst();
@@ -821,11 +962,39 @@ export const connectDemo: BackendConnector = (handlers) => {
   const panel = params.get("devpanel") === "0" ? null : mountPanel(api);
 
   return {
-    async setPaper(next: Paper): Promise<Paper> {
+    async updateSettings(patch: Partial<Settings>): Promise<Settings> {
+      await delay(140);
+      if (params.has("failsettings")) throw "demo: update_settings refused";
+      if (patch.port !== undefined && !isValidPort(patch.port)) throw `invalid port: ${String(patch.port)}`;
+      if (patch.networkMode !== undefined && !["local", "network"].includes(patch.networkMode))
+        throw `invalid network mode: ${String(patch.networkMode)}`;
+      if (patch.paper !== undefined && !["58mm", "80mm"].includes(patch.paper)) throw `invalid paper: ${String(patch.paper)}`;
+      if (
+        patch.defaultCodePage !== undefined &&
+        !["cp437", "cp850", "cp860", "cp858", "windows1252"].includes(patch.defaultCodePage)
+      )
+        throw `invalid code page: ${String(patch.defaultCodePage)}`;
+      return applySettings(patch);
+    },
+    async retryListener(): Promise<void> {
       await delay(120);
-      if (next !== "58mm" && next !== "80mm") throw new Error(`invalid paper: ${String(next)}`);
-      paper = next;
-      return paper;
+      await restartListener();
+    },
+    async exportReceipt(id: number, format: ExportFormat, png?: Uint8Array): Promise<ExportResult> {
+      await delay(260); // the save dialog
+      if (params.has("exportcancel")) return { saved: false };
+      if (params.has("exportfail") || !receiptBytes.has(id)) throw `receipt ${id} is no longer available`;
+      const bytes = format === "png" ? png : Uint8Array.from(receiptBytes.get(id) ?? []);
+      if (!bytes) throw "png bytes are required for format png";
+      const name = `receipt-${id}.${format}`;
+      let binary = "";
+      for (const byte of bytes) binary += String.fromCharCode(byte);
+      lastExport = { name, format, base64: btoa(binary) };
+      if (!params.has("nodownload")) download(name, bytes, format === "png" ? "image/png" : "application/octet-stream");
+      return { saved: true, path: `/Users/demo/Documents/PhantomPOS/${name}` };
+    },
+    async clearReceipts(): Promise<void> {
+      receiptBytes.clear();
     },
     async setPrinterStatus(patch: Partial<PrinterStatus>): Promise<PrinterStatus> {
       await delay(90);

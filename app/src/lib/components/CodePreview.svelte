@@ -20,14 +20,14 @@
 </script>
 
 <script lang="ts">
-  import { messages } from "../messages";
+  import { i18n } from "../i18n";
   import { duration } from "../motion";
   import { drawScaled } from "../receipt/images";
   import Icon from "./Icon.svelte";
 
   let { code, onClose }: { code: InspectedCode | null; onClose: () => void } = $props();
 
-  const t = messages.code;
+  const t = $derived(i18n.t.code);
   /** Largest code edge on screen, in CSS pixels. */
   const MAX_EDGE = 440;
 
