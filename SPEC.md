@@ -293,19 +293,21 @@ O desenvolvimento será feito pelo Claude Code, uma etapa por vez, com esta espe
 
 ## Decisões e pendências
 
-As sete decisões foram tomadas em 17/11/2026. Restam duas tarefas do mantenedor antes da primeira release.
+As sete decisões foram tomadas em 17/11/2026. As tarefas do mantenedor previstas para antes da primeira release foram concluídas em 18/11/2026.
 
 | Tema | Decisão |
 | --- | --- |
 | Licença | MIT |
 | Repositório | `tegrasw/phantompos` |
 | Transporte | Rede, TCP 9100 |
-| Nome | Considerado disponível; confirmação pendente |
+| Nome | Disponível no crates.io em 18/11/2026; os crates não serão publicados lá |
 | Idiomas da interface | Português e inglês |
 | Certificado da Apple | O mantenedor é o Account Holder e cria o certificado |
 | Assinatura no Windows | Sem assinatura |
 
 **Pendências**
 
-- [ ] Confirmar `phantompos` e `phantompos-core` no crates.io antes de publicar.
-- [ ] Criar o certificado Developer ID Application e a chave do App Store Connect, e cadastrar os secrets no repositório, antes da tag de teste da etapa 1.
+- [x] Confirmar `phantompos` e `phantompos-core` no crates.io antes de publicar. Os nomes estavam livres em 18/11/2026. Decisão do mantenedor: nem o aplicativo nem o `phantompos-core` serão publicados no crates.io; a distribuição é pelos instaladores no GitHub Releases.
+- [x] Criar o certificado Developer ID Application e a chave do App Store Connect, e cadastrar os secrets no repositório, antes da tag de teste da etapa 1. Concluído em 18/11/2026; a tag `v0.1.0-test.3` gerou os `.dmg` assinados e notarizados, que abrem sem alerta do Gatekeeper.
+- [x] Teste com cupons reais de um PDV, previsto para antes da versão 0.1.0. Realizado pelo mantenedor em 18/11/2026.
+- [x] Tornar o repositório público. Feito em 18/11/2026.
