@@ -3,7 +3,7 @@
 Virtual ESC/POS thermal printer: a Tauri 2 desktop app that listens on TCP 9100,
 parses ESC/POS and draws the receipt. `SPEC.md` (Portuguese) is the source of
 truth; work proceeds one stage at a time ("Etapas e critérios de aceite").
-Current stage: **4 (image, QR, barcodes) done**; stage 5 (status) not started.
+Current stage: **5 (status) done**; stage 6 (settings and export) not started.
 
 ## Layout
 
@@ -48,7 +48,7 @@ cat core/tests/fixtures/receipt_small.bin | nc 127.0.0.1 9100
 UPDATE_FIXTURES=1 cargo test -p phantompos-core --test fixtures
 
 # UI with mock data in a plain browser (dev only, from app/)
-pnpm dev   # then open http://localhost:1420/?demo (also ?demo=gallery, ?demo=cap)
+pnpm dev   # then open http://localhost:1420/?demo (also ?demo=gallery, ?demo=cap, ?demo=status)
 ```
 
 `app/dist` must exist before a release compile of the app crate
@@ -85,13 +85,17 @@ All payloads are camelCase JSON. Names are declared once on each side:
 | Event | `commands:received` | `{ connectionId: number, peer: string, commands: DecodedCommand[] }`, never empty. `DecodedCommand = { offset, bytes: number[], command: { type, ...params } }`; `offset` counts from the start of the connection stream. Variants and fields: `core/README.md`. Pending text and incomplete sequences are flushed on disconnect, before `connection:changed`. |
 | Event | `receipt:updated` | `{ connectionId, peer, receipt: Receipt }`: full snapshot of that connection's in-progress receipt (`cut: null`). Only when something new was printed; throttled per connection to one per 50 ms (the first change is sent at once, a pending snapshot is dropped when its receipt completes). |
 | Event | `receipt:completed` | `{ id, connectionId, peer, receipt: Receipt }`: closed by a cut (`cut: "full" \| "partial"`) or by the end of the connection (`cut: null`). `id` is unique and increasing in closing order. |
-| Event | `drawer:kicked` | `{ connectionId, peer, pin: 2 \| 5, onMs, offMs }`. The drawer stays open until `close_drawer`. |
-| Command | `get_state` | `{ listener, connections, paper: "58mm" \| "80mm", drawerOpen: boolean }` |
+| Event | `drawer:kicked` | `{ connectionId, peer, pin: 2 \| 5, onMs, offMs }`. The drawer stays open until the UI closes it with `set_printer_status`. |
+| Event | `printer:status` | Full `PrinterStatus = { paperOut, coverOpen, offline, drawerOpen }`, only when it changes (UI command or drawer kick). |
+| Event | `status:sent` | `{ connectionId, peer, request, reply: { kind: "realTime" \| "transmit" \| "automatic", bytes, flags } }` for every reply written to a socket. `request` is a mnemonic such as `DLE EOT 1`, `GS r 49` or `ASB`; `flags` are decoded from the bytes (vocabulary in `core/README.md`). |
+| Event | `print:suppressed` | `{ connectionId, peer, reason: "coverOpen" \| "paperOut" \| "offline", bytes }`, at most one per socket read while an error state is active (reason priority in that order). |
+| Command | `get_state` | `{ listener, connections, paper: "58mm" \| "80mm", status: PrinterStatus }` |
 | Command | `set_paper` | Argument `paper`. Memory only (default 80 mm); applies to receipts started afterwards. Returns the new paper; an invalid value rejects with a message. Provisional: folds into `update_settings` in stage 6. |
-| Command | `close_drawer` | No arguments. Provisional: folds into `set_printer_status` in stage 5. |
+| Command | `set_printer_status` | Argument `status`: a partial `PrinterStatus`, merged into the current one (unknown fields reject). Returns the full status. |
 
-Order per connection: `commands:received` for the batch, then
-`receipt:completed` (in order), then `receipt:updated`. On disconnect: flushed
+Order per socket read: `commands:received`, `print:suppressed`, then
+`receipt:completed` / `drawer:kicked` / `printer:status` in stream order,
+`status:sent` for each reply written, then `receipt:updated`. On disconnect: flushed
 commands, `receipt:completed` if content is pending, then `connection:changed`.
 `Receipt` is documented in `core/README.md` (all values in printer dots). Its
 elements are `line` (text spans) and `image` (`kind`: `raster`, `qrCode` or
@@ -100,7 +104,16 @@ elements are `line` (text spans) and `image` (`kind`: `raster`, `qrCode` or
 the UI as bitmaps; barcode HRI text is ordinary `line` elements.
 
 The UI registers its event listeners first and then calls `get_state`.
-Still to come from the SPEC: `set_printer_status`, `update_settings`, `export_receipt`.
+Still to come from the SPEC: `update_settings`, `export_receipt`.
+
+Status replies are computed in core by pure functions of `PrinterStatus`
+(`core/src/status.rs`); the reply table per command and state is in
+`core/README.md` and asserted by `core/tests/status_table.rs`. Automatic Status
+Back is enabled per connection by `GS a`; the status itself is global. While
+paper out, cover open or offline is active, everything except status commands
+is discarded for printing. Replies are written with a 2 s timeout; a client
+that never reads them is disconnected. A fixture can declare its state in the
+file name (`<name>.<states joined by +>.bin`).
 
 New commands need a permission: add them to `AppManifest` in
 `app/src-tauri/build.rs` and to `app/src-tauri/capabilities/default.json`.
@@ -119,7 +132,8 @@ includes visual design work, not just function.
 - Design tokens (colours for both themes, type scale, spacing, motion) live at
   the top of `app/src/app.css`; `app/src/lib/motion.ts` mirrors the durations.
 - One accent colour (teal). Red only for listener errors, amber only for
-  unknown sequences. Text contrast at least WCAG AA in both themes.
+  unknown sequences, and the calm indigo `--fault` tokens only for simulated
+  printer faults (they are states the user switched on, not app errors). Text contrast at least WCAG AA in both themes.
 - All motion respects `prefers-reduced-motion`.
 - Embedded font: JetBrains Mono (OFL) in `app/src/assets/fonts/`. The UI uses
   the latin and latin-ext subsets; the receipt canvas uses a separate family,
@@ -138,7 +152,11 @@ includes visual design work, not just function.
   clicking a QR code or barcode opens a close-up (`CodePreview`).
 - The command log keeps only the first 256 bytes of each command (plus its real
   length); raw-bytes export in stage 6 must come from the backend.
-- The roll keeps at most 200 receipts.
+- Layout: state panel on the left (272 px, collapses to a rail), command log on
+  the right. Both can be open only from 912 px of window width; below that,
+  opening one collapses the other.
+- The roll keeps at most 200 entries (receipts and "not printed" notices;
+  consecutive notices of the same connection and reason coalesce).
 - No component or animation libraries; inline SVG icons.
 - The UI renders commands generically from `command.type` and its params, so
   new core variants need no UI change.
@@ -197,14 +215,20 @@ open design/icon/AppIcon.icon   # edit in Icon Composer
 - ESC/POS doubts: the Epson reference wins; document deliberate deviations in code.
 - Signing happens only in `release.yml`, never in CI.
 
-## Known limitations (stage 4)
+## Known limitations (stage 5)
 
 - Commands received before the webview has registered its listeners (the
   first moments after launch) are not shown; there is no backlog replay yet.
 - Text is emitted when its run ends (next command, 4096 bytes, or
   disconnect), so a client that keeps the socket open sees trailing text late.
-- Status commands (`DLE EOT`, `GS r`, `GS a`) appear as `unknown` until stage
-  5; `GS ( k` fn 82 (QR size request) is logged but gets no reply.
+- Status bytes inside another command's data (an image, QR or barcode payload)
+  are not executed; a real Epson would execute them. `GS r` and `GS a` are
+  answered at once even in an error state.
+- Data received in an error state is discarded, not printed after recovery.
+- Not simulated: near-end sensor, feed button, printer errors, ink, peeler and
+  power-off replies. `GS ( k` fn 82 (QR size request) gets no reply.
+- The state panel's "reports" summary is derived from the switches, not from
+  actual replies.
 - Other graphics (`ESC *`, `GS ( L`, `GS 8 L`, `GS *`, `GS /`, `FS p`) and 2D
   symbols other than QR are consumed by length and logged as unsupported, not
   drawn. GS1 barcodes and CODE128 auto are logged as unsupported.
