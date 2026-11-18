@@ -13,17 +13,15 @@ PhantomPOS is an open source project by Tegra Software, built with Rust and Taur
 
 ## Status
 
-Early development. Version 0.1.0 has not been released yet, and no binaries are
-published. The project is being built in stages; stages 1 (skeleton), 2 (text and
-formatting), 3 (roll, cut and drawer), 4 (images and codes), 5 (status) and 6 (settings and
-export) are done.
+Feature-complete for version 0.1.0: everything planned for the first version is
+implemented and covered by tests. The 0.1.0 release itself is being prepared, so no
+installers are published yet; until then, build from source as described under
+[Development](#development).
 
 ## Features
 
-What is implemented:
-
 - A single-window desktop app with light and dark themes.
-- A raw TCP listener on `127.0.0.1:9100`.
+- A raw TCP listener on `127.0.0.1:9100`, like a networked receipt printer.
 - An ESC/POS parser for text, styles, alignment, line feeds and code pages (CP437,
   CP850, CP860, CP858 and Windows-1252).
 - Cut and cash drawer commands.
@@ -43,27 +41,53 @@ What is implemented:
 - A log of decoded commands, side by side with the raw bytes, highlighting unknown
   sequences.
 
-Ideas outside the v1 scope are tracked in [docs/backlog.md](docs/backlog.md).
+## Usage
 
-## Quick try
+Point your POS software at PhantomPOS as if it were a network receipt printer: raw TCP
+(often called "port 9100" or JetDirect) at the address shown in the app header, by
+default `127.0.0.1:9100`. To print from another device, enable local-network access in
+the settings and use one of the addresses the header then lists.
 
-With the app running, send some bytes to the listener:
+With the app running, you can also send a test print from a terminal:
 
 ```sh
-printf 'Hello\n' | nc 127.0.0.1 9100
+printf '\033@\033a\001\033E\001PhantomPOS\033E\000\nHello, receipt!\n\n\n\035V\000' | nc 127.0.0.1 9100
 ```
 
-The window shows the received bytes in hexadecimal.
+The receipt appears on the roll, and the command log shows each decoded command next to
+its raw bytes. The repository also has ready-made samples:
+
+```sh
+cat core/tests/fixtures/receipt_codes.bin | nc 127.0.0.1 9100
+```
+
+If another program already uses port 9100 (Flutter DevTools does by default), the app
+says so and offers to use the next free port.
+
+## Scope and limitations
+
+PhantomPOS follows the Epson ESC/POS standard and aims to match columns, line breaks,
+alignment and sizes; it does not try to reproduce a real printer dot for dot.
+
+- Only raw TCP is supported: no USB, serial or Bluetooth, and it does not install as a
+  system printer.
+- Images are drawn for `GS v 0` only. Other graphics commands (`ESC *`, `GS ( L`,
+  `GS 8 L`) and 2D symbols other than QR codes (such as PDF417) are recognized and
+  logged, but not drawn.
+- Vendor-specific commands (Bematech, Elgin, Daruma) are not interpreted.
+- Receipts are kept only while the app is open.
+
+Ideas outside the v1 scope are tracked in [docs/backlog.md](docs/backlog.md).
 
 ## Downloads
 
-Once released, installers will be published on the
+Once version 0.1.0 is released, installers will be published on the
 [GitHub Releases](https://github.com/tegrasw/phantompos/releases) page:
 
 | System | Package |
 | --- | --- |
 | Windows | NSIS installer (`.exe`) |
-| macOS | `.dmg`, one per architecture (Apple silicon and Intel) |
+| macOS | `.dmg`, one per architecture (Apple silicon and Intel), signed and notarized |
 | Linux | AppImage and `.deb` |
 
 The Windows installer is not code-signed, so Windows SmartScreen shows a warning the
