@@ -1,10 +1,13 @@
 //! Golden fixtures: every `tests/fixtures/<name>.bin` must match `<name>.json`.
 //!
-//! The JSON holds `{ "paper", "commands", "receipts", "drawerKicks" }`. Run with
+//! The JSON holds `{ "paper", "commands", "receipts", "drawerKicks" }`, plus
+//! `"status"`, `"replies"` and `"suppressed"` when they are not empty (see
+//! `tests/fixtures/README.md`). Run with
 //! `UPDATE_FIXTURES=1` to (re)write the JSON files after reviewing the change.
 
 mod common;
 
+use phantompos_core::PrinterStatus;
 use serde_json::{Value, json};
 
 #[test]
@@ -17,13 +20,25 @@ fn fixtures_match_expected_json() {
     for bin in &bins {
         let input = std::fs::read(bin).expect("fixture is readable");
         let paper = common::paper_for(bin);
-        let (commands, output) = common::run_whole(&input, paper);
-        let actual = json!({
+        let status = common::status_for(bin);
+        let run = common::run_whole_in(&input, paper, status);
+        let mut actual = json!({
             "paper": paper,
-            "commands": commands,
-            "receipts": output.receipts,
-            "drawerKicks": output.drawer_kicks,
+            "commands": run.commands,
+            "receipts": run.output.receipts,
+            "drawerKicks": run.output.drawer_kicks,
         });
+        // Status keys only where they say something, so fixtures of the
+        // normal state without replies keep their stage 2-4 shape.
+        if status != PrinterStatus::default() {
+            actual["status"] = json!(status);
+        }
+        if !run.replies.is_empty() {
+            actual["replies"] = json!(run.replies);
+        }
+        if let Some(suppressed) = run.suppressed {
+            actual["suppressed"] = json!(suppressed);
+        }
         let json_path = bin.with_extension("json");
         if update {
             let mut text = serde_json::to_string_pretty(&actual).expect("serializable");

@@ -1,0 +1,80 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        108,
+        105,
+        110,
+        101
+      ],
+      "command": {
+        "text": "line",
+        "type": "text"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 4
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        8,
+        1,
+        3
+      ],
+      "command": {
+        "reason": "incomplete",
+        "type": "unknown"
+      },
+      "offset": 5
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 48,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 4,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "line",
+              "width": 48,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        }
+      ],
+      "height": 30,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

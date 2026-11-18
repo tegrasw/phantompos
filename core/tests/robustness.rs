@@ -5,8 +5,8 @@ mod common;
 
 use common::Rng;
 use phantompos_core::{
-    Command, DecodedCommand, MAX_PAYLOAD, PaperProfile, Parser, ParserConfig, ReceiptBuilder,
-    SKIP_CHUNK,
+    Command, DecodedCommand, MAX_PAYLOAD, PaperProfile, Parser, ParserConfig, PrinterStatus,
+    ReceiptBuilder, ReceiptConfig, ReplyKind, SKIP_CHUNK, Session, SessionEvent,
 };
 
 const ITERATIONS: usize = 3000;
@@ -62,6 +62,19 @@ fn escpos_biased(rng: &mut Rng) -> Vec<u8> {
         b"Hello ",
         b"x",
         b"\xc6\xa6",
+        b"\x04",
+        b"\x05",
+        b"\x14",
+        b"\x01",
+        b"\x07",
+        b"\x08",
+        b"\x12",
+        b"r",
+        b"\x10\x04\x01",
+        b"\x10\x14\x01\x00\x01",
+        b"\x10\x14\x08\x01\x03\x14\x01\x06\x02\x08",
+        b"\x1da\xff",
+        b"\x1dr\x02",
     ];
     let count = rng.below(200);
     let mut out = Vec::new();
@@ -212,18 +225,19 @@ fn assert_lossless(input: &[u8], commands: &[DecodedCommand]) {
 fn check(input: &[u8], rng: &mut Rng) {
     for paper in [PaperProfile::Mm58, PaperProfile::Mm80] {
         let whole = common::run_whole(input, paper);
-        assert_lossless(input, &whole.0);
+        assert_lossless(input, &whole.commands);
         let fragmented = common::run_chunked(input, &mut || 1 + rng.below(9), paper);
         assert_eq!(whole, fragmented, "fragmentation changed the result");
         // Receipts are never empty, and only the last one may lack a cut.
-        let receipts = &whole.1.receipts;
+        let receipts = &whole.output.receipts;
         for (i, receipt) in receipts.iter().enumerate() {
             assert!(receipt.height > 0 && !receipt.elements.is_empty());
             assert!(receipt.cut.is_some() || i + 1 == receipts.len());
         }
         // Both outputs must serialize.
-        serde_json::to_string(&whole.0).expect("commands serialize");
-        serde_json::to_string(&whole.1).expect("receipts serialize");
+        serde_json::to_string(&whole.commands).expect("commands serialize");
+        serde_json::to_string(&whole.output).expect("receipts serialize");
+        serde_json::to_string(&whole.replies).expect("replies serialize");
     }
 }
 
@@ -252,6 +266,14 @@ fn byte_by_byte_equals_whole_on_biased_input() {
         let input = escpos_biased(&mut rng);
         let whole = common::run_whole(&input, PaperProfile::Mm80);
         let single = common::run_chunked(&input, &mut || 1, PaperProfile::Mm80);
+        assert_eq!(whole, single);
+        // In an error state too: nothing is printed, replies do not change.
+        let offline = PrinterStatus {
+            cover_open: true,
+            ..PrinterStatus::default()
+        };
+        let whole = common::run_whole_in(&input, PaperProfile::Mm80, offline);
+        let single = common::run_chunked_in(&input, &mut || 1, PaperProfile::Mm80, offline);
         assert_eq!(whole, single);
     }
 }
@@ -284,7 +306,7 @@ fn image_elements_are_consistent() {
     for _ in 0..ITERATIONS {
         let input = binary_biased(&mut rng);
         for paper in [PaperProfile::Mm58, PaperProfile::Mm80] {
-            let (_, output) = common::run_whole(&input, paper);
+            let output = common::run_whole(&input, paper).output;
             for receipt in &output.receipts {
                 let mut y = 0;
                 for element in &receipt.elements {
@@ -346,5 +368,75 @@ fn oversized_payloads_use_bounded_memory() {
     // The image is not drawn; the text after it is.
     let receipt = builder.finish().expect("text was printed");
     assert_eq!(receipt.elements.len(), 1);
-    assert_eq!(common::run_whole(&input, PaperProfile::Mm80).0, commands);
+    assert_eq!(
+        common::run_whole(&input, PaperProfile::Mm80).commands,
+        commands
+    );
+}
+
+fn random_status(rng: &mut Rng) -> PrinterStatus {
+    let bits = rng.below(16);
+    PrinterStatus {
+        paper_out: bits & 1 != 0,
+        cover_open: bits & 2 != 0,
+        offline: bits & 4 != 0,
+        drawer_open: bits & 8 != 0,
+    }
+}
+
+/// The state changes at random between chunks (and between reads, through
+/// `status_changed`), as when the user toggles switches while a POS prints.
+/// Nothing panics, the log stays lossless, every reply is well formed, and
+/// nothing is printed from a chunk received in an error state.
+#[test]
+fn random_status_changes_never_panic() {
+    let mut rng = Rng::new(0x5EED_0008);
+    for iteration in 0..ITERATIONS {
+        let input = if iteration % 2 == 0 {
+            escpos_biased(&mut rng)
+        } else {
+            binary_biased(&mut rng)
+        };
+        let mut session = Session::new(
+            ParserConfig::default(),
+            ReceiptConfig::default(),
+            random_status(&mut rng),
+        );
+        let mut commands = Vec::new();
+        let mut rest = &input[..];
+        let mut outputs = Vec::new();
+        while !rest.is_empty() {
+            let len = (1 + rng.below(12)).min(rest.len());
+            let (chunk, tail) = rest.split_at(len);
+            if rng.below(3) == 0
+                && let Some(reply) = session.status_changed(random_status(&mut rng))
+            {
+                assert_eq!(reply.reply.kind, ReplyKind::Automatic);
+                assert_eq!(reply.reply.bytes.len(), 4);
+            }
+            let status = random_status(&mut rng);
+            let out = session.feed(chunk, status);
+            let _ = session.take_update();
+            commands.extend(out.commands.iter().cloned());
+            outputs.push(out);
+            rest = tail;
+        }
+        let out = session.finish(random_status(&mut rng));
+        commands.extend(out.commands.iter().cloned());
+        outputs.push(out);
+        assert_lossless(&input, &commands);
+        for out in &outputs {
+            for event in &out.events {
+                if let SessionEvent::Reply(reply) = event {
+                    let bytes = &reply.reply.bytes;
+                    assert!(!bytes.is_empty() && bytes.len() <= 4, "{reply:?}");
+                    assert!(!reply.reply.flags.is_empty(), "{reply:?}");
+                    serde_json::to_string(&reply.reply).expect("reply serializes");
+                }
+            }
+            if let Some(suppressed) = out.suppressed {
+                assert!(suppressed.bytes > 0);
+            }
+        }
+    }
 }

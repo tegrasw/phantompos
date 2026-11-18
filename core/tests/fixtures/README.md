@@ -7,17 +7,30 @@ Each case is a pair `<name>.bin` (raw bytes as sent to port 9100) and
 { "paper": "80mm", "commands": [ ...log items... ], "receipts": [ ... ], "drawerKicks": [ ... ] }
 ```
 
+Three more keys appear only when they are not empty: `"status"` (the
+simulated state, when not the normal one), `"replies"` (every reply the
+printer sent, in order: `{ request, kind, bytes, flags }`, see the core
+README) and `"suppressed"` (`{ reason, bytes }`: total bytes discarded
+because they arrived in an error state).
+
 `receipts` lists every receipt in closing order (one per cut); the last one,
 not cut (`"cut": null`), is included when the stream ended with content on it.
 `drawerKicks` lists the `ESC p` pulses (`{ pin, onMs, offMs }`).
 
 - `<name>.58mm.bin` is rendered on 58 mm paper; every other `.bin` on 80 mm.
   The JSON repeats the profile in `"paper"`.
+- `<name>.<states>.bin`, where `<states>` is `paperOut`, `coverOpen`,
+  `offline` and/or `drawerOpen` joined by `+` (for example
+  `status_requests.coverOpen+paperOut.bin`), runs the whole stream in that
+  simulated state; no tag is the normal state. A drawer kick in the stream
+  opens the drawer for the rest of it, as in the app. Unknown tags fail the
+  test. Changing the state in the middle of a stream is covered by unit
+  tests (`src/session.rs`) and the backend tests, not by fixtures.
 - Default parser settings: CP437 as the default code page, `CR` ignored.
 - `tests/fixtures.rs` checks every pair; a `.bin` without `.json` fails.
 - `tests/fragmentation.rs` replays every `.bin` whole, byte by byte and in
-  other chunkings, and requires identical results (commands, receipts and
-  drawer kicks).
+  other chunkings, and requires identical results (commands, receipts,
+  drawer kicks, replies and discarded bytes).
 
 ## Regenerating the `.bin` files
 
@@ -63,7 +76,7 @@ fixture that enshrines a bug is worse than none.
 | `underline_ascii_params` | hand-written | ASCII `'0'..'2'` parameters of `ESC -`, `ESC a`, `ESC M` |
 | `mid_line_alignment` | hand-written | `ESC a` ignored when not at the beginning of a line |
 | `unknown_sequences` | hand-written | unimplemented `ESC` commands, `FS p` (consumed as `unsupportedImage`), NUL/BEL/FF/CAN, `ESC ESC` |
-| `later_stage_commands` | hand-written | stage 5 commands (`DLE EOT`, `GS r`, `GS a`) appear as unknown and their parameters fall through as data; the cut, drawer, raster, QR (wrong length) and barcode commands are decoded |
+| `later_stage_commands` | hand-written | stage 3-5 commands in one stream, all decoded: cut, drawer, raster, QR (wrong length), barcode, `DLE EOT 1`, `GS r 1`, `GS a 255` (with their replies) |
 | `cut_functions` | hand-written | every `GS V` function (A-D, full/partial) and `ESC i` / `ESC m` |
 | `cut_empty` | hand-written | cuts with nothing printed produce no receipt; a feed-only (`GS V 65 40`) receipt is produced |
 | `cut_mid_line` | hand-written | a cut with data in the print buffer (text, HT) is ignored; the data continues the receipt |
@@ -99,3 +112,12 @@ fixture that enshrines a bug is worse than none.
 | `qr_edge_cases` | hand-written | print with no data, `m != 48`, invalid parameters, wrong length, too long for level H, too wide, mid-line, `ESC @` |
 | `unsupported_symbols` | hand-written | PDF417, MaxiCode, DataMatrix, `GS 8 L`, `GS *`, `GS /`, `FS p`, `GS ( E`, `ESC *` with an unknown mode |
 | `incomplete_qr_eof` | hand-written | stream ends inside `GS ( k` fn 80 |
+| `status_requests` + `.drawerOpen`, `.paperOut`, `.coverOpen`, `.offline`, `.coverOpen+paperOut`, `.coverOpen+drawerOpen+offline+paperOut` | python-escpos | `query_status`/`is_online` (`DLE EOT 1`), `paper_status` (`DLE EOT 4`), plus `DLE EOT 2`/`3`, `GS r 1`/`49`/`2`/`50`, `DLE DC4 7 1`, text and a cut: every reply in every state; nothing printed offline |
+| `status_asb`, `status_asb.paperOut` | hand-written | `GS a` 2, 0, reserved bits only, 255, `ESC @` (disables; discarded offline), ASB on the connection's own drawer kicks |
+| `status_asb_kick`, `status_asb_kick.offline` | hand-written | drawer item enabled, `ESC p` (discarded offline) and `DLE DC4 1` kick, then `GS r 2` |
+| `status_inside_data` | hand-written | `DLE EOT`, `GS r`, `DLE DC4 8` bytes inside `GS v 0` data, QR data, barcode data and as `ESC 3`'s parameter are not requests; one real `DLE EOT 1` |
+| `status_realtime_functions`, `.coverOpen` | hand-written | `DLE DC4` 1 (valid and invalid `m`/`t`), 2, 3, 7 (`m` 1, 2, 4, 5), 8 (valid: clears the pending line; invalid), unknown `fn`; `DLE ENQ` 0-3 |
+| `status_invalid` | hand-written | `DLE EOT` with `n`/`a` outside the reference, ink/peeler/interface/DM-D (not answered), `GS r` 0, 3, 4, 52, 255, unknown `DLE` command |
+| `print_suppressed.paperOut`, `.coverOpen`, `.offline` | python-escpos | a full receipt (styles, raster image, QR Code, EAN-13, cut, drawer kick) in each error state: logged, `suppressed`, no receipt or kick |
+| `incomplete_status_eof` | hand-written | stream ends inside `DLE EOT 7` (no `a`) |
+| `incomplete_dc4_eof` | hand-written | stream ends inside `DLE DC4 8` |

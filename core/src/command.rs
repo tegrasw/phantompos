@@ -218,6 +218,42 @@ pub enum BarcodeProblem {
     MissingTerminator,
 }
 
+/// Status requested by `DLE EOT n [a]`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum RealTimeStatusKind {
+    /// `n` = 1.
+    Printer,
+    /// `n` = 2.
+    OfflineCause,
+    /// `n` = 3.
+    ErrorCause,
+    /// `n` = 4.
+    RollPaperSensor,
+    /// `n` = 7, `a` = 1.
+    InkA,
+    /// `n` = 7, `a` = 2.
+    InkB,
+    /// `n` = 8, `a` = 3.
+    Peeler,
+    /// `n` = 18, `a` = 1.
+    Interface,
+    /// `n` = 18, `a` = 2.
+    Dmd,
+}
+
+/// Request of `DLE ENQ n`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum RealTimeRequestKind {
+    /// `n` = 0: as pressing FEED while waiting for online recovery.
+    FeedButton,
+    /// `n` = 1: recover from a recoverable error and restart printing.
+    RecoverAndRestart,
+    /// `n` = 2: recover after clearing the receive and print buffers.
+    RecoverAndClear,
+}
+
 /// Why a sequence was not recognized.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -383,6 +419,56 @@ pub enum Command {
     ///
     /// [`MAX_PAYLOAD`]: crate::MAX_PAYLOAD
     SkippedData { length: u32 },
+    /// `DLE EOT n [a]` - transmit real-time status. `a` is present only for
+    /// `n` = 7, 8 and 18. `status` names the requested status, `null` when
+    /// `n` (or `a`) is outside the reference. Only `n` 1-4 are answered.
+    RealTimeStatus {
+        n: u8,
+        a: Option<u8>,
+        status: Option<RealTimeStatusKind>,
+    },
+    /// `GS r n` - transmit status: 1/49 paper sensor, 2/50 drawer kick-out
+    /// connector (answered); 4/52 ink (not answered); others ignored.
+    TransmitStatus { n: u8 },
+    /// `GS a n` - enable/disable Automatic Status Back. The booleans are the
+    /// status items `n` enables (bits 0, 1, 2, 3 and 6); `n` with none of
+    /// them disables ASB.
+    SetAutomaticStatusBack {
+        n: u8,
+        drawer: bool,
+        online_offline: bool,
+        error: bool,
+        roll_paper_sensor: bool,
+        panel_switch: bool,
+    },
+    /// `DLE ENQ n` - real-time request: 0 feed button, 1 recover and restart,
+    /// 2 recover after clearing the buffers. Only effective in an error state
+    /// that is not simulated, so it has no effect.
+    RealTimeRequest {
+        n: u8,
+        request: Option<RealTimeRequestKind>,
+    },
+    /// `DLE DC4 1 m t` - real-time drawer kick pulse. `pin` is 2 (`m` = 0) or
+    /// 5 (`m` = 1), `null` when `m` or `t` (1-8) is out of range (no pulse).
+    /// ON and OFF times are `t` x 100 ms.
+    RealTimePulse {
+        pin: Option<u8>,
+        on_ms: u32,
+        off_ms: u32,
+    },
+    /// `DLE DC4 2 a b` - execute power-off sequence; `valid` when `a` = 1
+    /// and `b` = 8. Logged only: no power-off notice is sent.
+    PowerOff { valid: bool },
+    /// `DLE DC4 3 a n r t1 t2` - sound buzzer in real time. Logged only.
+    SoundBuzzer { a: u8, n: u8, r: u8, t1: u8, t2: u8 },
+    /// `DLE DC4 7 m` - transmit specified status in real time: 1 basic ASB
+    /// status (answered), 2 extended ASB, 4 offline response, 5 battery (not
+    /// answered).
+    TransmitSpecifiedStatus { m: u8 },
+    /// `DLE DC4 8 d1...d7` - clear the receive and print buffers;
+    /// `valid` when `d1...d7` = 1 3 20 1 6 2 8. A valid one clears the line
+    /// being built and is answered with the Clear response.
+    ClearBuffers { valid: bool },
     /// Anything not recognized; the raw bytes are in the envelope.
     Unknown { reason: UnknownReason },
 }

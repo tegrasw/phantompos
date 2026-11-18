@@ -1,0 +1,411 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        116,
+        0
+      ],
+      "command": {
+        "codePage": "cp437",
+        "page": 0,
+        "type": "setCodePage"
+      },
+      "offset": 2
+    },
+    {
+      "bytes": [
+        112,
+        114,
+        105,
+        110,
+        116,
+        101,
+        100,
+        32,
+        111,
+        110,
+        108,
+        121,
+        32,
+        119,
+        104,
+        101,
+        110,
+        32,
+        111,
+        110,
+        108,
+        105,
+        110,
+        101
+      ],
+      "command": {
+        "text": "printed only when online",
+        "type": "text"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 29
+    },
+    {
+      "bytes": [
+        16,
+        4,
+        1
+      ],
+      "command": {
+        "a": null,
+        "n": 1,
+        "status": "printer",
+        "type": "realTimeStatus"
+      },
+      "offset": 30
+    },
+    {
+      "bytes": [
+        16,
+        4,
+        1
+      ],
+      "command": {
+        "a": null,
+        "n": 1,
+        "status": "printer",
+        "type": "realTimeStatus"
+      },
+      "offset": 33
+    },
+    {
+      "bytes": [
+        16,
+        4,
+        4
+      ],
+      "command": {
+        "a": null,
+        "n": 4,
+        "status": "rollPaperSensor",
+        "type": "realTimeStatus"
+      },
+      "offset": 36
+    },
+    {
+      "bytes": [
+        16,
+        4,
+        4
+      ],
+      "command": {
+        "a": null,
+        "n": 4,
+        "status": "rollPaperSensor",
+        "type": "realTimeStatus"
+      },
+      "offset": 39
+    },
+    {
+      "bytes": [
+        16,
+        4,
+        2
+      ],
+      "command": {
+        "a": null,
+        "n": 2,
+        "status": "offlineCause",
+        "type": "realTimeStatus"
+      },
+      "offset": 42
+    },
+    {
+      "bytes": [
+        16,
+        4,
+        3
+      ],
+      "command": {
+        "a": null,
+        "n": 3,
+        "status": "errorCause",
+        "type": "realTimeStatus"
+      },
+      "offset": 45
+    },
+    {
+      "bytes": [
+        29,
+        114,
+        1
+      ],
+      "command": {
+        "n": 1,
+        "type": "transmitStatus"
+      },
+      "offset": 48
+    },
+    {
+      "bytes": [
+        29,
+        114,
+        49
+      ],
+      "command": {
+        "n": 49,
+        "type": "transmitStatus"
+      },
+      "offset": 51
+    },
+    {
+      "bytes": [
+        29,
+        114,
+        2
+      ],
+      "command": {
+        "n": 2,
+        "type": "transmitStatus"
+      },
+      "offset": 54
+    },
+    {
+      "bytes": [
+        29,
+        114,
+        50
+      ],
+      "command": {
+        "n": 50,
+        "type": "transmitStatus"
+      },
+      "offset": 57
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        7,
+        1
+      ],
+      "command": {
+        "m": 1,
+        "type": "transmitSpecifiedStatus"
+      },
+      "offset": 60
+    },
+    {
+      "bytes": [
+        115,
+        116,
+        105,
+        108,
+        108,
+        32,
+        111,
+        102,
+        102,
+        108,
+        105,
+        110,
+        101,
+        63
+      ],
+      "command": {
+        "text": "still offline?",
+        "type": "text"
+      },
+      "offset": 64
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 78
+    },
+    {
+      "bytes": [
+        27,
+        100,
+        6
+      ],
+      "command": {
+        "lines": 6,
+        "type": "feedLines"
+      },
+      "offset": 79
+    },
+    {
+      "bytes": [
+        29,
+        86,
+        0
+      ],
+      "command": {
+        "feed": null,
+        "function": "a",
+        "mode": "full",
+        "type": "cut"
+      },
+      "offset": 82
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [],
+  "replies": [
+    {
+      "bytes": [
+        26
+      ],
+      "flags": [
+        "offline",
+        "drawerLow"
+      ],
+      "kind": "realTime",
+      "request": "DLE EOT 1"
+    },
+    {
+      "bytes": [
+        26
+      ],
+      "flags": [
+        "offline",
+        "drawerLow"
+      ],
+      "kind": "realTime",
+      "request": "DLE EOT 1"
+    },
+    {
+      "bytes": [
+        18
+      ],
+      "flags": [
+        "paperPresent",
+        "paperAdequate"
+      ],
+      "kind": "realTime",
+      "request": "DLE EOT 4"
+    },
+    {
+      "bytes": [
+        18
+      ],
+      "flags": [
+        "paperPresent",
+        "paperAdequate"
+      ],
+      "kind": "realTime",
+      "request": "DLE EOT 4"
+    },
+    {
+      "bytes": [
+        22
+      ],
+      "flags": [
+        "coverOpen"
+      ],
+      "kind": "realTime",
+      "request": "DLE EOT 2"
+    },
+    {
+      "bytes": [
+        18
+      ],
+      "flags": [
+        "noError"
+      ],
+      "kind": "realTime",
+      "request": "DLE EOT 3"
+    },
+    {
+      "bytes": [
+        0
+      ],
+      "flags": [
+        "paperPresent",
+        "paperAdequate"
+      ],
+      "kind": "transmit",
+      "request": "GS r 1"
+    },
+    {
+      "bytes": [
+        0
+      ],
+      "flags": [
+        "paperPresent",
+        "paperAdequate"
+      ],
+      "kind": "transmit",
+      "request": "GS r 49"
+    },
+    {
+      "bytes": [
+        0
+      ],
+      "flags": [
+        "drawerLow"
+      ],
+      "kind": "transmit",
+      "request": "GS r 2"
+    },
+    {
+      "bytes": [
+        0
+      ],
+      "flags": [
+        "drawerLow"
+      ],
+      "kind": "transmit",
+      "request": "GS r 50"
+    },
+    {
+      "bytes": [
+        56,
+        0,
+        0,
+        0
+      ],
+      "flags": [
+        "offline",
+        "drawerLow",
+        "coverOpen",
+        "noError",
+        "paperPresent",
+        "paperAdequate"
+      ],
+      "kind": "realTime",
+      "request": "DLE DC4 7 1"
+    }
+  ],
+  "status": {
+    "coverOpen": true,
+    "drawerOpen": false,
+    "offline": false,
+    "paperOut": false
+  },
+  "suppressed": {
+    "bytes": 51,
+    "reason": "coverOpen"
+  }
+}

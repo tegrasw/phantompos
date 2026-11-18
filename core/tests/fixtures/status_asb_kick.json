@@ -1,0 +1,127 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        29,
+        97,
+        1
+      ],
+      "command": {
+        "drawer": true,
+        "error": false,
+        "n": 1,
+        "onlineOffline": false,
+        "panelSwitch": false,
+        "rollPaperSensor": false,
+        "type": "setAutomaticStatusBack"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        27,
+        112,
+        1,
+        50,
+        50
+      ],
+      "command": {
+        "offMs": 100,
+        "onMs": 100,
+        "pin": 5,
+        "type": "drawerKick"
+      },
+      "offset": 3
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        1,
+        1,
+        2
+      ],
+      "command": {
+        "offMs": 200,
+        "onMs": 200,
+        "pin": 5,
+        "type": "realTimePulse"
+      },
+      "offset": 8
+    },
+    {
+      "bytes": [
+        29,
+        114,
+        2
+      ],
+      "command": {
+        "n": 2,
+        "type": "transmitStatus"
+      },
+      "offset": 13
+    }
+  ],
+  "drawerKicks": [
+    {
+      "offMs": 100,
+      "onMs": 100,
+      "pin": 5
+    },
+    {
+      "offMs": 200,
+      "onMs": 200,
+      "pin": 5
+    }
+  ],
+  "paper": "80mm",
+  "receipts": [],
+  "replies": [
+    {
+      "bytes": [
+        16,
+        0,
+        0,
+        0
+      ],
+      "flags": [
+        "online",
+        "drawerLow",
+        "coverClosed",
+        "noError",
+        "paperPresent",
+        "paperAdequate"
+      ],
+      "kind": "automatic",
+      "request": "ASB"
+    },
+    {
+      "bytes": [
+        20,
+        0,
+        0,
+        0
+      ],
+      "flags": [
+        "online",
+        "drawerHigh",
+        "coverClosed",
+        "noError",
+        "paperPresent",
+        "paperAdequate"
+      ],
+      "kind": "automatic",
+      "request": "ASB"
+    },
+    {
+      "bytes": [
+        1
+      ],
+      "flags": [
+        "drawerHigh"
+      ],
+      "kind": "transmit",
+      "request": "GS r 2"
+    }
+  ]
+}

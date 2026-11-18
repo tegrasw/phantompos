@@ -34,6 +34,18 @@
 //! outside 0, 1, 32 and 33 is taken as its 5-byte header (the data size is
 //! undefined). `GS v` followed by anything but `'0'` is taken as three bytes
 //! and logged as `unknown`.
+//!
+//! Real-time commands (`DLE EOT`, `DLE ENQ`, `DLE DC4`) are recognized only
+//! between commands. Deliberate deviation: the Epson notes ("Notes of
+//! Real-time Commands") say a printer also executes a real-time command
+//! whose bytes appear inside the parameters or data of another command (and
+//! recommend disabling that with `GS ( D` for graphics). PhantomPOS frames
+//! every command by its declared length first, so `10 04 01` inside a
+//! `GS v 0` image or a QR Code payload is data, never a status request:
+//! answering it would also log the same bytes twice. This matches a printer
+//! with real-time commands disabled inside data. `DLE DC4` with an `fn`
+//! outside 1, 2, 3, 7 and 8 is taken as three bytes and logged as `unknown`;
+//! `DLE EOT` reads `a` only for `n` = 7, 8 and 18.
 
 use serde::{Deserialize, Serialize};
 
@@ -41,7 +53,8 @@ use crate::barcode;
 use crate::codepage::CodePage;
 use crate::command::{
     Alignment, BarcodeFunction, Command, CutFunction, CutMode, DecodedCommand, Font, HriPosition,
-    QrCodeModel, QrErrorCorrection, RasterMode, Symbology, UnderlineMode, UnknownReason,
+    QrCodeModel, QrErrorCorrection, RasterMode, RealTimeRequestKind, RealTimeStatusKind, Symbology,
+    UnderlineMode, UnknownReason,
 };
 
 const HT: u8 = 0x09;
@@ -95,6 +108,27 @@ enum ParamLength {
     DownloadedBitImage,
     /// `GS k`: function A up to NUL, function B `n` and `n` bytes.
     Barcode,
+    /// `DLE EOT n [a]`: `a` only for `n` = 7, 8 and 18.
+    RealTimeStatus,
+    /// `DLE DC4 fn ...`: the number of bytes after `fn` depends on `fn`.
+    RealTimeFunction,
+}
+
+/// `DLE EOT n`: whether `a` follows.
+fn real_time_status_takes_a(n: u8) -> bool {
+    matches!(n, 7 | 8 | 18)
+}
+
+/// `DLE DC4 fn`: parameter bytes after `fn` (`fn` = 1, 2, 3, 7, 8). Any other
+/// `fn` is not in the reference; the command is taken as `DLE DC4 fn`.
+fn real_time_function_params(function: u8) -> usize {
+    match function {
+        1 | 2 => 2,
+        3 => 5,
+        7 => 1,
+        8 => 7,
+        _ => 0,
+    }
 }
 
 /// Where a command stands after one more parameter byte.
@@ -174,7 +208,11 @@ impl ParamLength {
                 },
                 None => Frame::Partial,
             },
-            Self::Fixed(_) | Self::Cut | Self::Barcode => Frame::Bare,
+            Self::Fixed(_)
+            | Self::Cut
+            | Self::Barcode
+            | Self::RealTimeStatus
+            | Self::RealTimeFunction => Frame::Bare,
         }
     }
 
@@ -196,6 +234,18 @@ impl ParamLength {
                 };
                 done_if(params.len() >= required)
             }
+            Self::RealTimeStatus => match params.first() {
+                None => Progress::NeedMore,
+                Some(&n) => {
+                    done_if(params.len() >= if real_time_status_takes_a(n) { 2 } else { 1 })
+                }
+            },
+            Self::RealTimeFunction => match params.first() {
+                None => Progress::NeedMore,
+                Some(&function) => {
+                    done_if(params.len() >= real_time_function_params(function).saturating_add(1))
+                }
+            },
             Self::Barcode => match params.first() {
                 None => Progress::NeedMore,
                 Some(&m) if barcode_function(m) == Some(BarcodeFunction::A) => {
@@ -331,6 +381,31 @@ fn lookup(prefix: u8, code: u8) -> Option<CommandSpec> {
             font: decode_font(n(p)),
         }),
         (GS, b'k') => framed(ParamLength::Barcode, decode_barcode),
+        // Status commands (stage 5). DLE EOT, DLE ENQ and DLE DC4 are
+        // real-time commands; see the module docs for how they are framed.
+        (DLE, 0x04) => framed(ParamLength::RealTimeStatus, decode_real_time_status),
+        (DLE, 0x05) => spec(1, |p| Command::RealTimeRequest {
+            n: n(p),
+            request: match n(p) {
+                0 => Some(RealTimeRequestKind::FeedButton),
+                1 => Some(RealTimeRequestKind::RecoverAndRestart),
+                2 => Some(RealTimeRequestKind::RecoverAndClear),
+                _ => None,
+            },
+        }),
+        (DLE, 0x14) => framed(ParamLength::RealTimeFunction, decode_real_time_function),
+        (GS, b'r') => spec(1, |p| Command::TransmitStatus { n: n(p) }),
+        (GS, b'a') => spec(1, |p| {
+            let n = n(p);
+            Command::SetAutomaticStatusBack {
+                n,
+                drawer: n & 0x01 != 0,
+                online_offline: n & 0x02 != 0,
+                error: n & 0x04 != 0,
+                roll_paper_sensor: n & 0x08 != 0,
+                panel_switch: n & 0x40 != 0,
+            }
+        }),
         _ => return None,
     };
     Some(found)
@@ -552,6 +627,63 @@ fn decode_barcode(params: &[u8]) -> Command {
         valid: problem.is_none(),
         problem,
         raw: raw.to_vec(),
+    }
+}
+
+/// `DLE EOT n [a]`.
+fn decode_real_time_status(params: &[u8]) -> Command {
+    let n = n(params);
+    let a = params.get(1).copied();
+    let status = match (n, a) {
+        (1, None) => Some(RealTimeStatusKind::Printer),
+        (2, None) => Some(RealTimeStatusKind::OfflineCause),
+        (3, None) => Some(RealTimeStatusKind::ErrorCause),
+        (4, None) => Some(RealTimeStatusKind::RollPaperSensor),
+        (7, Some(1)) => Some(RealTimeStatusKind::InkA),
+        (7, Some(2)) => Some(RealTimeStatusKind::InkB),
+        (8, Some(3)) => Some(RealTimeStatusKind::Peeler),
+        (18, Some(1)) => Some(RealTimeStatusKind::Interface),
+        (18, Some(2)) => Some(RealTimeStatusKind::Dmd),
+        _ => None,
+    };
+    Command::RealTimeStatus { n, a, status }
+}
+
+/// `DLE DC4 fn ...` (functions 1, 2, 3, 7 and 8 of the reference).
+fn decode_real_time_function(params: &[u8]) -> Command {
+    let byte = |i: usize| params.get(i).copied().unwrap_or(0);
+    match byte(0) {
+        1 => {
+            let (m, t) = (byte(1), byte(2));
+            let pin = match m {
+                0 => Some(2),
+                1 => Some(5),
+                _ => None,
+            };
+            let time = u32::from(t).saturating_mul(100);
+            Command::RealTimePulse {
+                pin: pin.filter(|_| (1..=8).contains(&t)),
+                on_ms: time,
+                off_ms: time,
+            }
+        }
+        2 => Command::PowerOff {
+            valid: params.get(1..3) == Some(&[1, 8][..]),
+        },
+        3 => Command::SoundBuzzer {
+            a: byte(1),
+            n: byte(2),
+            r: byte(3),
+            t1: byte(4),
+            t2: byte(5),
+        },
+        7 => Command::TransmitSpecifiedStatus { m: byte(1) },
+        8 => Command::ClearBuffers {
+            valid: params.get(1..8) == Some(&[1, 3, 20, 1, 6, 2, 8][..]),
+        },
+        _ => Command::Unknown {
+            reason: UnknownReason::UnsupportedCommand,
+        },
     }
 }
 

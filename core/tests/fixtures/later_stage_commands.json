@@ -193,65 +193,45 @@
     {
       "bytes": [
         16,
-        4
+        4,
+        1
       ],
       "command": {
-        "reason": "unsupportedCommand",
-        "type": "unknown"
+        "a": null,
+        "n": 1,
+        "status": "printer",
+        "type": "realTimeStatus"
       },
       "offset": 67
     },
     {
       "bytes": [
+        29,
+        114,
         1
       ],
       "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
-      },
-      "offset": 69
-    },
-    {
-      "bytes": [
-        29,
-        114
-      ],
-      "command": {
-        "reason": "unsupportedCommand",
-        "type": "unknown"
+        "n": 1,
+        "type": "transmitStatus"
       },
       "offset": 70
     },
     {
       "bytes": [
-        1
-      ],
-      "command": {
-        "reason": "controlCharacter",
-        "type": "unknown"
-      },
-      "offset": 72
-    },
-    {
-      "bytes": [
         29,
-        97
-      ],
-      "command": {
-        "reason": "unsupportedCommand",
-        "type": "unknown"
-      },
-      "offset": 73
-    },
-    {
-      "bytes": [
+        97,
         255
       ],
       "command": {
-        "text": " ",
-        "type": "text"
+        "drawer": true,
+        "error": true,
+        "n": 255,
+        "onlineOffline": true,
+        "panelSwitch": true,
+        "rollPaperSensor": true,
+        "type": "setAutomaticStatusBack"
       },
-      "offset": 75
+      "offset": 73
     },
     {
       "bytes": [
@@ -385,28 +365,10 @@
         {
           "advance": 30,
           "alignment": "left",
-          "baseline": 21,
-          "contentWidth": 12,
-          "height": 24,
-          "spans": [
-            {
-              "charHeight": 24,
-              "charWidth": 12,
-              "columns": 1,
-              "style": {
-                "bold": false,
-                "font": "a",
-                "heightMultiplier": 1,
-                "reverse": false,
-                "underline": "off",
-                "widthMultiplier": 1
-              },
-              "text": " ",
-              "width": 12,
-              "x": 0,
-              "y": 0
-            }
-          ],
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
           "type": "line",
           "y": 105
         },
@@ -442,6 +404,48 @@
       "height": 165,
       "paper": "80mm",
       "width": 576
+    }
+  ],
+  "replies": [
+    {
+      "bytes": [
+        22
+      ],
+      "flags": [
+        "online",
+        "drawerHigh"
+      ],
+      "kind": "realTime",
+      "request": "DLE EOT 1"
+    },
+    {
+      "bytes": [
+        0
+      ],
+      "flags": [
+        "paperPresent",
+        "paperAdequate"
+      ],
+      "kind": "transmit",
+      "request": "GS r 1"
+    },
+    {
+      "bytes": [
+        20,
+        0,
+        0,
+        0
+      ],
+      "flags": [
+        "online",
+        "drawerHigh",
+        "coverClosed",
+        "noError",
+        "paperPresent",
+        "paperAdequate"
+      ],
+      "kind": "automatic",
+      "request": "ASB"
     }
   ]
 }

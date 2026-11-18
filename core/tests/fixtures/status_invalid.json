@@ -1,0 +1,282 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        16,
+        4,
+        0
+      ],
+      "command": {
+        "a": null,
+        "n": 0,
+        "status": null,
+        "type": "realTimeStatus"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        16,
+        4,
+        5
+      ],
+      "command": {
+        "a": null,
+        "n": 5,
+        "status": null,
+        "type": "realTimeStatus"
+      },
+      "offset": 3
+    },
+    {
+      "bytes": [
+        16,
+        4,
+        49
+      ],
+      "command": {
+        "a": null,
+        "n": 49,
+        "status": null,
+        "type": "realTimeStatus"
+      },
+      "offset": 6
+    },
+    {
+      "bytes": [
+        16,
+        4,
+        7,
+        1
+      ],
+      "command": {
+        "a": 1,
+        "n": 7,
+        "status": "inkA",
+        "type": "realTimeStatus"
+      },
+      "offset": 9
+    },
+    {
+      "bytes": [
+        16,
+        4,
+        7,
+        2
+      ],
+      "command": {
+        "a": 2,
+        "n": 7,
+        "status": "inkB",
+        "type": "realTimeStatus"
+      },
+      "offset": 13
+    },
+    {
+      "bytes": [
+        16,
+        4,
+        7,
+        3
+      ],
+      "command": {
+        "a": 3,
+        "n": 7,
+        "status": null,
+        "type": "realTimeStatus"
+      },
+      "offset": 17
+    },
+    {
+      "bytes": [
+        16,
+        4,
+        8,
+        3
+      ],
+      "command": {
+        "a": 3,
+        "n": 8,
+        "status": "peeler",
+        "type": "realTimeStatus"
+      },
+      "offset": 21
+    },
+    {
+      "bytes": [
+        16,
+        4,
+        8,
+        1
+      ],
+      "command": {
+        "a": 1,
+        "n": 8,
+        "status": null,
+        "type": "realTimeStatus"
+      },
+      "offset": 25
+    },
+    {
+      "bytes": [
+        16,
+        4,
+        18,
+        1
+      ],
+      "command": {
+        "a": 1,
+        "n": 18,
+        "status": "interface",
+        "type": "realTimeStatus"
+      },
+      "offset": 29
+    },
+    {
+      "bytes": [
+        16,
+        4,
+        18,
+        2
+      ],
+      "command": {
+        "a": 2,
+        "n": 18,
+        "status": "dmd",
+        "type": "realTimeStatus"
+      },
+      "offset": 33
+    },
+    {
+      "bytes": [
+        29,
+        114,
+        0
+      ],
+      "command": {
+        "n": 0,
+        "type": "transmitStatus"
+      },
+      "offset": 37
+    },
+    {
+      "bytes": [
+        29,
+        114,
+        3
+      ],
+      "command": {
+        "n": 3,
+        "type": "transmitStatus"
+      },
+      "offset": 40
+    },
+    {
+      "bytes": [
+        29,
+        114,
+        4
+      ],
+      "command": {
+        "n": 4,
+        "type": "transmitStatus"
+      },
+      "offset": 43
+    },
+    {
+      "bytes": [
+        29,
+        114,
+        52
+      ],
+      "command": {
+        "n": 52,
+        "type": "transmitStatus"
+      },
+      "offset": 46
+    },
+    {
+      "bytes": [
+        29,
+        114,
+        255
+      ],
+      "command": {
+        "n": 255,
+        "type": "transmitStatus"
+      },
+      "offset": 49
+    },
+    {
+      "bytes": [
+        16,
+        65
+      ],
+      "command": {
+        "reason": "unsupportedCommand",
+        "type": "unknown"
+      },
+      "offset": 52
+    },
+    {
+      "bytes": [
+        111,
+        107
+      ],
+      "command": {
+        "text": "ok",
+        "type": "text"
+      },
+      "offset": 54
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 56
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 24,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 2,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "ok",
+              "width": 24,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        }
+      ],
+      "height": 30,
+      "paper": "80mm",
+      "width": 576
+    }
+  ]
+}

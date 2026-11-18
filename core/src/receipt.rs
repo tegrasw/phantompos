@@ -37,7 +37,11 @@
 //!   and D first feed `n` dots (a blank line, as `ESC J n` with no data).
 //! * A receipt with nothing on it (no printed line and no feed, i.e. zero
 //!   height) is never produced: a cut on it only starts the next one.
-//! * **ESC p** produces a [`DrawerKick`] effect when `m` is valid.
+//! * **ESC p** produces a [`DrawerKick`] effect when `m` is valid, and so
+//!   does the real-time pulse `DLE DC4 1 m t` (times `t` x 100 ms).
+//! * **DLE DC4 8** (clear buffers) discards the line being built; status
+//!   commands have no effect on the paper (replies are computed by
+//!   [`crate::status`] and the [`crate::Session`]).
 //! * **Images** (`GS v 0` raster images, `GS ( k` QR Codes and `GS k`
 //!   barcodes) become [`Image`] elements: 1-bit bitmaps already scaled
 //!   (raster mode, QR module size, barcode module width and height). They are
@@ -475,6 +479,18 @@ impl ReceiptBuilder {
                     off_ms: *off_ms,
                 }));
             }
+            Command::RealTimePulse {
+                pin: Some(pin),
+                on_ms,
+                off_ms,
+            } => {
+                return Some(Effect::DrawerKick(DrawerKick {
+                    pin: *pin,
+                    on_ms: *on_ms,
+                    off_ms: *off_ms,
+                }));
+            }
+            Command::ClearBuffers { valid: true } => self.clear_print_buffer(),
             Command::RasterImage {
                 mode: Some(mode),
                 bytes_expected,
@@ -532,6 +548,15 @@ impl ReceiptBuilder {
             | Command::Barcode { .. }
             | Command::UnsupportedImage { .. }
             | Command::SkippedData { .. }
+            | Command::RealTimeStatus { .. }
+            | Command::TransmitStatus { .. }
+            | Command::SetAutomaticStatusBack { .. }
+            | Command::RealTimeRequest { .. }
+            | Command::RealTimePulse { pin: None, .. }
+            | Command::PowerOff { .. }
+            | Command::SoundBuzzer { .. }
+            | Command::TransmitSpecifiedStatus { .. }
+            | Command::ClearBuffers { valid: false }
             | Command::Unknown { .. } => {}
         }
         None
@@ -547,6 +572,12 @@ impl ReceiptBuilder {
             .into_iter()
             .filter_map(|decoded| self.apply(&decoded.command))
             .collect()
+    }
+
+    /// Discards the line being built (the print buffer), as `DLE DC4 8`
+    /// does. What is already on paper stays.
+    pub fn clear_print_buffer(&mut self) {
+        self.line = PendingLine::default();
     }
 
     /// True when nothing has been printed and the print buffer is empty.

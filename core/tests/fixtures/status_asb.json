@@ -1,0 +1,260 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        29,
+        97,
+        2
+      ],
+      "command": {
+        "drawer": false,
+        "error": false,
+        "n": 2,
+        "onlineOffline": true,
+        "panelSwitch": false,
+        "rollPaperSensor": false,
+        "type": "setAutomaticStatusBack"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        29,
+        97,
+        0
+      ],
+      "command": {
+        "drawer": false,
+        "error": false,
+        "n": 0,
+        "onlineOffline": false,
+        "panelSwitch": false,
+        "rollPaperSensor": false,
+        "type": "setAutomaticStatusBack"
+      },
+      "offset": 3
+    },
+    {
+      "bytes": [
+        29,
+        97,
+        48
+      ],
+      "command": {
+        "drawer": false,
+        "error": false,
+        "n": 48,
+        "onlineOffline": false,
+        "panelSwitch": false,
+        "rollPaperSensor": false,
+        "type": "setAutomaticStatusBack"
+      },
+      "offset": 6
+    },
+    {
+      "bytes": [
+        29,
+        97,
+        255
+      ],
+      "command": {
+        "drawer": true,
+        "error": true,
+        "n": 255,
+        "onlineOffline": true,
+        "panelSwitch": true,
+        "rollPaperSensor": true,
+        "type": "setAutomaticStatusBack"
+      },
+      "offset": 9
+    },
+    {
+      "bytes": [
+        27,
+        64
+      ],
+      "command": {
+        "type": "initialize"
+      },
+      "offset": 12
+    },
+    {
+      "bytes": [
+        27,
+        112,
+        0,
+        25,
+        250
+      ],
+      "command": {
+        "offMs": 500,
+        "onMs": 50,
+        "pin": 2,
+        "type": "drawerKick"
+      },
+      "offset": 14
+    },
+    {
+      "bytes": [
+        29,
+        97,
+        1
+      ],
+      "command": {
+        "drawer": true,
+        "error": false,
+        "n": 1,
+        "onlineOffline": false,
+        "panelSwitch": false,
+        "rollPaperSensor": false,
+        "type": "setAutomaticStatusBack"
+      },
+      "offset": 19
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        1,
+        0,
+        1
+      ],
+      "command": {
+        "offMs": 100,
+        "onMs": 100,
+        "pin": 2,
+        "type": "realTimePulse"
+      },
+      "offset": 22
+    },
+    {
+      "bytes": [
+        116,
+        101,
+        120,
+        116
+      ],
+      "command": {
+        "text": "text",
+        "type": "text"
+      },
+      "offset": 27
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 31
+    }
+  ],
+  "drawerKicks": [
+    {
+      "offMs": 500,
+      "onMs": 50,
+      "pin": 2
+    },
+    {
+      "offMs": 100,
+      "onMs": 100,
+      "pin": 2
+    }
+  ],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 30,
+          "alignment": "left",
+          "baseline": 21,
+          "contentWidth": 48,
+          "height": 24,
+          "spans": [
+            {
+              "charHeight": 24,
+              "charWidth": 12,
+              "columns": 4,
+              "style": {
+                "bold": false,
+                "font": "a",
+                "heightMultiplier": 1,
+                "reverse": false,
+                "underline": "off",
+                "widthMultiplier": 1
+              },
+              "text": "text",
+              "width": 48,
+              "x": 0,
+              "y": 0
+            }
+          ],
+          "type": "line",
+          "y": 0
+        }
+      ],
+      "height": 30,
+      "paper": "80mm",
+      "width": 576
+    }
+  ],
+  "replies": [
+    {
+      "bytes": [
+        16,
+        0,
+        0,
+        0
+      ],
+      "flags": [
+        "online",
+        "drawerLow",
+        "coverClosed",
+        "noError",
+        "paperPresent",
+        "paperAdequate"
+      ],
+      "kind": "automatic",
+      "request": "ASB"
+    },
+    {
+      "bytes": [
+        16,
+        0,
+        0,
+        0
+      ],
+      "flags": [
+        "online",
+        "drawerLow",
+        "coverClosed",
+        "noError",
+        "paperPresent",
+        "paperAdequate"
+      ],
+      "kind": "automatic",
+      "request": "ASB"
+    },
+    {
+      "bytes": [
+        20,
+        0,
+        0,
+        0
+      ],
+      "flags": [
+        "online",
+        "drawerHigh",
+        "coverClosed",
+        "noError",
+        "paperPresent",
+        "paperAdequate"
+      ],
+      "kind": "automatic",
+      "request": "ASB"
+    }
+  ]
+}

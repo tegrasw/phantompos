@@ -30,6 +30,10 @@
 //! assert_eq!(last.map(|r| r.elements.len()), Some(1));
 //! ```
 //!
+//! The backend uses [`Session`], which wraps both and adds the status
+//! replies (`DLE EOT`, `GS r`, `GS a`, `DLE DC4`) and the error-state
+//! behaviour; see [`status`] for how replies are computed.
+//!
 //! See `core/README.md` for the JSON contract.
 
 // Bytes come from the network: library code must not panic on any input.
@@ -54,12 +58,14 @@ mod paper;
 mod parser;
 mod qr;
 mod receipt;
+mod session;
+pub mod status;
 
 pub use codepage::CodePage;
 pub use command::{
     Alignment, BarcodeFunction, BarcodeProblem, Command, CutFunction, CutMode, DecodedCommand,
-    Font, HriPosition, QrCodeModel, QrErrorCorrection, RasterMode, Symbology, UnderlineMode,
-    UnknownReason,
+    Font, HriPosition, QrCodeModel, QrErrorCorrection, RasterMode, RealTimeRequestKind,
+    RealTimeStatusKind, Symbology, UnderlineMode, UnknownReason,
 };
 pub use error::CoreError;
 pub use paper::{FONT_A, FONT_B, FontMetrics, PaperProfile, font_metrics};
@@ -68,4 +74,9 @@ pub use receipt::{
     DEFAULT_BARCODE_HEIGHT, DEFAULT_BARCODE_MODULE, DEFAULT_LINE_SPACING, DEFAULT_QR_MODULE,
     DrawerKick, Effect, Element, Image, ImageKind, Line, Receipt, ReceiptBuilder, ReceiptConfig,
     RenderOutput, Span, TextStyle, render,
+};
+pub use session::{Reply, Session, SessionEvent, SessionOutput, Suppressed, is_status_command};
+pub use status::{
+    PrinterStatus, PrinterStatusPatch, ReplyKind, StatusFlag, StatusReply, SuppressReason,
+    asb_reply, automatic_status, status_reply,
 };

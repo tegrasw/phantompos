@@ -1,0 +1,212 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        29,
+        118,
+        48,
+        0,
+        2,
+        0,
+        8,
+        0,
+        16,
+        4,
+        1,
+        29,
+        114,
+        1,
+        16,
+        20,
+        8,
+        1,
+        3,
+        20,
+        1,
+        6,
+        2,
+        8
+      ],
+      "command": {
+        "bytesExpected": 16,
+        "height": 8,
+        "mode": "normal",
+        "type": "rasterImage",
+        "width": 16
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        9,
+        0,
+        49,
+        80,
+        48,
+        16,
+        4,
+        1,
+        16,
+        4,
+        4
+      ],
+      "command": {
+        "length": 6,
+        "type": "qrStoreData",
+        "valid": true
+      },
+      "offset": 24
+    },
+    {
+      "bytes": [
+        29,
+        40,
+        107,
+        3,
+        0,
+        49,
+        81,
+        48
+      ],
+      "command": {
+        "type": "qrPrint"
+      },
+      "offset": 38
+    },
+    {
+      "bytes": [
+        29,
+        107,
+        73,
+        5,
+        123,
+        66,
+        16,
+        4,
+        1
+      ],
+      "command": {
+        "data": "{B\\x10\\x04\\x01",
+        "function": "b",
+        "problem": "invalidCharacter",
+        "symbology": "code128",
+        "type": "barcode",
+        "valid": false
+      },
+      "offset": 46
+    },
+    {
+      "bytes": [
+        27,
+        51,
+        16
+      ],
+      "command": {
+        "dots": 16,
+        "type": "setLineSpacing"
+      },
+      "offset": 55
+    },
+    {
+      "bytes": [
+        4
+      ],
+      "command": {
+        "reason": "controlCharacter",
+        "type": "unknown"
+      },
+      "offset": 58
+    },
+    {
+      "bytes": [
+        1
+      ],
+      "command": {
+        "reason": "controlCharacter",
+        "type": "unknown"
+      },
+      "offset": 59
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 60
+    },
+    {
+      "bytes": [
+        16,
+        4,
+        1
+      ],
+      "command": {
+        "a": null,
+        "n": 1,
+        "status": "printer",
+        "type": "realTimeStatus"
+      },
+      "offset": 61
+    }
+  ],
+  "drawerKicks": [],
+  "paper": "80mm",
+  "receipts": [
+    {
+      "cut": null,
+      "elements": [
+        {
+          "advance": 8,
+          "data": "EAQBHXIBEBQIAQMUAQYCCA==",
+          "height": 8,
+          "kind": "raster",
+          "type": "image",
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "advance": 63,
+          "data": "///4A44///7///gDjj///v//+AOOP//+4AA44444AA7gADjjjjgADuAAOOOOOAAO4/444/A4/47j/jjj8Dj/juP+OOPwOP+O4/44AA44/47j/jgADjj/juP+OAAOOP+O4/44//44/47j/jj//jj/juP+OP/+OP+O4AA4/4A4AA7gADj/gDgADuAAOP+AOAAO///4444///7///jjjj///v//+OOOP//+AAAA4AAAAAAAAADgAAAAAAAAAOAAAAAA/HA/A/4/4/D8cD8D/j/j8PxwPwP+P+Pw///H4/HHAHD//8fj8ccAcP//x+PxxwBw/A4/A/A/4/78Dj8D8D/j/vwOPwPwP+P+H//A/4//4H4f/8D/j//gfh//wP+P/+B+H44/4HH/A44fjj/gcf8Djh+OP+Bx/wOOAAAA/4H//HAAAAD/gf/8cAAAAP+B//xw///4/H4444D///j8fjjjgP//+Px+OOOA4AA4H4A/HH7gADgfgD8cfuAAOB+APxx+4/44H4//H47j/jgfj/8fjuP+OB+P/x+O4/4444H/AH7j/jjjgf8AfuP+OOOB/wB+4/44HHH4447j/jgccfjjjuP+OBxx+OOO4AA4//4H/ADgADj//gf8AOAAOP/+B/wA///444HH//D///jjgcf/8P//+OOBx//w",
+          "height": 63,
+          "kind": "qrCode",
+          "type": "image",
+          "width": 63,
+          "x": 0,
+          "y": 8
+        },
+        {
+          "advance": 16,
+          "alignment": "left",
+          "baseline": 0,
+          "contentWidth": 0,
+          "height": 0,
+          "spans": [],
+          "type": "line",
+          "y": 71
+        }
+      ],
+      "height": 87,
+      "paper": "80mm",
+      "width": 576
+    }
+  ],
+  "replies": [
+    {
+      "bytes": [
+        18
+      ],
+      "flags": [
+        "online",
+        "drawerLow"
+      ],
+      "kind": "realTime",
+      "request": "DLE EOT 1"
+    }
+  ]
+}

@@ -14,10 +14,13 @@ expected JSON files with:
 and review the diff by eye against the Epson reference.
 
 Naming: `<name>.bin` is rendered on 80 mm paper; `<name>.58mm.bin` on 58 mm.
+A tag of printer states joined by `+` (`<name>.coverOpen+paperOut.bin`) runs
+the fixture in that simulated state (see README.md).
 """
 
 from pathlib import Path
 
+from escpos.constants import RT_STATUS_ONLINE, RT_STATUS_PAPER
 from escpos.printer import Dummy
 from PIL import Image, ImageDraw
 
@@ -27,6 +30,14 @@ ESC = b"\x1b"
 GS = b"\x1d"
 DLE = b"\x10"
 FS = b"\x1c"
+
+
+class StatusDummy(Dummy):
+    """Dummy printer whose status queries get no answer (there is no
+    printer); only the request bytes written by python-escpos matter."""
+
+    def _read(self):
+        return b""
 
 
 def write(name, data):
@@ -666,8 +677,8 @@ def unknown_sequences():
 
 
 def later_stage_commands():
-    # HAND-WRITTEN: stage 3-5 commands; only prefix + command byte is unknown,
-    # parameters fall through as data until their stage implements them.
+    # HAND-WRITTEN: stage 3-5 commands, all decoded since stage 5 (the name
+    # predates it): cut, drawer, raster, QR, barcode, DLE EOT, GS r, GS a.
     return (
         b"before cut\n"
         + GS + b"V\x42\x00"  # GS V 66 0: feed and partial cut
@@ -841,6 +852,151 @@ def utf8_bytes():
     return "Ação\n".encode("utf-8")
 
 
+# --------------------------------------------------------------------------
+# Stage 5: status (python-escpos helpers + HAND-WRITTEN requests)
+# --------------------------------------------------------------------------
+
+# Every state the status fixtures are run in: normal (no tag), each state
+# alone, cover open + paper out, and everything at once.
+STATES = [
+    "",
+    ".drawerOpen",
+    ".paperOut",
+    ".coverOpen",
+    ".offline",
+    ".coverOpen+paperOut",
+    ".coverOpen+drawerOpen+offline+paperOut",
+]
+
+
+def status_requests():
+    # python-escpos: query_status / is_online (DLE EOT 1), paper_status
+    # (DLE EOT 4). HAND-WRITTEN: the other requests of the reference.
+    p = StatusDummy()
+    p.hw("INIT")
+    p.text("printed only when online\n")
+    p.query_status(RT_STATUS_ONLINE)
+    p.is_online()
+    p.paper_status()
+    p.query_status(RT_STATUS_PAPER)
+    p._raw(DLE + b"\x04\x02")  # DLE EOT 2: offline cause
+    p._raw(DLE + b"\x04\x03")  # DLE EOT 3: error cause
+    p._raw(GS + b"r\x01" + GS + b"r1")  # GS r 1 / 49: paper sensor
+    p._raw(GS + b"r\x02" + GS + b"r2")  # GS r 2 / 50: drawer connector
+    p._raw(DLE + b"\x14\x07\x01")  # DLE DC4 7 1: basic ASB status
+    p.text("still offline?\n")
+    p.cut()
+    return p.output
+
+
+def status_asb():
+    # HAND-WRITTEN: GS a masks; replies at enable time and on the drawer
+    # change caused by the connection's own kicks.
+    return (
+        GS + b"a\x02"  # online/offline: ASB sent at once
+        + GS + b"a\x00"  # disabled: nothing
+        + GS + b"a\x30"  # reserved bits only: disabled, nothing
+        + GS + b"a\xff"  # every item: ASB sent at once
+        + ESC + b"@"  # ESC @ disables ASB
+        + ESC + b"p\x00\x19\xfa"  # kick with ASB disabled: no ASB
+        + GS + b"a\x01"  # drawer item: ASB sent at once
+        + DLE + b"\x14\x01\x00\x01"  # DLE DC4 1 kick: drawer already open
+        + b"text\n"
+    )
+
+
+def status_asb_kick():
+    # HAND-WRITTEN: drawer item enabled before the first kick, by ESC p
+    # (buffered: discarded offline) and by DLE DC4 1 (real time).
+    return (
+        GS + b"a\x01"
+        + ESC + b"p\x01\x32\x32"
+        + DLE + b"\x14\x01\x01\x02"
+        + GS + b"r\x02"
+    )
+
+
+def status_inside_data():
+    # HAND-WRITTEN: status request bytes inside the data of other commands
+    # are data (framed by length), never requests; one real request after.
+    request = DLE + b"\x04\x01" + GS + b"r\x01" + DLE + b"\x14\x08\x01\x03\x14\x01\x06\x02\x08"
+    assert len(request) % 2 == 0
+    return (
+        raster(0, 2, len(request) // 2, request)  # GS v 0 with requests as data
+        + qr_fn(80, b"0" + DLE + b"\x04\x01" + DLE + b"\x04\x04")
+        + qr_fn(81, b"0")
+        + gs_k_b(73, b"{B" + b"\x10\x04\x01")  # CODE128 data (invalid char)
+        + ESC + b"3" + DLE + b"\x04\x01"  # ESC 3 takes DLE as n; EOT, SOH stray
+        + b"\n"
+        + DLE + b"\x04\x01"  # the only request
+    )
+
+
+def status_realtime_functions():
+    # HAND-WRITTEN: DLE DC4 functions and DLE ENQ.
+    return (
+        DLE + b"\x14\x01\x00\x01"  # pulse pin 2, 100 ms
+        + DLE + b"\x14\x01\x01\x08"  # pulse pin 5, 800 ms
+        + DLE + b"\x14\x01\x02\x01"  # m out of range: no pulse
+        + DLE + b"\x14\x01\x00\x00"  # t = 0: no pulse
+        + DLE + b"\x14\x01\x00\x09"  # t = 9: no pulse
+        + DLE + b"\x14\x02\x01\x08"  # power-off: logged only
+        + DLE + b"\x14\x02\x00\x00"  # power-off, invalid
+        + DLE + b"\x14\x03\x00\x00\x00\x01\x00"  # buzzer: logged only
+        + DLE + b"\x14\x07\x01"  # basic ASB status: answered
+        + DLE + b"\x14\x07\x02" + DLE + b"\x14\x07\x04" + DLE + b"\x14\x07\x05"
+        + b"cleared"
+        + DLE + b"\x14\x08\x01\x03\x14\x01\x06\x02\x08"  # clear buffers
+        + b"kept\n"
+        + b"also kept"
+        + DLE + b"\x14\x08\x01\x03\x14\x01\x06\x02\x09"  # invalid: ignored
+        + b"\n"
+        + DLE + b"\x14\x05"  # fn 5: not in the reference
+        + DLE + b"\x05\x00" + DLE + b"\x05\x01" + DLE + b"\x05\x02"  # DLE ENQ
+        + DLE + b"\x05\x03"  # DLE ENQ out of range
+    )
+
+
+def status_invalid():
+    # HAND-WRITTEN: requests outside the reference, and the statuses this
+    # printer does not have (ink, peeler, interface, DM-D): not answered.
+    return (
+        DLE + b"\x04\x00" + DLE + b"\x04\x05" + DLE + b"\x04\x31"
+        + DLE + b"\x04\x07\x01" + DLE + b"\x04\x07\x02" + DLE + b"\x04\x07\x03"
+        + DLE + b"\x04\x08\x03" + DLE + b"\x04\x08\x01"
+        + DLE + b"\x04\x12\x01" + DLE + b"\x04\x12\x02"
+        + GS + b"r\x00" + GS + b"r\x03" + GS + b"r\x04" + GS + b"r4" + GS + b"r\xff"
+        + DLE + b"A"  # DLE + something else: unknown
+        + b"ok\n"
+    )
+
+
+def print_suppressed():
+    # python-escpos: a full receipt (text, styles, image, QR, barcode, cut,
+    # drawer kick) sent in an error state: logged, nothing printed.
+    p = printer()
+    p.set(align="center", bold=True)
+    p.text("MERCADO BOA VISTA\n")
+    p.set(align="left", bold=False)
+    p.image(checker(32, 16), impl="bitImageRaster")
+    p.text("Arroz 5 kg             R$ 27,90\n")
+    p.qr("PhantomPOS", native=True, size=3)
+    p.barcode("7891234567895", "EAN13", function_type="A")
+    p.cut()
+    p.cashdraw(2)
+    return p.output
+
+
+def incomplete_status_eof():
+    # HAND-WRITTEN: stream ends inside DLE EOT 7 (waiting for a).
+    return b"line\n" + DLE + b"\x04\x07"
+
+
+def incomplete_dc4_eof():
+    # HAND-WRITTEN: stream ends inside DLE DC4 8.
+    return b"line\n" + DLE + b"\x14\x08\x01\x03"
+
+
 FIXTURES = {
     "plain_text": plain_text,
     "styles_bold_underline": styles_bold_underline,
@@ -910,6 +1066,20 @@ FIXTURES = {
     "qr_edge_cases": qr_edge_cases,
     "unsupported_symbols": unsupported_symbols,
     "incomplete_qr_eof": incomplete_qr_eof,
+    **{f"status_requests{state}": status_requests for state in STATES},
+    "status_asb": status_asb,
+    "status_asb.paperOut": status_asb,
+    "status_asb_kick": status_asb_kick,
+    "status_asb_kick.offline": status_asb_kick,
+    "status_inside_data": status_inside_data,
+    "status_realtime_functions": status_realtime_functions,
+    "status_realtime_functions.coverOpen": status_realtime_functions,
+    "status_invalid": status_invalid,
+    "print_suppressed.paperOut": print_suppressed,
+    "print_suppressed.coverOpen": print_suppressed,
+    "print_suppressed.offline": print_suppressed,
+    "incomplete_status_eof": incomplete_status_eof,
+    "incomplete_dc4_eof": incomplete_dc4_eof,
 }
 
 

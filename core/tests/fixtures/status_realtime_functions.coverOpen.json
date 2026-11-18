@@ -1,0 +1,408 @@
+{
+  "commands": [
+    {
+      "bytes": [
+        16,
+        20,
+        1,
+        0,
+        1
+      ],
+      "command": {
+        "offMs": 100,
+        "onMs": 100,
+        "pin": 2,
+        "type": "realTimePulse"
+      },
+      "offset": 0
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        1,
+        1,
+        8
+      ],
+      "command": {
+        "offMs": 800,
+        "onMs": 800,
+        "pin": 5,
+        "type": "realTimePulse"
+      },
+      "offset": 5
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        1,
+        2,
+        1
+      ],
+      "command": {
+        "offMs": 100,
+        "onMs": 100,
+        "pin": null,
+        "type": "realTimePulse"
+      },
+      "offset": 10
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        1,
+        0,
+        0
+      ],
+      "command": {
+        "offMs": 0,
+        "onMs": 0,
+        "pin": null,
+        "type": "realTimePulse"
+      },
+      "offset": 15
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        1,
+        0,
+        9
+      ],
+      "command": {
+        "offMs": 900,
+        "onMs": 900,
+        "pin": null,
+        "type": "realTimePulse"
+      },
+      "offset": 20
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        2,
+        1,
+        8
+      ],
+      "command": {
+        "type": "powerOff",
+        "valid": true
+      },
+      "offset": 25
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        2,
+        0,
+        0
+      ],
+      "command": {
+        "type": "powerOff",
+        "valid": false
+      },
+      "offset": 30
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        3,
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "command": {
+        "a": 0,
+        "n": 0,
+        "r": 0,
+        "t1": 1,
+        "t2": 0,
+        "type": "soundBuzzer"
+      },
+      "offset": 35
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        7,
+        1
+      ],
+      "command": {
+        "m": 1,
+        "type": "transmitSpecifiedStatus"
+      },
+      "offset": 43
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        7,
+        2
+      ],
+      "command": {
+        "m": 2,
+        "type": "transmitSpecifiedStatus"
+      },
+      "offset": 47
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        7,
+        4
+      ],
+      "command": {
+        "m": 4,
+        "type": "transmitSpecifiedStatus"
+      },
+      "offset": 51
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        7,
+        5
+      ],
+      "command": {
+        "m": 5,
+        "type": "transmitSpecifiedStatus"
+      },
+      "offset": 55
+    },
+    {
+      "bytes": [
+        99,
+        108,
+        101,
+        97,
+        114,
+        101,
+        100
+      ],
+      "command": {
+        "text": "cleared",
+        "type": "text"
+      },
+      "offset": 59
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        8,
+        1,
+        3,
+        20,
+        1,
+        6,
+        2,
+        8
+      ],
+      "command": {
+        "type": "clearBuffers",
+        "valid": true
+      },
+      "offset": 66
+    },
+    {
+      "bytes": [
+        107,
+        101,
+        112,
+        116
+      ],
+      "command": {
+        "text": "kept",
+        "type": "text"
+      },
+      "offset": 76
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 80
+    },
+    {
+      "bytes": [
+        97,
+        108,
+        115,
+        111,
+        32,
+        107,
+        101,
+        112,
+        116
+      ],
+      "command": {
+        "text": "also kept",
+        "type": "text"
+      },
+      "offset": 81
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        8,
+        1,
+        3,
+        20,
+        1,
+        6,
+        2,
+        9
+      ],
+      "command": {
+        "type": "clearBuffers",
+        "valid": false
+      },
+      "offset": 90
+    },
+    {
+      "bytes": [
+        10
+      ],
+      "command": {
+        "type": "lineFeed"
+      },
+      "offset": 100
+    },
+    {
+      "bytes": [
+        16,
+        20,
+        5
+      ],
+      "command": {
+        "reason": "unsupportedCommand",
+        "type": "unknown"
+      },
+      "offset": 101
+    },
+    {
+      "bytes": [
+        16,
+        5,
+        0
+      ],
+      "command": {
+        "n": 0,
+        "request": "feedButton",
+        "type": "realTimeRequest"
+      },
+      "offset": 104
+    },
+    {
+      "bytes": [
+        16,
+        5,
+        1
+      ],
+      "command": {
+        "n": 1,
+        "request": "recoverAndRestart",
+        "type": "realTimeRequest"
+      },
+      "offset": 107
+    },
+    {
+      "bytes": [
+        16,
+        5,
+        2
+      ],
+      "command": {
+        "n": 2,
+        "request": "recoverAndClear",
+        "type": "realTimeRequest"
+      },
+      "offset": 110
+    },
+    {
+      "bytes": [
+        16,
+        5,
+        3
+      ],
+      "command": {
+        "n": 3,
+        "request": null,
+        "type": "realTimeRequest"
+      },
+      "offset": 113
+    }
+  ],
+  "drawerKicks": [
+    {
+      "offMs": 100,
+      "onMs": 100,
+      "pin": 2
+    },
+    {
+      "offMs": 800,
+      "onMs": 800,
+      "pin": 5
+    }
+  ],
+  "paper": "80mm",
+  "receipts": [],
+  "replies": [
+    {
+      "bytes": [
+        60,
+        0,
+        0,
+        0
+      ],
+      "flags": [
+        "offline",
+        "drawerHigh",
+        "coverOpen",
+        "noError",
+        "paperPresent",
+        "paperAdequate"
+      ],
+      "kind": "realTime",
+      "request": "DLE DC4 7 1"
+    },
+    {
+      "bytes": [
+        55,
+        37,
+        0
+      ],
+      "flags": [
+        "buffersCleared"
+      ],
+      "kind": "realTime",
+      "request": "DLE DC4 8"
+    }
+  ],
+  "status": {
+    "coverOpen": true,
+    "drawerOpen": false,
+    "offline": false,
+    "paperOut": false
+  },
+  "suppressed": {
+    "bytes": 25,
+    "reason": "coverOpen"
+  }
+}

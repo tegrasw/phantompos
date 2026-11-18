@@ -4,7 +4,39 @@ ESC/POS parser and receipt model for PhantomPOS. No network, disk, Tokio or
 Tauri: bytes in, typed commands and a receipt model out, both serializable to
 JSON with `serde`.
 
-## Usage (one parser and one builder per connection)
+## Usage (one `Session` per connection)
+
+The backend drives a `Session`: parser + receipt builder + status replies.
+
+```rust
+use phantompos_core::{ParserConfig, PrinterStatus, ReceiptConfig, Session, SessionEvent};
+
+let mut session = Session::new(ParserConfig::default(), ReceiptConfig::default(), status);
+
+// Every socket read, with the current simulated state:
+let out = session.feed(&chunk, status);
+// out.commands: Vec<DecodedCommand> for the log (discarded ones included)
+for event in out.events {                   // stream order
+    match event {
+        SessionEvent::ReceiptCompleted(receipt) => { /* closed by a cut */ }
+        SessionEvent::DrawerKick(kick) => { /* ESC p or DLE DC4 1; set drawerOpen */ }
+        SessionEvent::Reply(reply) => { /* write reply.reply.bytes to the socket */ }
+    }
+}
+// out.suppressed: Some(Suppressed { reason, bytes }) when data was discarded
+let update = session.take_update();          // in-progress receipt, if changed
+
+// The shared state changed (UI switch, another connection's kick):
+if let Some(asb) = session.status_changed(new_status) { /* write asb.reply.bytes */ }
+
+// Connection closed: flushed commands, events, and the pending receipt.
+let tail = session.finish(status);
+```
+
+`set_paper`, `paper`, `snapshot` and `take_update` pass through to the
+builder. The lower-level API below still works on its own (no status).
+
+### Parser and builder
 
 ```rust
 use phantompos_core::{Effect, Parser, ParserConfig, ReceiptBuilder, ReceiptConfig};
@@ -98,6 +130,15 @@ Every log item:
 | `setInternationalCharset` | `n`: 0-255 | `ESC R n` |
 | `cut` | `mode`: `"full"` \| `"partial"` \| null, `function`: `"a"` \| `"b"` \| `"c"` \| `"d"` \| null, `feed`: 0-255 \| null | `GS V m [n]`, `ESC i`, `ESC m` |
 | `drawerKick` | `pin`: 2 \| 5 \| null, `onMs`: 0-510, `offMs`: 0-510 | `ESC p m t1 t2` |
+| `realTimeStatus` | `n`: 0-255, `a`: 0-255 \| null, `status`: `"printer"` \| `"offlineCause"` \| `"errorCause"` \| `"rollPaperSensor"` \| `"inkA"` \| `"inkB"` \| `"peeler"` \| `"interface"` \| `"dmd"` \| null | `DLE EOT n [a]` |
+| `transmitStatus` | `n`: 0-255 | `GS r n` |
+| `setAutomaticStatusBack` | `n`: 0-255, `drawer`, `onlineOffline`, `error`, `rollPaperSensor`, `panelSwitch`: bool | `GS a n` |
+| `realTimeRequest` | `n`: 0-255, `request`: `"feedButton"` \| `"recoverAndRestart"` \| `"recoverAndClear"` \| null | `DLE ENQ n` |
+| `realTimePulse` | `pin`: 2 \| 5 \| null, `onMs`, `offMs`: `t` x 100 | `DLE DC4 1 m t` |
+| `powerOff` | `valid`: bool | `DLE DC4 2 a b` |
+| `soundBuzzer` | `a`, `n`, `r`, `t1`, `t2`: 0-255 | `DLE DC4 3 a n r t1 t2` |
+| `transmitSpecifiedStatus` | `m`: 0-255 | `DLE DC4 7 m` |
+| `clearBuffers` | `valid`: bool | `DLE DC4 8 d1...d7` |
 | `rasterImage` | `mode`: `"normal"` \| `"doubleWidth"` \| `"doubleHeight"` \| `"quadruple"` \| null, `width` (dots, `x` x 8), `height` (dots), `bytesExpected` | `GS v 0 m xL xH yL yH d...` |
 | `setQrModel` | `model`: `"model1"` \| `"model2"` \| `"micro"` \| null | `GS ( k` cn 49 fn 65 |
 | `setQrModuleSize` | `size`: 1-16 \| null | `GS ( k` cn 49 fn 67 |
@@ -154,8 +195,8 @@ pulse). ON time is `t1 x 2` ms; OFF time is `t2 x 2` ms, or the ON time when
   not implemented yet. Only those two bytes are consumed; parameters that
   follow are parsed as ordinary data until their stage implements them.
   Exceptions: every `GS ( x`, `ESC ( x` and `FS ( x` is consumed whole, by its
-  `pL pH`; `GS v` not followed by `0` and `GS 8 x` other than `GS 8 L` take
-  three bytes.
+  `pL pH`; `GS v` not followed by `0`, `GS 8 x` other than `GS 8 L` and
+  `DLE DC4 fn` with `fn` not 1, 2, 3, 7 or 8 take three bytes.
 - `controlCharacter`: a lone byte 0x00-0x1F that is not a command (the
   printer ignores it).
 - `incomplete`: the stream ended inside a command.
@@ -207,6 +248,84 @@ Drawer kick effect (`DrawerKick`): `{ "pin": 2, "onMs": 100, "offMs": 100 }`.
 
 Layout rules and deliberate deviations from the Epson reference are documented
 in `src/receipt.rs` and `src/parser.rs`.
+
+## Status
+
+Status requests are answered from the simulated state `PrinterStatus`:
+
+```json
+{ "paperOut": false, "coverOpen": false, "offline": false, "drawerOpen": false }
+```
+
+`PrinterStatusPatch` is the same object with every field optional (a partial
+update; unknown fields are rejected). A reply (`StatusReply`):
+
+```json
+{ "kind": "realTime", "bytes": [26], "flags": ["offline", "drawerLow"] }
+```
+
+- `kind`: `"realTime"` (`DLE EOT`, `DLE DC4 7 1`, `DLE DC4 8`), `"transmit"`
+  (`GS r`) or `"automatic"` (ASB).
+- `flags`: the conditions the bytes report as active, decoded from the bits,
+  in this order of the byte(s). Vocabulary: `online` / `offline`,
+  `drawerHigh` / `drawerLow` (kick-out connector pin 3; HIGH = drawer open
+  in PhantomPOS), `coverOpen` / `coverClosed`, `paperPresent` / `paperEnd`
+  (roll paper end sensor), `paperAdequate` / `paperNearEnd` (near-end
+  sensor), `paperEndStop` (printing stopped at a paper end, `DLE EOT 2`),
+  `noError` or any of `recoverableError`, `autocutterError`,
+  `unrecoverableError`, `autoRecoverableError` (`DLE EOT 3`, ASB),
+  `errorOccurred` (`DLE EOT 2` bit 6), `waitingForOnlineRecovery`,
+  `feedButtonPressed`, `paperFedByButton` (never simulated), and
+  `buffersCleared` (`DLE DC4 8` Clear response `37 25 00`).
+
+Replies per request and state (hex). Generated from the code by
+`tests/status_table.rs`; pages are under
+<https://download4.epson.biz/sec_pubs/pos/reference_en/escpos/>.
+
+<!-- status-table:start -->
+| Request | Epson page | Normal | Drawer open | Paper out | Cover open | Offline | Cover open + paper out | All four |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `DLE EOT 1` printer | `dle_eot.html` | `12` | `16` | `1A` | `1A` | `1A` | `1A` | `1E` |
+| `DLE EOT 2` offline cause | `dle_eot.html` | `12` | `12` | `32` | `16` | `12` | `36` | `36` |
+| `DLE EOT 3` error cause | `dle_eot.html` | `12` | `12` | `12` | `12` | `12` | `12` | `12` |
+| `DLE EOT 4` roll paper sensor | `dle_eot.html` | `12` | `12` | `72` | `12` | `12` | `72` | `72` |
+| `GS r 1` / `GS r 49` paper sensor | `gs_lr.html` | `00` | `00` | `0C` | `00` | `00` | `0C` | `0C` |
+| `GS r 2` / `GS r 50` drawer connector | `gs_lr.html` | `00` | `01` | `00` | `00` | `00` | `00` | `01` |
+| ASB (`GS a`), `DLE DC4 7 1` | `gs_la.html, dle_dc4_fn7.html` | `10 00 00 00` | `14 00 00 00` | `18 00 0C 00` | `38 00 00 00` | `18 00 00 00` | `38 00 0C 00` | `3C 00 0C 00` |
+<!-- status-table:end -->
+
+Mapping (details and reference inconsistencies in `src/status.rs`): cover
+open, paper out and the offline switch all make the printer offline; cover
+open sets the cover bit (`DLE EOT 2` bit 2, ASB byte 1 bit 5); paper out sets
+the roll paper end sensor (`DLE EOT 4` bits 5-6, `GS r 1` bits 2-3, ASB byte
+3 bits 2-3) and "printing stops due to a paper-end" (`DLE EOT 2` bit 5); the
+offline switch sets no cause. The near-end sensor, the feed button and every
+error are never active. Reserved bits are 0.
+
+Not answered (logged only): `DLE EOT` 7/8/18 (ink, peeler, interface, DM-D:
+not on this printer) and any `n`/`a` outside the reference, `GS r 4`/`52`
+(ink) and other `n`, `DLE DC4 7` with `m` other than 1, `DLE DC4 2`
+(power-off notice), `DLE DC4 3` (buzzer), `DLE ENQ` (it acts only on a
+recoverable error, never simulated).
+
+**Automatic Status Back** (`GS a n`, per connection): any of bits 0
+(drawer), 1 (online/offline), 2 (error), 3 (roll paper sensor), 6 (panel
+switch) enabled sends the current 4-byte status at once, then again whenever
+an enabled item changes. The 4 bytes always describe the whole current state.
+Bit 1 covers the offline, cover and paper end bits; bit 3 the paper sensor
+bits; bit 0 the drawer bit; bits 2 and 6 cover conditions that never change.
+`GS a 0`, a mask with only reserved bits (4, 5, 7) and `ESC @` disable ASB.
+
+**Error states** (`paperOut`, `coverOpen`, `offline`): commands are still
+decoded for the log, but only status commands (`DLE EOT`, `DLE ENQ`,
+`DLE DC4`, `GS r`, `GS a`) take effect; everything else (text, feeds,
+images, cuts, styles, `ESC @`, `ESC p`) is discarded and reported in
+`suppressed` (reason priority: `coverOpen`, `paperOut`, `offline`). A command
+is discarded when its last byte arrived in an error state. The receipt in
+progress before the error continues after recovery; `finish` still closes it.
+`DLE DC4 1` opens the drawer in any state. Real-time command bytes inside
+another command's parameters or data are data, never requests (deliberate
+deviation from the Epson notes; see `src/parser.rs`).
 
 ## Code pages
 
