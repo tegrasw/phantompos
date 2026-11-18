@@ -38,6 +38,19 @@
 //! executed"). The power-on default is disabled. ASB is per connection; the
 //! backend calls [`Session::status_changed`] whenever the shared state
 //! changes, and every `feed` first catches up with the state it is given.
+//!
+//! **Receipt byte ranges.** Every [`SessionEvent::ReceiptCompleted`] carries
+//! the stream offset where the receipt ends, so the backend can cut the raw
+//! stream into one byte range per receipt without looking at ESC/POS: a
+//! receipt owns `[end of the previous receipt (or 0), end)`. The range holds
+//! everything the host sent in between, including status requests, empty
+//! cuts (a cut with nothing on paper closes no receipt, so its bytes belong
+//! to the next one) and data discarded in an error state: the range is "what
+//! the host sent", not "what was printed". Bytes after the last receipt
+//! belong to no receipt when the stream ends without content. Replaying a
+//! range on its own reproduces the receipt only when it does not depend on
+//! state set by an earlier receipt (styles, code page, line spacing...): a
+//! cut is not a reset, and that inherited state is not part of the range.
 
 use std::collections::VecDeque;
 
@@ -64,7 +77,14 @@ pub struct Reply {
 pub enum SessionEvent {
     /// A cut closed a non-empty receipt, or (from [`Session::finish`]) the
     /// stream ended with content pending (`cut: None`).
-    ReceiptCompleted(Receipt),
+    ReceiptCompleted {
+        receipt: Receipt,
+        /// Stream offset just after the receipt's last byte: the end of the
+        /// cut command that closed it (exclusive), or the stream length when
+        /// [`Session::finish`] closed it. See "Receipt byte ranges" in the
+        /// module docs.
+        end: u64,
+    },
     /// The cash drawer was kicked (`ESC p` or `DLE DC4 1`); the session
     /// already considers the drawer open.
     DrawerKick(DrawerKick),
@@ -198,7 +218,10 @@ impl Session {
         output.commands = commands;
         self.segments.clear();
         if let Some(receipt) = self.builder.finish() {
-            output.events.push(SessionEvent::ReceiptCompleted(receipt));
+            output.events.push(SessionEvent::ReceiptCompleted {
+                receipt,
+                end: self.parser.bytes_consumed(),
+            });
         }
         output
     }
@@ -207,11 +230,12 @@ impl Session {
         for decoded in commands {
             let command = &decoded.command;
             let len = u64::try_from(decoded.bytes.len()).unwrap_or(u64::MAX);
+            let end = decoded.offset.saturating_add(len);
             if is_status_command(command) {
-                self.status_command(command, output);
+                self.status_command(command, end, output);
                 continue;
             }
-            let last = decoded.offset.saturating_add(len.saturating_sub(1));
+            let last = end.saturating_sub(1);
             if let Some(reason) = self.reason_at(last) {
                 let bytes = output.suppressed.map_or(0, |s| s.bytes).saturating_add(len);
                 output.suppressed = Some(Suppressed { reason, bytes });
@@ -220,11 +244,11 @@ impl Session {
             if matches!(command, Command::Initialize) {
                 self.asb_mask = 0;
             }
-            self.apply(command, output);
+            self.apply(command, end, output);
         }
     }
 
-    fn status_command(&mut self, command: &Command, output: &mut SessionOutput) {
+    fn status_command(&mut self, command: &Command, end: u64, output: &mut SessionOutput) {
         match command {
             Command::SetAutomaticStatusBack { n, .. } => {
                 self.asb_mask = n & ASB_MASK_BITS;
@@ -245,15 +269,19 @@ impl Session {
                         .push(SessionEvent::Reply(Reply { request, reply }));
                 }
                 // Drawer pulse (DLE DC4 1) and buffer clear (DLE DC4 8).
-                self.apply(command, output);
+                self.apply(command, end, output);
             }
         }
     }
 
-    fn apply(&mut self, command: &Command, output: &mut SessionOutput) {
+    /// Applies one command whose last byte ends at stream offset `end`
+    /// (exclusive) to the receipt.
+    fn apply(&mut self, command: &Command, end: u64, output: &mut SessionOutput) {
         match self.builder.apply(command) {
             Some(Effect::ReceiptCompleted(receipt)) => {
-                output.events.push(SessionEvent::ReceiptCompleted(receipt));
+                output
+                    .events
+                    .push(SessionEvent::ReceiptCompleted { receipt, end });
             }
             Some(Effect::DrawerKick(kick)) => {
                 output.events.push(SessionEvent::DrawerKick(kick));
@@ -347,7 +375,7 @@ mod tests {
             .events
             .iter()
             .filter_map(|e| match e {
-                SessionEvent::ReceiptCompleted(r) => Some(r.clone()),
+                SessionEvent::ReceiptCompleted { receipt, .. } => Some(receipt.clone()),
                 _ => None,
             })
             .collect()
@@ -542,5 +570,51 @@ mod tests {
         assert_eq!(done.len(), 1);
         // "kept" and the blank line of the final LF; "pending" is gone.
         assert_eq!(done[0].elements.len(), 2);
+    }
+
+    fn ends(output: &SessionOutput) -> Vec<u64> {
+        output
+            .events
+            .iter()
+            .filter_map(|e| match e {
+                SessionEvent::ReceiptCompleted { end, .. } => Some(*end),
+                _ => None,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn completed_receipts_report_where_they_end_in_the_stream() {
+        let mut s = session();
+        // An empty cut (nothing on paper) closes no receipt; its bytes
+        // belong to the next one. GS V 66 n is 4 bytes.
+        let first = b"\x1dV\x00a\n\x1dVB\x03";
+        let second = b"b\n\x1bi";
+        let mut stream = first.to_vec();
+        stream.extend_from_slice(second);
+        stream.extend_from_slice(b"\x10\x04\x01tail");
+        // Split in the middle of the second cut: offsets are stream offsets.
+        let out = s.feed(&stream[..8], NORMAL);
+        assert!(ends(&out).is_empty());
+        let out = s.feed(&stream[8..], NORMAL);
+        assert_eq!(ends(&out), vec![9, 9 + 4]);
+        // The pending "tail" is closed by finish, at the stream length.
+        let out = s.finish(NORMAL);
+        assert_eq!(ends(&out), vec![u64::try_from(stream.len()).unwrap()]);
+
+        // Nothing pending at the end: no receipt, no range.
+        let mut s = session();
+        s.feed(b"x\n\x1dV\x00\x10\x04\x01", NORMAL);
+        assert!(ends(&s.finish(NORMAL)).is_empty());
+    }
+
+    #[test]
+    fn data_discarded_in_an_error_state_stays_inside_the_range() {
+        let mut s = session();
+        s.feed(b"a\n", NORMAL);
+        s.feed(b"lost\n\x1dV\x00", PAPER_OUT);
+        let out = s.feed(b"\x1dV\x01", NORMAL);
+        // The suppressed cut closed nothing; the receipt ends after GS V 1.
+        assert_eq!(ends(&out), vec![2 + 8 + 3]);
     }
 }

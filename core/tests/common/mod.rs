@@ -97,14 +97,17 @@ pub struct Run {
     pub output: RenderOutput,
     pub replies: Vec<RecordedReply>,
     pub suppressed: Option<RecordedSuppressed>,
+    /// Stream offset where each receipt of `output.receipts` ends.
+    pub receipt_ends: Vec<u64>,
 }
 
 impl Run {
     fn record(&mut self, out: SessionOutput, status: &mut PrinterStatus) {
         for event in out.events {
             match event {
-                SessionEvent::ReceiptCompleted(receipt) => {
+                SessionEvent::ReceiptCompleted { receipt, end } => {
                     self.output.receipts.push(receipt);
+                    self.receipt_ends.push(end);
                 }
                 SessionEvent::DrawerKick(kick) => {
                     // As the backend does: the shared state follows the kick.

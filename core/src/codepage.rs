@@ -103,6 +103,24 @@ mod tests {
         }
     }
 
+    /// The names are part of the JSON contract (`setCodePage` log items and
+    /// the app's `defaultCodePage` setting).
+    #[test]
+    fn json_names() {
+        let names = [
+            (CodePage::Cp437, "\"cp437\""),
+            (CodePage::Cp850, "\"cp850\""),
+            (CodePage::Cp860, "\"cp860\""),
+            (CodePage::Cp858, "\"cp858\""),
+            (CodePage::Windows1252, "\"windows1252\""),
+        ];
+        for (page, name) in names {
+            assert_eq!(serde_json::to_string(&page).unwrap(), name);
+            assert_eq!(serde_json::from_str::<CodePage>(name).unwrap(), page);
+        }
+        assert!(serde_json::from_str::<CodePage>("\"Cp437\"").is_err());
+    }
+
     #[test]
     fn esc_t_round_trip() {
         for n in 0..=255u8 {

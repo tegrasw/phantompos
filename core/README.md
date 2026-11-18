@@ -18,7 +18,7 @@ let out = session.feed(&chunk, status);
 // out.commands: Vec<DecodedCommand> for the log (discarded ones included)
 for event in out.events {                   // stream order
     match event {
-        SessionEvent::ReceiptCompleted(receipt) => { /* closed by a cut */ }
+        SessionEvent::ReceiptCompleted { receipt, end } => { /* closed by a cut */ }
         SessionEvent::DrawerKick(kick) => { /* ESC p or DLE DC4 1; set drawerOpen */ }
         SessionEvent::Reply(reply) => { /* write reply.reply.bytes to the socket */ }
     }
@@ -32,6 +32,17 @@ if let Some(asb) = session.status_changed(new_status) { /* write asb.reply.bytes
 // Connection closed: flushed commands, events, and the pending receipt.
 let tail = session.finish(status);
 ```
+
+`end` is the stream offset just after the receipt (the end of its cut
+command, or the stream length when `finish` closed it). A receipt owns the
+bytes `[previous receipt's end (or 0), end)`, which is what the app exports
+as its `.bin`: everything the host sent in between, including status
+requests, empty cuts (a cut with nothing on paper closes no receipt) and data
+discarded in an error state. Bytes after the last receipt belong to none when
+the stream ends without content. Replaying a range alone reproduces the
+receipt when it does not depend on state set by an earlier receipt (styles,
+code page, line spacing: a cut is not a reset); the first receipt of a stream
+always replays exactly (`tests/receipt_slices.rs`).
 
 `set_paper`, `paper`, `snapshot` and `take_update` pass through to the
 builder. The lower-level API below still works on its own (no status).
