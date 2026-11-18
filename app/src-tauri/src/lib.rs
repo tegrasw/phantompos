@@ -1,6 +1,7 @@
 //! PhantomPOS desktop app: Tauri glue around the TCP listener.
 
 mod export;
+mod links;
 mod listener;
 mod settings;
 
@@ -10,8 +11,10 @@ use phantompos_core::{PrinterStatus, PrinterStatusPatch};
 use serde::{Serialize, Serializer};
 use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_dialog::DialogExt;
+use tauri_plugin_opener::OpenerExt;
 
 use export::{ExportError, ExportFormat, ExportResult};
+use links::Link;
 use listener::{EventSink, ListenerEvent, ListenerState, StateSnapshot};
 use settings::{Settings, SettingsError, SettingsPatch, SettingsStore};
 
@@ -39,6 +42,11 @@ enum CommandError {
     Export(#[from] ExportError),
     #[error("The export was interrupted: {0}")]
     Interrupted(String),
+    #[error("Couldn't open {url}: {source}")]
+    OpenLink {
+        url: &'static str,
+        source: tauri_plugin_opener::Error,
+    },
 }
 
 impl Serialize for CommandError {
@@ -180,12 +188,31 @@ async fn export_receipt(
     Ok(ExportResult::saved(&path))
 }
 
+/// Opens one of the About links (`website`, `repository`, `issues`,
+/// `license`) in the system browser. The webview passes an id, never a URL;
+/// an unknown id rejects before this runs.
+#[tauri::command]
+fn open_link(app: AppHandle, link: Link) -> Result<(), CommandError> {
+    let url = link.url();
+    app.opener()
+        .open_url(url, None::<&str>)
+        .map_err(|source| CommandError::OpenLink { url, source })
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let result = tauri::Builder::default()
         // Used from Rust only (`export_receipt`); the webview is granted no
         // dialog permission.
         .plugin(tauri_plugin_dialog::init())
+        // Used from Rust only (`open_link`, fixed URLs); the webview is
+        // granted no opener permission, so the script that routes `<a
+        // target="_blank">` clicks through the plugin is not injected.
+        .plugin(
+            tauri_plugin_opener::Builder::new()
+                .open_js_links_on_click(false)
+                .build(),
+        )
         .setup(|app| {
             let store = match app.path().app_config_dir() {
                 Ok(dir) => Some(SettingsStore::new(dir)),
@@ -209,7 +236,8 @@ pub fn run() {
             retry_listener,
             set_printer_status,
             clear_receipts,
-            export_receipt
+            export_receipt,
+            open_link
         ])
         .run(tauri::generate_context!());
 

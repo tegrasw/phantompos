@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Permissions for the main window: listen to backend events, read the state, change the settings and the simulated printer state, retry the listener, and export or forget receipts. No plugin permission: the save dialog is opened by the backend.",
+  "description": "Permissions for the main window: listen to backend events, read the state, change the settings and the simulated printer state, retry the listener, export or forget receipts, and open the fixed About links. No plugin permission: the save dialog and the browser are opened by the backend.",
   "windows": ["main"],
   "permissions": [
     "core:event:allow-listen",
@@ -11,6 +11,7 @@
     "allow-retry-listener",
     "allow-set-printer-status",
     "allow-clear-receipts",
-    "allow-export-receipt"
+    "allow-export-receipt",
+    "allow-open-link"
   ]
 }

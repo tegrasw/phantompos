@@ -9,6 +9,7 @@ fn main() {
             "set_printer_status",
             "clear_receipts",
             "export_receipt",
+            "open_link",
         ]));
 
     if let Err(error) = tauri_build::try_build(attributes) {
