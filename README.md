@@ -11,6 +11,8 @@ and validate what their system sends to a receipt printer, without a physical pr
 
 PhantomPOS is an open source project by Tegra Software, built with Rust and Tauri 2.
 
+![PhantomPOS showing a receipt with an EAN-13 barcode and a QR code, next to the printer state panel](docs/screenshot.png)
+
 ## Status
 
 Feature-complete for version 0.1.0: everything planned for the first version is
