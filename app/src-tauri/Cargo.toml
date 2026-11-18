@@ -8,6 +8,9 @@ license.workspace = true
 authors.workspace = true
 repository.workspace = true
 rust-version.workspace = true
+# Owner decision (2026-11-18): not published to crates.io. PhantomPOS is
+# distributed as installers on GitHub Releases.
+publish = false
 
 [lib]
 # The `_lib` suffix keeps the library name distinct from the `phantompos`

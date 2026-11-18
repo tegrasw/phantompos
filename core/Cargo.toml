@@ -7,6 +7,9 @@ license.workspace = true
 authors.workspace = true
 repository.workspace = true
 rust-version.workspace = true
+# Owner decision (2026-11-18): not published to crates.io. PhantomPOS is
+# distributed as installers on GitHub Releases.
+publish = false
 
 [dependencies]
 # Serialization of the command log and receipt model (JSON contract with the UI).
