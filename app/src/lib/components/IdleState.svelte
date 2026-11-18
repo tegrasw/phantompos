@@ -8,11 +8,20 @@
   import { formatBytes, formatClock, formatCount } from "../format";
   import { messages } from "../messages";
   import { duration } from "../motion";
-  import type { PrinterStatus } from "../status";
+  import type { EndpointStatus } from "../status";
   import CopyButton from "./CopyButton.svelte";
   import Icon from "./Icon.svelte";
 
-  let { status, stats }: { status: PrinterStatus; stats: SessionStats } = $props();
+  let {
+    status,
+    stats,
+    fault = null,
+  }: {
+    status: EndpointStatus;
+    stats: SessionStats;
+    /** Names of the simulated error states, when any is on. */
+    fault?: string | null;
+  } = $props();
 
   const t = messages.roll;
 
@@ -62,7 +71,7 @@
 <div class="empty" data-tone={tone}>
   {#key status.kind}
     <div class="idle" in:fade={{ duration: duration("slow") }}>
-      <svg class="art" viewBox={tone === "error" ? "0 0 168 48" : "0 0 168 116"} aria-hidden="true">
+      <svg class="art" class:fault={!!fault && status.kind === "listening"} viewBox={tone === "error" ? "0 0 168 48" : "0 0 168 116"} aria-hidden="true">
         <!-- Paper slip feeding out of the printer. -->
         {#if tone !== "error"}
           <g class="slip">
@@ -89,6 +98,13 @@
 
       <h1 class="title">{title}</h1>
       <p class="body-text">{body}</p>
+
+      {#if fault && status.kind === "listening"}
+        <p class="fault" transition:fade={{ duration: duration("base") }}>
+          <span class="fault-icon" aria-hidden="true"><Icon name="pause" size={10} /></span>
+          {t.idleFault(fault)}
+        </p>
+      {/if}
 
       {#if status.kind === "listening" || status.kind === "stopped"}
         <div class="card">
@@ -132,6 +148,12 @@
               <dt>{t.statUnknown}</dt>
               <dd>{formatCount(stats.unknown)}</dd>
             </div>
+            {#if stats.replies > 0}
+              <div class="stat">
+                <dt>{t.statReplies}</dt>
+                <dd>{formatCount(stats.replies)}</dd>
+              </div>
+            {/if}
             {#if stats.lastAt}
               <div class="stat" title={stats.lastPeer ? t.lastFrom(stats.lastPeer) : undefined}>
                 <dt>{t.statLast}</dt>
@@ -195,6 +217,10 @@
   }
   [data-tone="error"] .led {
     fill: var(--danger);
+  }
+  .art.fault .led {
+    fill: var(--fault);
+    filter: drop-shadow(0 0 4px var(--fault-glow));
   }
   .paper {
     fill: var(--paper);
@@ -313,6 +339,34 @@
     font-size: var(--text-sm);
     color: var(--text-secondary);
     user-select: all;
+  }
+
+  .fault {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: calc(-1 * var(--space-2)) 0 var(--space-5);
+    padding: var(--space-1-5) var(--space-3) var(--space-1-5) var(--space-2);
+    border: 1px dashed var(--fault-border);
+    border-radius: var(--radius-pill);
+    background: var(--fault-soft);
+    color: var(--fault);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    text-align: left;
+  }
+  .fault-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--fault);
+    color: var(--bg-surface);
+  }
+  .fault-icon :global(.icon) {
+    stroke-width: 2.25;
   }
 
   .callout {

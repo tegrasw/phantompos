@@ -1,9 +1,11 @@
-// What the UI knows about the printer endpoint, reduced to one discriminated
-// union that the header and the roll area both render.
+// What the UI knows about the printer endpoint (the TCP listener), reduced to
+// one discriminated union that the header and the roll area both render. The
+// simulated printer state (paper, cover, offline, drawer) is `PrinterStatus`
+// in backend.ts.
 
 import { formatAddress, type ListenerStatus } from "./backend";
 
-export type PrinterStatus =
+export type EndpointStatus =
   /** No backend at all (plain browser without the dev demo). */
   | { kind: "disconnected" }
   /** Waiting for the first `get_state` / `listener:status`. */
@@ -14,11 +16,11 @@ export type PrinterStatus =
   | { kind: "stopped"; host: string; port: number; address: string }
   | { kind: "error"; port: number; address: string; message: string };
 
-export function printerStatus(
+export function endpointStatus(
   hasBackend: boolean,
   listener: ListenerStatus | null,
   backendError: string | null,
-): PrinterStatus {
+): EndpointStatus {
   if (!hasBackend) return { kind: "disconnected" };
   if (backendError) return { kind: "backendError", message: backendError };
   if (!listener) return { kind: "starting" };

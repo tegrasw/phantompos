@@ -14,11 +14,18 @@
 // stream; the raw-bytes export (stage 6) comes from the backend. The byte cap
 // counts what is retained, so one 50 KB image does not evict 50 KB of other
 // rows; `byteLength` and the statistics keep the real sizes.
+//
+// Status replies (`status:sent`, printer → host) go through the same queue, so
+// they land in arrival order, in the group of their connection, as `reply`
+// rows. They count as rows for retention but not as received commands or
+// bytes; the statistics count them separately.
 
-import type { CommandsReceived, DecodedCommand } from "./backend";
+import type { CommandsReceived, DecodedCommand, StatusSent } from "./backend";
 import {
   commandSummary,
   displayParams,
+  flagLabel,
+  flagTone,
   hexByte,
   humanize,
   mnemonic,
@@ -42,7 +49,8 @@ const FLUSH_INTERVAL_MS = 16;
 interface RowBase {
   /** Monotonic key for keyed rendering. */
   key: number;
-  offset: number;
+  /** Stream offset (host → printer rows); null for replies. */
+  offset: number | null;
   /** The first HEX_RETAINED_BYTES bytes of the command. */
   bytes: number[];
   /** Length of the whole command in bytes. */
@@ -66,7 +74,29 @@ export type LogRow =
       /** Friendly one-line reading of the parameters, e.g. "576 × 120 dots". */
       summary: string | null;
       params: DisplayParam[];
+    })
+  | (RowBase & {
+      kind: "reply";
+      replyKind: string;
+      /** What was answered, e.g. "DLE EOT 1". */
+      request: string;
+      flags: ReplyFlag[];
     });
+
+export interface ReplyFlag {
+  code: string;
+  label: string;
+  tone: "fault" | "ok" | "neutral";
+}
+
+/** The most recent reply, for the printer state panel. */
+export interface LastReply {
+  request: string;
+  bytes: number[];
+  flags: ReplyFlag[];
+  at: Date;
+  peer: string;
+}
 
 export interface LogGroup {
   key: number;
@@ -74,14 +104,18 @@ export interface LogGroup {
   peer: string;
   startedAt: Date;
   rows: LogRow[];
+  /** Bytes received (replies not included). */
   byteCount: number;
   unknownCount: number;
+  replyCount: number;
 }
 
 export interface SessionStats {
   commands: number;
   bytes: number;
   unknown: number;
+  /** Status replies sent by the printer. */
+  replies: number;
   connections: number;
   lastAt: Date | null;
   lastPeer: string | null;
@@ -91,6 +125,7 @@ const EMPTY_STATS: SessionStats = {
   commands: 0,
   bytes: 0,
   unknown: 0,
+  replies: 0,
   connections: 0,
   lastAt: null,
   lastPeer: null,
@@ -141,6 +176,32 @@ function toRow(decoded: DecodedCommand, key: number, enter: boolean): LogRow {
   };
 }
 
+function toReplyRow(sent: StatusSent, key: number, enter: boolean): LogRow {
+  const all = sent.reply.bytes;
+  const bytes = all.length > HEX_RETAINED_BYTES ? all.slice(0, HEX_RETAINED_BYTES) : all;
+  return {
+    key,
+    offset: null,
+    bytes,
+    byteLength: all.length,
+    hexPreview: hexLines(bytes, HEX_PREVIEW_BYTES),
+    hiddenBytes: Math.max(0, all.length - HEX_PREVIEW_BYTES),
+    mnemonic: null,
+    enter,
+    kind: "reply",
+    replyKind: sent.reply.kind,
+    request: sent.request,
+    flags: replyFlags(sent.reply.flags),
+  };
+}
+
+export function replyFlags(codes: readonly string[]): ReplyFlag[] {
+  return codes.map((code) => ({ code, label: flagLabel(code), tone: flagTone(code) }));
+}
+
+/** One queued event: a batch of decoded commands or one status reply. */
+type Pending = { kind: "commands"; batch: CommandsReceived } | { kind: "reply"; sent: StatusSent };
+
 export class CommandLog {
   /** Retained groups, oldest first. Replaced (never mutated) on each flush. */
   groups: LogGroup[] = $state.raw([]);
@@ -154,8 +215,10 @@ export class CommandLog {
   retainedUnknown = $derived(this.groups.reduce((sum, group) => sum + group.unknownCount, 0));
   /** Totals since the last clear. */
   stats: SessionStats = $state.raw(EMPTY_STATS);
+  /** The most recent status reply (kept across clears of the log). */
+  lastReply: LastReply | null = $state.raw(null);
 
-  #pending: CommandsReceived[] = [];
+  #pending: Pending[] = [];
   #retainedBytes = 0;
   #nextKey = 0;
   #seenConnections = new Set<number>();
@@ -163,7 +226,15 @@ export class CommandLog {
 
   push(batch: CommandsReceived): void {
     if (batch.commands.length === 0) return;
-    this.#pending.push(batch);
+    this.#enqueue({ kind: "commands", batch });
+  }
+
+  pushReply(sent: StatusSent): void {
+    this.#enqueue({ kind: "reply", sent });
+  }
+
+  #enqueue(item: Pending): void {
+    this.#pending.push(item);
     this.#timer ??= setTimeout(() => this.#flush(), FLUSH_INTERVAL_MS);
   }
 
@@ -196,31 +267,48 @@ export class CommandLog {
     if (batches.length === 0) return;
     this.#pending = [];
 
+    let incomingRows = 0;
     let incoming = 0;
-    for (const batch of batches) incoming += batch.commands.length;
-    const enter = incoming <= ANIMATE_MAX_ROWS;
+    for (const item of batches) {
+      const n = item.kind === "commands" ? item.batch.commands.length : 1;
+      incomingRows += n;
+      if (item.kind === "commands") incoming += n;
+    }
+    const enter = incomingRows <= ANIMATE_MAX_ROWS;
 
     const groups = this.groups.slice();
     let rowCount = this.rowCount;
     let bytes = 0;
     let retained = 0;
     let unknown = 0;
+    let replies = 0;
     let lastPeer = this.stats.lastPeer;
+    let lastReply = this.lastReply;
 
-    for (const batch of batches) {
+    for (const item of batches) {
       const rows: LogRow[] = [];
       let batchBytes = 0;
       let batchRetained = 0;
       let batchUnknown = 0;
-      for (const decoded of batch.commands) {
-        const row = toRow(decoded, this.#nextKey++, enter);
+      const batch = item.kind === "commands" ? item.batch : item.sent;
+      if (item.kind === "commands") {
+        for (const decoded of item.batch.commands) {
+          const row = toRow(decoded, this.#nextKey++, enter);
+          rows.push(row);
+          batchBytes += row.byteLength;
+          batchRetained += row.bytes.length;
+          if (row.kind === "unknown") batchUnknown++;
+        }
+        lastPeer = batch.peer;
+      } else {
+        const row = toReplyRow(item.sent, this.#nextKey++, enter);
         rows.push(row);
-        batchBytes += row.byteLength;
         batchRetained += row.bytes.length;
-        if (row.kind === "unknown") batchUnknown++;
+        replies++;
+        if (row.kind === "reply")
+          lastReply = { request: row.request, bytes: row.bytes, flags: row.flags, at: new Date(), peer: batch.peer };
       }
       this.#seenConnections.add(batch.connectionId);
-      lastPeer = batch.peer;
 
       const last = groups.at(-1);
       if (last && last.connectionId === batch.connectionId) {
@@ -229,6 +317,7 @@ export class CommandLog {
           rows: last.rows.concat(rows),
           byteCount: last.byteCount + batchBytes,
           unknownCount: last.unknownCount + batchUnknown,
+          replyCount: last.replyCount + (item.kind === "reply" ? 1 : 0),
         };
       } else {
         groups.push({
@@ -239,6 +328,7 @@ export class CommandLog {
           rows,
           byteCount: batchBytes,
           unknownCount: batchUnknown,
+          replyCount: item.kind === "reply" ? 1 : 0,
         });
       }
       rowCount += rows.length;
@@ -248,13 +338,15 @@ export class CommandLog {
     }
 
     this.#retainedBytes += retained;
-    this.ingested += incoming;
+    this.ingested += incomingRows;
+    this.lastReply = lastReply;
     this.stats = {
       commands: this.stats.commands + incoming,
       bytes: this.stats.bytes + bytes,
       unknown: this.stats.unknown + unknown,
+      replies: this.stats.replies + replies,
       connections: this.#seenConnections.size,
-      lastAt: new Date(),
+      lastAt: incoming > 0 ? new Date() : this.stats.lastAt,
       lastPeer,
     };
 
@@ -270,13 +362,15 @@ export class CommandLog {
       let takeBytes = 0;
       let takeRetained = 0;
       let takeUnknown = 0;
+      let takeReplies = 0;
       while (
         take < oldest.rows.length &&
         (take < excessRows || this.#retainedBytes - takeRetained > MAX_BYTES) &&
         rowCount - take > 1
       ) {
         const row = oldest.rows[take];
-        takeBytes += row.byteLength;
+        if (row.kind === "reply") takeReplies++;
+        else takeBytes += row.byteLength;
         takeRetained += row.bytes.length;
         if (row.kind === "unknown") takeUnknown++;
         take++;
@@ -289,6 +383,7 @@ export class CommandLog {
           rows: oldest.rows.slice(take),
           byteCount: oldest.byteCount - takeBytes,
           unknownCount: oldest.unknownCount - takeUnknown,
+          replyCount: oldest.replyCount - takeReplies,
         };
       rowCount -= take;
       dropped += take;

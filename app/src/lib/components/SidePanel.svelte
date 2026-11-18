@@ -1,11 +1,11 @@
 <!--
-  Collapsible, resizable panel docked to the right edge of the workspace.
+  Collapsible side panel docked to the left or right edge of the workspace.
 
-  Open: full content at `width`, with a drag/keyboard resize handle on its
-  leading edge. Collapsed: a slim rail (rendered by the caller) that reopens
-  the panel. The content keeps its width while the panel animates, so nothing
-  reflows mid-transition. Later stages dock the state and settings panels with
-  the same component.
+  Open: full content at `width`; with `resizable`, a drag/keyboard resize
+  handle on its inner edge. Collapsed: a slim rail (rendered by the caller)
+  that reopens the panel. The content keeps its width while the panel
+  animates, so nothing reflows mid-transition. The command log docks on the
+  right (resizable), the printer state on the left (fixed width).
 -->
 <script lang="ts">
   import type { Snippet } from "svelte";
@@ -13,7 +13,9 @@
   let {
     id,
     label,
-    resizeLabel,
+    side = "right",
+    resizable = true,
+    resizeLabel = "",
     open,
     width = $bindable(),
     minWidth,
@@ -24,7 +26,9 @@
     id: string;
     /** Accessible name of the panel region. */
     label: string;
-    resizeLabel: string;
+    side?: "left" | "right";
+    resizable?: boolean;
+    resizeLabel?: string;
     open: boolean;
     width: number;
     minWidth: number;
@@ -48,7 +52,8 @@
     dragging = true;
     handle.setPointerCapture(event.pointerId);
 
-    const move = (e: PointerEvent): void => setWidth(startWidth + (startX - e.clientX));
+    const sign = side === "right" ? 1 : -1;
+    const move = (e: PointerEvent): void => setWidth(startWidth + sign * (startX - e.clientX));
     const end = (): void => {
       dragging = false;
       handle.removeEventListener("pointermove", move);
@@ -62,7 +67,7 @@
   }
 
   function onKeyDown(event: KeyboardEvent): void {
-    const step = event.shiftKey ? 64 : 16;
+    const step = (event.shiftKey ? 64 : 16) * (side === "right" ? 1 : -1);
     if (event.key === "ArrowLeft") setWidth(effective + step);
     else if (event.key === "ArrowRight") setWidth(effective - step);
     else if (event.key === "Home") setWidth(maxWidth);
@@ -75,12 +80,13 @@
 <aside
   {id}
   class="panel"
+  data-side={side}
   class:open
   class:dragging
   aria-label={label}
   style:width={open ? `${effective}px` : "var(--rail-w)"}
 >
-  {#if open}
+  {#if open && resizable}
     <!-- A focusable separator is an interactive ARIA widget (window splitter). -->
     <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
     <div
@@ -115,6 +121,10 @@
     border-left: 1px solid var(--border);
     background: var(--bg-surface);
     transition: width var(--dur-slow) var(--ease-in-out);
+  }
+  .panel[data-side="left"] {
+    border-left: 0;
+    border-right: 1px solid var(--border);
   }
   .panel.dragging {
     transition: none;
@@ -159,6 +169,14 @@
     width: 6px;
     cursor: col-resize;
     touch-action: none;
+  }
+  [data-side="left"] .resizer {
+    left: auto;
+    right: 0;
+  }
+  [data-side="left"] .resizer::after {
+    left: auto;
+    right: 0;
   }
   .resizer::after {
     content: "";

@@ -168,12 +168,66 @@ export interface DrawerKicked {
   offMs: number;
 }
 
+/**
+ * The simulated printer state (`get_state().status`, `printer:status`, the
+ * result of `set_printer_status`). `paperOut`, `coverOpen` and `offline` are
+ * error states: while any of them is on, received data is logged but not
+ * printed (see `print:suppressed`). `drawerOpen` never affects printing.
+ */
+export interface PrinterStatus {
+  paperOut: boolean;
+  coverOpen: boolean;
+  offline: boolean;
+  drawerOpen: boolean;
+}
+
+/** The error states, in the order the UI names them. */
+export type PrinterFault = "coverOpen" | "paperOut" | "offline";
+export const PRINTER_FAULTS: readonly PrinterFault[] = ["coverOpen", "paperOut", "offline"];
+
+export const NORMAL_STATUS: PrinterStatus = {
+  paperOut: false,
+  coverOpen: false,
+  offline: false,
+  drawerOpen: false,
+};
+
+/** How a reply reached the host: `DLE EOT`, `GS r`, or Automatic Status Back. */
+export type ReplyKind = "realTime" | "transmit" | "automatic";
+
+/** Payload of `status:sent`: one reply the printer wrote to the socket. */
+export interface StatusSent {
+  connectionId: number;
+  peer: string;
+  /** Mnemonic of what was answered, e.g. "DLE EOT 1", "GS r 2" or "ASB". */
+  request: string;
+  reply: {
+    kind: ReplyKind | (string & {});
+    bytes: number[];
+    /**
+     * Stable camelCase codes of the conditions reported ("online",
+     * "coverOpen", "paperEnd", "drawerHigh"...). The vocabulary may grow; the
+     * UI humanises codes it does not know.
+     */
+    flags: string[];
+  };
+}
+
+/** Payload of `print:suppressed`: data logged but not printed. */
+export interface PrintSuppressed {
+  connectionId: number;
+  peer: string;
+  reason: PrinterFault | (string & {});
+  /** Bytes discarded in this socket read. */
+  bytes: number;
+}
+
 /** Result of the `get_state` command. */
 export interface BackendState {
   listener: ListenerStatus;
   connections: ConnectionsStatus;
   paper: Paper;
-  drawerOpen: boolean;
+  status: PrinterStatus;
 }
 
 // ---------------------------------------------------------------------------
@@ -187,12 +241,15 @@ export const EVENTS = {
   receiptUpdated: "receipt:updated",
   receiptCompleted: "receipt:completed",
   drawerKicked: "drawer:kicked",
+  printerStatus: "printer:status",
+  statusSent: "status:sent",
+  printSuppressed: "print:suppressed",
 } as const;
 
 export const COMMANDS = {
   getState: "get_state",
   setPaper: "set_paper",
-  closeDrawer: "close_drawer",
+  setPrinterStatus: "set_printer_status",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -212,8 +269,9 @@ export function setPaper(paper: Paper): Promise<Paper> {
   return invoke<Paper>(COMMANDS.setPaper, { paper });
 }
 
-export function closeDrawer(): Promise<void> {
-  return invoke<void>(COMMANDS.closeDrawer);
+/** Changes some simulated states; resolves with the whole new state. */
+export function setPrinterStatus(status: Partial<PrinterStatus>): Promise<PrinterStatus> {
+  return invoke<PrinterStatus>(COMMANDS.setPrinterStatus, { status });
 }
 
 export interface BackendHandlers {
@@ -223,6 +281,9 @@ export interface BackendHandlers {
   onReceiptUpdated(update: ReceiptUpdated): void;
   onReceiptCompleted(receipt: ReceiptCompleted): void;
   onDrawerKicked(kick: DrawerKicked): void;
+  onPrinterStatus(status: PrinterStatus): void;
+  onStatusSent(reply: StatusSent): void;
+  onPrintSuppressed(suppressed: PrintSuppressed): void;
   /** Called with the initial snapshot once all listeners are registered. */
   onInitialState(state: BackendState): void;
   /** Called if the initial snapshot or a listener registration fails. */
@@ -232,7 +293,7 @@ export interface BackendHandlers {
 /** A connected backend: the commands the UI may call, plus cleanup. */
 export interface BackendSession {
   setPaper(paper: Paper): Promise<Paper>;
-  closeDrawer(): Promise<void>;
+  setPrinterStatus(status: Partial<PrinterStatus>): Promise<PrinterStatus>;
   /** Synchronous cleanup, safe to call at any time. */
   disconnect(): void;
 }
@@ -275,6 +336,15 @@ export const connectBackend: BackendConnector = (handlers) => {
         listen<DrawerKicked>(EVENTS.drawerKicked, (e) => {
           if (!disposed) handlers.onDrawerKicked(e.payload);
         }).then(track),
+        listen<PrinterStatus>(EVENTS.printerStatus, (e) => {
+          if (!disposed) handlers.onPrinterStatus(e.payload);
+        }).then(track),
+        listen<StatusSent>(EVENTS.statusSent, (e) => {
+          if (!disposed) handlers.onStatusSent(e.payload);
+        }).then(track),
+        listen<PrintSuppressed>(EVENTS.printSuppressed, (e) => {
+          if (!disposed) handlers.onPrintSuppressed(e.payload);
+        }).then(track),
       ]);
       if (disposed) return;
       const state = await getState();
@@ -286,13 +356,18 @@ export const connectBackend: BackendConnector = (handlers) => {
 
   return {
     setPaper,
-    closeDrawer,
+    setPrinterStatus,
     disconnect: () => {
       disposed = true;
       for (const unlisten of unlisteners.splice(0)) unlisten();
     },
   };
 };
+
+/** The active error states, in display order (empty when printing normally). */
+export function activeFaults(status: PrinterStatus): PrinterFault[] {
+  return PRINTER_FAULTS.filter((fault) => status[fault]);
+}
 
 /** Formats `address:port`, bracketing IPv6 literals. */
 export function formatAddress(address: string, port: number): string {

@@ -9,6 +9,10 @@
     | "check"
     | "trash"
     | "panel"
+    | "panelLeft"
+    | "printer"
+    | "pause"
+    | "chevronLeft"
     | "chevronRight"
     | "arrowDown"
     | "alert"
@@ -57,6 +61,18 @@
   {:else if name === "panel"}
     <rect x="1.75" y="2.75" width="12.5" height="10.5" rx="1.75" />
     <path d="M9.75 2.75v10.5" />
+  {:else if name === "panelLeft"}
+    <rect x="1.75" y="2.75" width="12.5" height="10.5" rx="1.75" />
+    <path d="M6.25 2.75v10.5" />
+  {:else if name === "printer"}
+    <!-- Thermal printer seen from the front: body, slot, paper leaving it. -->
+    <path d="M4.25 6.25V2.75h7.5v3.5" />
+    <rect x="1.75" y="6.25" width="12.5" height="5.5" rx="1.5" />
+    <path d="M4.75 11.75v1.5h6.5v-1.5M11.5 8.75h.5" />
+  {:else if name === "pause"}
+    <path d="M5.75 3.75v8.5M10.25 3.75v8.5" />
+  {:else if name === "chevronLeft"}
+    <path d="M10 3.5L5.5 8l4.5 4.5" />
   {:else if name === "chevronRight"}
     <path d="M6 3.5l4.5 4.5L6 12.5" />
   {:else if name === "arrowDown"}

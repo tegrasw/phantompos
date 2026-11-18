@@ -18,7 +18,14 @@
 //   ?demo=stopped    listener stopped
 //   ?demo=starting   never answers get_state
 //   ?demo=burst      listening; floods ~2,000 commands from three connections
+//   ?demo=status     stage 5 tour: a receipt, then the paper runs out while a
+//                    second job prints (its data becomes a suppressed notice),
+//                    then a client queries the status (DLE EOT 1-4, GS r 1/2)
+//                    and enables ASB, staying connected for a minute so every
+//                    switch change sends an automatic status reply
 //   &paper=58mm      initial paper; &drawer=open  initial drawer state
+//   &status=paperOut,coverOpen,offline   initial simulated error states
+//   &failstatus      set_printer_status always fails (tests the rollback)
 //   &devpanel=0      hide the floating demo controls (for screenshots)
 //
 // The same actions are scriptable from the console via `window.phantomDemo`.
@@ -32,6 +39,8 @@ import type {
   ListenerState,
   ListenerStatus,
   Paper,
+  PrinterStatus,
+  StatusSent,
 } from "../backend";
 import {
   ean13,
@@ -174,6 +183,19 @@ class Stream {
         { type: "barcode", symbology: "ean13", function: "b", data: code, valid: true, problem: null },
         { kind: "barcode", bitmap: ean13Bitmap(code, moduleDots, height), hri: code },
       );
+  }
+  /** `DLE EOT n`: real-time status request. */
+  realTimeStatus(n: 1 | 2 | 3 | 4): this {
+    const request = ["printer", "offlineCause", "errorCause", "paperSensor"][n - 1];
+    return this.add([0x10, 0x04, n], { type: "transmitRealTimeStatus", request });
+  }
+  /** `GS r n`: transmit status (1 paper sensor, 2 drawer). */
+  transmitStatus(n: 1 | 2): this {
+    return this.add([0x1d, 0x72, n], { type: "transmitStatus", request: n === 1 ? "paperSensor" : "drawer" });
+  }
+  /** `GS a n`: enable/disable Automatic Status Back. */
+  automaticStatus(mask: number): this {
+    return this.add([0x1d, 0x61, mask], { type: "enableAutomaticStatus", mask });
   }
   kick(pin: 2 | 5 = 2): this {
     return this.add([0x1b, 0x70, pin === 2 ? 0 : 1, 0x32, 0x64], { type: "drawerKick", pin, onMs: 100, offMs: 200 });
@@ -451,6 +473,65 @@ function byLine(commands: DecodedCommand[]): DecodedCommand[][] {
 
 const delay = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * Epson-style status bytes for the demo (the real ones come from the
+ * backend). Demo choice: an open drawer reads as pin 3 high.
+ */
+function statusReply(command: CommandBody, status: PrinterStatus): StatusSent["reply"] & { request: string } | null {
+  const stopped = status.paperOut || status.coverOpen || status.offline;
+  const drawer = status.drawerOpen ? "drawerHigh" : "drawerLow";
+  const paper = status.paperOut ? ["paperNearEnd", "paperEnd"] : ["paperPresent"];
+  if (command.type === "transmitRealTimeStatus") {
+    switch (command.request) {
+      case "printer":
+        return {
+          request: "DLE EOT 1",
+          kind: "realTime",
+          bytes: [0x12 | (status.drawerOpen ? 0x04 : 0) | (stopped ? 0x08 : 0)],
+          flags: [stopped ? "offline" : "online", drawer],
+        };
+      case "offlineCause":
+        return {
+          request: "DLE EOT 2",
+          kind: "realTime",
+          bytes: [0x12 | (status.coverOpen ? 0x04 : 0) | (status.paperOut ? 0x20 : 0)],
+          flags: [...(status.coverOpen ? ["coverOpen"] : []), ...(status.paperOut ? ["paperEndStop"] : [])],
+        };
+      case "errorCause":
+        return { request: "DLE EOT 3", kind: "realTime", bytes: [0x12], flags: [] };
+      default:
+        return { request: "DLE EOT 4", kind: "realTime", bytes: [0x12 | (status.paperOut ? 0x6c : 0)], flags: paper };
+    }
+  }
+  if (command.type === "transmitStatus") {
+    return command.request === "drawer"
+      ? { request: "GS r 2", kind: "transmit", bytes: [status.drawerOpen ? 0x01 : 0x00], flags: [drawer] }
+      : { request: "GS r 1", kind: "transmit", bytes: [status.paperOut ? 0x0f : 0x00], flags: paper };
+  }
+  return null;
+}
+
+function asbReply(status: PrinterStatus): StatusSent["reply"] {
+  const stopped = status.paperOut || status.coverOpen || status.offline;
+  return {
+    kind: "automatic",
+    bytes: [
+      0x10 | (status.drawerOpen ? 0x04 : 0) | (stopped ? 0x08 : 0) | (status.coverOpen ? 0x20 : 0),
+      0x00,
+      status.paperOut ? 0x0f : 0x00,
+      0x00,
+    ],
+    flags: [
+      stopped ? "offline" : "online",
+      ...(status.coverOpen ? ["coverOpen"] : []),
+      ...(status.paperOut ? ["paperEnd"] : []),
+      status.drawerOpen ? "drawerHigh" : "drawerLow",
+    ],
+  };
+}
+
+const FAULT_ORDER = ["coverOpen", "paperOut", "offline"] as const;
+
 // ---------------------------------------------------------------------------
 // Backend
 // ---------------------------------------------------------------------------
@@ -463,7 +544,46 @@ export const connectDemo: BackendConnector = (handlers) => {
   let nextReceipt = 1;
   const peers = new Map<number, string>();
   let paper: Paper = params.get("paper") === "58mm" ? "58mm" : "80mm";
-  let drawerOpen = params.get("drawer") === "open";
+  const initialFaults = (params.get("status") ?? "").split(",");
+  let printer: PrinterStatus = {
+    paperOut: initialFaults.includes("paperOut"),
+    coverOpen: initialFaults.includes("coverOpen"),
+    offline: initialFaults.includes("offline"),
+    drawerOpen: params.get("drawer") === "open",
+  };
+  /** Connections that enabled ASB (GS a with a non-zero mask). */
+  const asb = new Map<number, string>();
+
+  const fault = (): string | null => FAULT_ORDER.find((key) => printer[key]) ?? null;
+
+  function setPrinter(next: PrinterStatus): void {
+    const changed = (Object.keys(next) as (keyof PrinterStatus)[]).some((key) => next[key] !== printer[key]);
+    printer = next;
+    if (disposed || !changed) return;
+    handlers.onPrinterStatus({ ...printer });
+    for (const [connectionId, peer] of asb) {
+      handlers.onStatusSent({ connectionId, peer, request: "ASB", reply: asbReply(printer) });
+    }
+  }
+
+  /** Replies to status requests and handles GS a in a batch. */
+  function answer(id: number, peer: string, commands: DecodedCommand[]): void {
+    for (const { command } of commands) {
+      if (command.type === "enableAutomaticStatus") {
+        if (command.mask) {
+          asb.set(id, peer);
+          // Epson sends the first ASB right after it is enabled.
+          handlers.onStatusSent({ connectionId: id, peer, request: "ASB", reply: asbReply(printer) });
+        } else asb.delete(id);
+        continue;
+      }
+      const reply = statusReply(command, printer);
+      if (reply) {
+        const { request, ...rest } = reply;
+        handlers.onStatusSent({ connectionId: id, peer, request, reply: rest });
+      }
+    }
+  }
 
   let listener: ListenerStatus = {
     state: scenario === "error" ? "error" : scenario === "stopped" ? "stopped" : "listening",
@@ -497,6 +617,7 @@ export const connectDemo: BackendConnector = (handlers) => {
 
   function close(id: number): void {
     peers.delete(id);
+    asb.delete(id);
     if (!disposed) handlers.onConnectionsChanged(connectionsStatus());
   }
 
@@ -521,6 +642,16 @@ export const connectDemo: BackendConnector = (handlers) => {
     for (let i = 0; i < batches.length && !disposed; i++) {
       const batch = batches[i];
       handlers.onCommandsReceived({ connectionId: id, peer, commands: batch });
+      answer(id, peer, batch);
+      const reason = fault();
+      if (reason) {
+        // Error state: logged (above), answered, but not printed.
+        const bytes = batch.reduce((sum, c) => sum + c.bytes.length, 0);
+        handlers.onPrintSuppressed({ connectionId: id, peer, reason, bytes });
+        if (options.holdAfter !== undefined && i + 1 >= options.holdAfter) return;
+        await delay(options.gapMs ?? 70);
+        continue;
+      }
       let closed = false;
       for (const { command } of batch) {
         layout.apply(command);
@@ -529,8 +660,8 @@ export const connectDemo: BackendConnector = (handlers) => {
           if (receipt) handlers.onReceiptCompleted({ id: nextReceipt++, connectionId: id, peer, receipt });
           closed = true;
         } else if (command.type === "drawerKick") {
-          drawerOpen = true;
           handlers.onDrawerKicked({ connectionId: id, peer, pin: command.pin === 5 ? 5 : 2, onMs: 100, offMs: 200 });
+          setPrinter({ ...printer, drawerOpen: true });
         }
       }
       if (!closed && !layout.isEmpty) handlers.onReceiptUpdated({ connectionId: id, peer, receipt: layout.snapshot() });
@@ -575,6 +706,44 @@ export const connectDemo: BackendConnector = (handlers) => {
     await print(posterSlip().commands, { paper: "80mm", gapMs });
   }
 
+  /** A client that queries every status, enables ASB and stays connected. */
+  async function statusQuery(holdMs = 60_000): Promise<void> {
+    if (listener.state !== "listening") return;
+    const { id, peer } = open();
+    const s = new Stream();
+    s.realTimeStatus(1).realTimeStatus(2).realTimeStatus(3).realTimeStatus(4).transmitStatus(1).transmitStatus(2);
+    for (const command of s.commands) {
+      if (disposed) return;
+      handlers.onCommandsReceived({ connectionId: id, peer, commands: [command] });
+      answer(id, peer, [command]);
+      await delay(90);
+    }
+    const enable = new Stream();
+    enable.offset = s.offset;
+    enable.automaticStatus(0xff);
+    handlers.onCommandsReceived({ connectionId: id, peer, commands: enable.commands });
+    answer(id, peer, enable.commands);
+    await delay(holdMs);
+    if (!disposed) close(id);
+  }
+
+  function toggle(key: keyof PrinterStatus): void {
+    setPrinter({ ...printer, [key]: !printer[key] });
+  }
+
+  async function tour(): Promise<void> {
+    await print(bakery().commands, { paper: "80mm", gapMs: 40 });
+    await delay(300);
+    const job = print(kitchenOrder().commands, { paper: "80mm", gapMs: 140 });
+    await delay(900);
+    setPrinter({ ...printer, paperOut: true });
+    await job;
+    await delay(300);
+    await print(noteSlip().commands, { paper: "58mm", gapMs: 50 });
+    await delay(300);
+    void statusQuery();
+  }
+
   const api = {
     receipt: () => print(bakery().commands),
     boxes: () => print(tableTicket().commands),
@@ -588,11 +757,17 @@ export const connectDemo: BackendConnector = (handlers) => {
     slow: () => print(bakery().commands, { gapMs: 600 }),
     kick: async () => {
       const { id, peer } = open();
-      drawerOpen = true;
+      handlers.onCommandsReceived({ connectionId: id, peer, commands: new Stream().kick(2).commands });
       handlers.onDrawerKicked({ connectionId: id, peer, pin: 2, onMs: 100, offMs: 200 });
+      setPrinter({ ...printer, drawerOpen: true });
       await delay(200);
       close(id);
     },
+    status: () => statusQuery(),
+    paperOut: () => toggle("paperOut"),
+    coverOpen: () => toggle("coverOpen"),
+    offline: () => toggle("offline"),
+    tour,
     sequence: () => sequence(70),
     unknown: () => print(unknownSamples()),
     burst,
@@ -606,7 +781,7 @@ export const connectDemo: BackendConnector = (handlers) => {
   if (scenario !== "starting") {
     void delay(250).then(async () => {
       if (disposed) return;
-      handlers.onInitialState({ listener, connections: connectionsStatus(), paper, drawerOpen });
+      handlers.onInitialState({ listener, connections: connectionsStatus(), paper, status: { ...printer } });
       if (scenario === "") {
         await delay(600);
         await sequence(70);
@@ -636,6 +811,9 @@ export const connectDemo: BackendConnector = (handlers) => {
       } else if (scenario === "burst") {
         await delay(300);
         await burst();
+      } else if (scenario === "status") {
+        await delay(300);
+        await tour();
       }
     });
   }
@@ -649,9 +827,16 @@ export const connectDemo: BackendConnector = (handlers) => {
       paper = next;
       return paper;
     },
-    async closeDrawer(): Promise<void> {
-      await delay(80);
-      drawerOpen = false;
+    async setPrinterStatus(patch: Partial<PrinterStatus>): Promise<PrinterStatus> {
+      await delay(90);
+      if (params.has("failstatus")) throw new Error("demo: set_printer_status refused");
+      const next = { ...printer };
+      for (const key of Object.keys(next) as (keyof PrinterStatus)[]) {
+        const value = patch[key];
+        if (typeof value === "boolean") next[key] = value;
+      }
+      setPrinter(next);
+      return { ...printer };
     },
     disconnect(): void {
       disposed = true;

@@ -7,10 +7,17 @@
 // window is hidden), in order, so a burst causes one render. An in-progress
 // receipt keeps its key when it completes, so the same component settles into
 // the roll instead of being replaced.
+//
+// Data discarded while an error state is simulated (`print:suppressed`) goes
+// into the same ordered flow as a notice, where it would have printed.
+// Consecutive events of the same connection and reason (nothing else closed
+// on the roll in between) extend one notice: a running byte total, the number
+// of socket reads and the time range. Notices share the cap with receipts
+// (they are rare once coalesced) and are cleared with the roll.
 
-import type { Receipt, ReceiptCompleted, ReceiptUpdated } from "./backend";
+import type { PrintSuppressed, Receipt, ReceiptCompleted, ReceiptUpdated } from "./backend";
 
-/** Completed receipts kept; the oldest are dropped beyond this. */
+/** Entries (completed receipts and notices) kept; the oldest go beyond this. */
 export const MAX_RECEIPTS = 200;
 const FLUSH_INTERVAL_MS = 16;
 
@@ -27,13 +34,37 @@ export interface RollItem {
   completedAt: Date | null;
 }
 
+/** Data received in an error state and not printed. */
+export interface SuppressedNotice {
+  notice: true;
+  key: number;
+  connectionId: number;
+  peer: string;
+  reason: string;
+  bytes: number;
+  /** Socket reads coalesced into this notice. */
+  reads: number;
+  firstAt: Date;
+  lastAt: Date;
+}
+
+/** One entry of the completed flow. */
+export type RollEntry = RollItem | SuppressedNotice;
+
+export function isNotice(entry: RollEntry): entry is SuppressedNotice {
+  return "notice" in entry;
+}
+
 type RollEvent =
   | { kind: "updated"; payload: ReceiptUpdated }
-  | { kind: "completed"; payload: ReceiptCompleted };
+  | { kind: "completed"; payload: ReceiptCompleted }
+  | { kind: "suppressed"; payload: PrintSuppressed; at: Date };
 
 export class Roll {
-  /** Completed receipts, oldest first. Replaced (never mutated) on change. */
-  completed: RollItem[] = $state.raw([]);
+  /** Completed receipts and notices, oldest first. Replaced (never mutated) on change. */
+  completed: RollEntry[] = $state.raw([]);
+  /** Completed receipts among `completed`. */
+  receiptCount = $derived(this.completed.reduce((n, entry) => (isNotice(entry) ? n : n + 1), 0));
   /** In-progress receipts, in the order they started. */
   live: RollItem[] = $state.raw([]);
   /** Completed receipts removed by the cap since the last clear. */
@@ -55,7 +86,11 @@ export class Roll {
     this.#enqueue({ kind: "completed", payload });
   }
 
-  /** Removes the completed receipts; receipts still printing stay. */
+  suppressed(payload: PrintSuppressed): void {
+    this.#enqueue({ kind: "suppressed", payload, at: new Date() });
+  }
+
+  /** Removes the completed receipts and notices; receipts still printing stay. */
   clear(): void {
     this.#flush();
     this.completed = [];
@@ -81,11 +116,38 @@ export class Roll {
     this.#queue = [];
 
     const live = this.live.slice();
-    let completed: RollItem[] | null = null;
+    let completed: RollEntry[] | null = null;
     let added = 0;
 
     for (const event of events) {
       const { connectionId, peer } = event.payload;
+      if (event.kind === "suppressed") {
+        completed ??= this.completed.slice();
+        const { reason, bytes } = event.payload;
+        const last = completed.at(-1);
+        if (last && isNotice(last) && last.connectionId === connectionId && last.reason === reason) {
+          completed[completed.length - 1] = {
+            ...last,
+            peer,
+            bytes: last.bytes + bytes,
+            reads: last.reads + 1,
+            lastAt: event.at,
+          };
+        } else {
+          completed.push({
+            notice: true,
+            key: this.#nextKey++,
+            connectionId,
+            peer,
+            reason,
+            bytes,
+            reads: 1,
+            firstAt: event.at,
+            lastAt: event.at,
+          });
+        }
+        continue;
+      }
       const index = live.findIndex((item) => item.connectionId === connectionId);
       if (event.kind === "updated") {
         const receipt = event.payload.receipt;
@@ -126,8 +188,9 @@ export class Roll {
     if (completed) {
       const excess = completed.length - MAX_RECEIPTS;
       if (excess > 0) {
-        completed.splice(0, excess);
-        this.dropped += excess;
+        // Only receipts count as "removed" for the user; old notices just go.
+        const removed = completed.splice(0, excess);
+        this.dropped += removed.filter((entry) => !isNotice(entry)).length;
       }
       this.completed = completed;
       this.completedTotal += added;

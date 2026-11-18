@@ -45,7 +45,10 @@ const PREFIXES = new Set([0x10, 0x1b, 0x1c, 0x1d]); // DLE, ESC, FS, GS
  * commands keep their selector: `1D 28 6B …` → "GS ( k", `1D 28 4C …` →
  * "GS ( L", `1D 38 4C …` → "GS 8 L", `1D 76 30 …` → "GS v 0". Image and code
  * commands read naturally from their bytes: "GS k", "GS h", "GS w", "GS H",
- * "GS f", "ESC *". Returns null for printable text.
+ * "GS f", "ESC *". Status commands read the same way: `10 04 01` → "DLE EOT",
+ * `10 05 02` → "DLE ENQ", `10 14 01 …` → "DLE DC4", `1D 72 01` → "GS r",
+ * `1D 61 FF` → "GS a" (their parameter is shown by the decoded command).
+ * Returns null for printable text.
  */
 export function mnemonic(bytes: ArrayLike<number>): string | null {
   if (bytes.length === 0) return null;
@@ -80,7 +83,8 @@ export function humanize(identifier: string): string {
     .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
     .trim()
     .toLowerCase()
-    .replace(ACRONYMS, (word) => word.toUpperCase());
+    .replace(ACRONYMS, (word) => word.toUpperCase())
+    .replace(/\breal time\b/g, "real-time");
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
@@ -215,5 +219,40 @@ export function commandSummary(command: CommandBody): { summary: string | null; 
   if (/^qr/i.test(type) && /store|data/i.test(type) && typeof command.length === "number") {
     return { summary: messages.log.summary.storedData(command.length), skip: ["length"] };
   }
+  if (/status/i.test(type)) {
+    // GS a: the mask's bits select what Automatic Status Back reports.
+    if (typeof command.mask === "number") {
+      const names = messages.log.asbBits.filter((_, bit) => (command.mask as number) & (1 << bit));
+      return { summary: messages.log.asbMask(names), skip: ["mask"] };
+    }
+    // DLE EOT n / GS r n: which status is requested ("printer", "paperSensor"...).
+    for (const key of STATUS_REQUEST_KEYS) {
+      const value = command[key];
+      if (typeof value === "string") return { summary: humanize(value).toLowerCase(), skip: [key] };
+    }
+  }
   return { summary: null, skip: [] };
+}
+
+/** Parameter names that may carry the kind of status a command requests. */
+const STATUS_REQUEST_KEYS = ["request", "status", "kind", "target", "which"] as const;
+
+// ---------------------------------------------------------------------------
+// Status replies (printer → host)
+// ---------------------------------------------------------------------------
+
+/** "coverOpen" → "Cover open"; unknown codes are humanised. */
+export function flagLabel(code: string): string {
+  return messages.log.flags[code] ?? humanize(code);
+}
+
+/** Flags describing a condition that stops printing (or an error). */
+const FAULT_FLAG = /offline|open|end|error|stop|fail|waiting/i;
+const OK_FLAG = /^(online|paperPresent|paperAdequate|coverClosed)$/;
+
+/** How a reply flag is tinted: a fault, a healthy condition, or neutral. */
+export function flagTone(code: string): "fault" | "ok" | "neutral" {
+  if (OK_FLAG.test(code)) return "ok";
+  if (/nearEnd/i.test(code)) return "neutral";
+  return FAULT_FLAG.test(code) ? "fault" : "neutral";
 }

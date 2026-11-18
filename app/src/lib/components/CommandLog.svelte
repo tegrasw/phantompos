@@ -1,7 +1,11 @@
 <!--
   Decoded command log: offset, hex bytes and decoded command side by side,
-  grouped by connection. Follows new output only while the user is at the
-  bottom; scrolling up detaches and offers "Jump to latest".
+  grouped by connection. Status replies (printer → host) appear in the same
+  table, in arrival order: a "←" in the offset column, the reply bytes, and
+  the request with the reported conditions as chips, on a faint accent tint
+  with a leading bar so the direction reads at a glance. Follows new output
+  only while the user is at the bottom; scrolling up detaches and offers
+  "Jump to latest".
 -->
 <script lang="ts">
   import { SvelteSet } from "svelte/reactivity";
@@ -170,6 +174,11 @@
                 <Icon name="alert" size={10} />{formatCount(group.unknownCount)}
               </span>
             {/if}
+            {#if group.replyCount > 0}
+              <span class="chip-reply" title={t.replies(group.replyCount)}>
+                <span aria-hidden="true">{t.replyOffset}</span>{formatCount(group.replyCount)}
+              </span>
+            {/if}
             <span class="spacer"></span>
             <span class="summary" title={t.groupSummary(group.rows.length, formatBytes(group.byteCount))}>
               {formatBytes(group.byteCount)}
@@ -182,9 +191,14 @@
               class="row"
               class:enter={row.enter}
               class:unknown={row.kind === "unknown"}
+              class:reply={row.kind === "reply"}
               style:contain-intrinsic-size={intrinsicHeight(row)}
             >
-              <span class="offset">{formatOffset(row.offset)}</span>
+              {#if row.offset === null}
+                <span class="offset reply-mark" title={t.replyTitle}>{t.replyOffset}</span>
+              {:else}
+                <span class="offset">{formatOffset(row.offset)}</span>
+              {/if}
 
               <span class="hex">
                 {#each rowLines(row) as line, i (i)}
@@ -210,6 +224,22 @@
                         >{:else}<span class="ctl" title={t.controlTitle(segment.name)}>{segment.name}</span
                         >{/if}{/each}</span
                   >
+                {:else if row.kind === "reply"}
+                  <span class="mn mn-reply" title={t.replyKindTitles[row.replyKind] ?? t.replyTitle}
+                    >{t.replyKinds[row.replyKind] ?? t.replyLabel}</span
+                  >
+                  <span
+                    class="body"
+                    aria-label={t.replyAnnounce(row.request, row.flags.map((f) => f.label).join(", ") || t.noFlags)}
+                  >
+                    <span class="request">{row.request}</span>
+                    <span class="arrow" aria-hidden="true">&rarr;</span>
+                    {#each row.flags as flag, i (i)}
+                      <span class="flag" data-tone={flag.tone}>{flag.label}</span>
+                    {:else}
+                      <span class="flag" data-tone="neutral">{t.noFlags}</span>
+                    {/each}
+                  </span>
                 {:else if row.kind === "unknown"}
                   <span class="mn">{row.mnemonic ?? "?"}</span>
                   <span class="body">
@@ -480,6 +510,7 @@
     flex-wrap: wrap;
     align-items: baseline;
     column-gap: var(--space-2);
+    row-gap: 2px;
     min-width: 0;
   }
   .mn {
@@ -559,6 +590,82 @@
     font-size: var(--text-2xs);
     line-height: 15px;
     vertical-align: 1px;
+  }
+
+  /* Printer → host -------------------------------------------------------- */
+  .row.reply {
+    background: color-mix(in srgb, var(--accent-soft) 55%, transparent);
+    box-shadow: inset 2px 0 0 var(--accent-border);
+  }
+  .row.reply.enter {
+    animation-name: reply-in;
+  }
+  @keyframes reply-in {
+    from {
+      opacity: 0;
+      transform: translateX(6px);
+      background: var(--accent-soft);
+    }
+  }
+  .reply-mark {
+    color: var(--accent);
+    font-weight: 700;
+    text-align: center;
+  }
+  .row.reply .hex {
+    color: var(--accent);
+  }
+  .mn-reply {
+    color: var(--accent);
+    font-family: var(--font-ui);
+    font-weight: var(--weight-semibold);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+  }
+  .request {
+    color: var(--text);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .arrow {
+    color: var(--text-tertiary);
+    font-size: var(--text-xs);
+  }
+  .flag {
+    padding: 0 var(--space-1-5);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--bg-raised);
+    color: var(--text-secondary);
+    font-family: var(--font-ui);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    line-height: 16px;
+    white-space: nowrap;
+  }
+  .flag[data-tone="ok"] {
+    border-color: var(--accent-border);
+    color: var(--accent);
+  }
+  .flag[data-tone="fault"] {
+    border-color: var(--fault-border);
+    background: var(--fault-soft);
+    color: var(--fault);
+  }
+  .chip-reply {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 0 var(--space-1-5);
+    border: 1px solid var(--accent-border);
+    border-radius: var(--radius-pill);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    font-weight: 700;
+    line-height: 14px;
   }
 
   .row.unknown {

@@ -6,10 +6,13 @@
     type BackendConnector,
     type BackendHandlers,
     type BackendSession,
+    NORMAL_STATUS,
     type ConnectionsStatus,
     type DrawerKicked,
     type ListenerStatus,
     type Paper,
+    type PrinterFault,
+    type PrinterStatus,
   } from "./lib/backend";
   import { CommandLog } from "./lib/commandLog.svelte";
   import CommandLogPanel from "./lib/components/CommandLog.svelte";
@@ -17,9 +20,11 @@
   import Header from "./lib/components/Header.svelte";
   import RollView from "./lib/components/RollView.svelte";
   import SidePanel from "./lib/components/SidePanel.svelte";
+  import StatePanel from "./lib/components/StatePanel.svelte";
+  import StatePanelRail from "./lib/components/StatePanelRail.svelte";
   import { messages } from "./lib/messages";
   import { Roll } from "./lib/roll.svelte";
-  import { printerStatus } from "./lib/status";
+  import { endpointStatus } from "./lib/status";
 
   const t = messages;
 
@@ -34,35 +39,66 @@
   const roll = new Roll();
   /** Paper for new receipts (memory only until the settings of stage 6). */
   let paper = $state<Paper>("80mm");
-  let drawer = $state<{ open: boolean; kicks: number; last: DrawerKicked | null }>({
-    open: false,
-    kicks: 0,
-    last: null,
-  });
+  /** The simulated printer state (`printer:status`). */
+  let printer = $state<PrinterStatus>({ ...NORMAL_STATUS });
+  /** Drawer kicks since launch (replays the pulse) and the latest one. */
+  let drawer = $state<{ kicks: number; last: DrawerKicked | null }>({ kicks: 0, last: null });
+  let printerError = $state<string | null>(null);
   let session: BackendSession | null = null;
-  const status = $derived(printerStatus(hasBackend, listener, backendError));
+  const status = $derived(endpointStatus(hasBackend, listener, backendError));
 
   // Layout ------------------------------------------------------------------
+  // Printer state on the left (fixed width, collapses to a rail), command log
+  // on the right (resizable). When the window cannot fit both open beside a
+  // usable roll, opening one collapses the other; shrinking the window
+  // collapses the one opened earlier.
   const PANEL_MIN = 380;
   const ROLL_MIN = 260;
+  const STATE_W = 272; // keep in sync with --state-w
+  const RAIL_W = 44; // keep in sync with --rail-w
   const STORE_OPEN = "phantompos.commandLog.open";
   const STORE_WIDTH = "phantompos.commandLog.width";
+  const STORE_STATE_OPEN = "phantompos.statePanel.open";
 
   let viewportWidth = $state(window.innerWidth);
   let logOpen = $state(readStored(STORE_OPEN) !== "false");
+  let stateOpen = $state(readStored(STORE_STATE_OPEN) !== "false");
+  /** The panel opened most recently wins when both cannot fit. */
+  let lastOpened: "state" | "log" = "log";
+  const fitsBoth = $derived(viewportWidth >= STATE_W + PANEL_MIN + ROLL_MIN);
   let logWidth = $state(
     Number(readStored(STORE_WIDTH)) ||
       // 46 %: at the default 1200 px window an 80 mm receipt keeps one CSS
       // pixel per dot beside the log (crisp codes, see RollView).
       Math.round(Math.min(680, Math.max(460, window.innerWidth * 0.46))),
   );
-  const panelMax = $derived(Math.max(PANEL_MIN, viewportWidth - ROLL_MIN));
+  const panelMax = $derived(Math.max(PANEL_MIN, viewportWidth - ROLL_MIN - (stateOpen ? STATE_W : RAIL_W)));
   /** Below this width the log stacks bytes under each command. */
   const COMPACT_BELOW = 520;
   const logCompact = $derived(Math.min(logWidth, panelMax) < COMPACT_BELOW);
 
   $effect(() => writeStored(STORE_OPEN, String(logOpen)));
   $effect(() => writeStored(STORE_WIDTH, String(logWidth)));
+  $effect(() => writeStored(STORE_STATE_OPEN, String(stateOpen)));
+
+  $effect(() => {
+    if (fitsBoth || !logOpen || !stateOpen) return;
+    if (lastOpened === "state") logOpen = false;
+    else stateOpen = false;
+  });
+
+  function setLogOpen(open: boolean): void {
+    logOpen = open;
+    if (!open) return;
+    lastOpened = "log";
+    if (!fitsBoth) stateOpen = false;
+  }
+  function setStateOpen(open: boolean): void {
+    stateOpen = open;
+    if (!open) return;
+    lastOpened = "state";
+    if (!fitsBoth) logOpen = false;
+  }
 
   function readStored(key: string): string | null {
     try {
@@ -97,14 +133,19 @@
     onReceiptUpdated: (update) => roll.update(update),
     onReceiptCompleted: (receipt) => roll.complete(receipt),
     onDrawerKicked: (kick) => {
-      drawer = { open: true, kicks: drawer.kicks + 1, last: kick };
+      drawer = { kicks: drawer.kicks + 1, last: kick };
+      // `printer:status` follows; open the indicator without waiting for it.
+      printer = { ...printer, drawerOpen: true };
     },
+    onPrinterStatus: (next) => (printer = next),
+    onStatusSent: (sent) => log.pushReply(sent),
+    onPrintSuppressed: (suppressed) => roll.suppressed(suppressed),
     onInitialState: (state) => {
       listener = state.listener;
       connections = state.connections;
       // Tolerate a backend that predates these fields.
       if (state.paper) paper = state.paper;
-      if (typeof state.drawerOpen === "boolean") drawer = { ...drawer, open: state.drawerOpen };
+      if (state.status) printer = { ...NORMAL_STATUS, ...state.status };
       backendError = null;
     },
     onError: (error) => {
@@ -125,15 +166,32 @@
     }
   }
 
-  async function closeDrawer(): Promise<void> {
-    if (!drawer.open) return;
-    drawer = { ...drawer, open: false };
+  /**
+   * Optimistic: shows the change at once; on failure only the fields this
+   * call changed go back (anything `printer:status` set meanwhile stays).
+   */
+  async function changePrinter(patch: Partial<PrinterStatus>, failure: string): Promise<void> {
+    const keys = Object.keys(patch) as (keyof PrinterStatus)[];
+    const previous = Object.fromEntries(keys.map((key) => [key, printer[key]])) as Partial<PrinterStatus>;
+    printer = { ...printer, ...patch };
+    printerError = null;
     try {
       if (!session) throw new Error("No backend");
-      await session.closeDrawer();
+      printer = await session.setPrinterStatus(patch);
     } catch {
-      drawer = { ...drawer, open: true };
+      const reverted = { ...printer };
+      for (const key of keys) if (printer[key] === patch[key]) reverted[key] = previous[key] as boolean;
+      printer = reverted;
+      printerError = failure;
     }
+  }
+
+  function toggleFault(fault: PrinterFault): void {
+    void changePrinter({ [fault]: !printer[fault] }, messages.printer.changeFailed);
+  }
+
+  function closeDrawer(): void {
+    if (printer.drawerOpen) void changePrinter({ drawerOpen: false }, messages.drawer.closeFailed);
   }
 
   onMount(() => {
@@ -167,22 +225,45 @@
 <div class="shell">
   <Header
     {status}
+    {printer}
     {connections}
     {activity}
     {logOpen}
-    onToggleLog={() => (logOpen = !logOpen)}
+    {stateOpen}
+    onToggleLog={() => setLogOpen(!logOpen)}
+    onToggleState={() => setStateOpen(!stateOpen)}
+    onShowState={() => setStateOpen(true)}
   />
 
   <div class="workspace">
-    <RollView
-      {status}
-      stats={log.stats}
-      {roll}
-      {paper}
-      onPaperChange={changePaper}
-      {drawer}
-      onCloseDrawer={() => void closeDrawer()}
-    />
+    {#if hasBackend}
+      <SidePanel
+        id="printer-state"
+        label={t.printer.title}
+        side="left"
+        resizable={false}
+        open={stateOpen}
+        width={STATE_W}
+        minWidth={STATE_W}
+        maxWidth={STATE_W}
+      >
+        {#snippet rail()}
+          <StatePanelRail {printer} onExpand={() => setStateOpen(true)} />
+        {/snippet}
+        <StatePanel
+          {printer}
+          {drawer}
+          printing={roll.live.length > 0}
+          lastReply={log.lastReply}
+          error={printerError}
+          onToggle={toggleFault}
+          onCloseDrawer={closeDrawer}
+          onCollapse={() => setStateOpen(false)}
+        />
+      </SidePanel>
+    {/if}
+
+    <RollView {status} {printer} stats={log.stats} {roll} {paper} onPaperChange={changePaper} />
 
     <SidePanel
       id="command-log"
@@ -194,9 +275,9 @@
       maxWidth={panelMax}
     >
       {#snippet rail()}
-        <CommandLogRail {log} onExpand={() => (logOpen = true)} />
+        <CommandLogRail {log} onExpand={() => setLogOpen(true)} />
       {/snippet}
-      <CommandLogPanel {log} compact={logCompact} onCollapse={() => (logOpen = false)} />
+      <CommandLogPanel {log} compact={logCompact} onCollapse={() => setLogOpen(false)} />
     </SidePanel>
   </div>
 </div>

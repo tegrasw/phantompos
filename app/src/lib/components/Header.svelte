@@ -1,34 +1,48 @@
 <!--
   Fixed application header: mark, endpoint status (state + address + copy, or
   the error in place of the address), live connection count with an activity
-  light, and the command-log panel toggle.
+  light, and the panel toggles (printer state on the left, command log on the
+  right). While an error state is simulated, a --fault chip beside the
+  endpoint names it (and opens the printer state); it never uses the listener
+  error colours, since the listener is fine.
 -->
 <script lang="ts">
   import { fade, fly } from "svelte/transition";
-  import type { ConnectionsStatus } from "../backend";
+  import { activeFaults, type ConnectionsStatus, type PrinterStatus } from "../backend";
   import { messages } from "../messages";
   import { duration, easeOut } from "../motion";
-  import type { PrinterStatus } from "../status";
+  import type { EndpointStatus } from "../status";
   import AppMark from "./AppMark.svelte";
   import CopyButton from "./CopyButton.svelte";
   import Icon from "./Icon.svelte";
 
   let {
     status,
+    printer,
     connections,
     activity,
     logOpen,
+    stateOpen,
     onToggleLog,
+    onToggleState,
+    onShowState,
   }: {
-    status: PrinterStatus;
+    status: EndpointStatus;
+    printer: PrinterStatus;
     connections: ConnectionsStatus;
     /** Increments whenever data arrives; drives the activity light. */
     activity: number;
     logOpen: boolean;
+    stateOpen: boolean;
     onToggleLog: () => void;
+    onToggleState: () => void;
+    onShowState: () => void;
   } = $props();
 
   const t = messages.header;
+  const p = messages.printer;
+
+  const faults = $derived(activeFaults(printer));
 
   const label = $derived.by(() => {
     switch (status.kind) {
@@ -109,6 +123,26 @@
     {/if}
   </div>
 
+  {#if hasBackend && faults.length > 0}
+    {@const names = p.list(faults.map((f) => p.faults[f]))}
+    <button
+      type="button"
+      class="fault"
+      title={t.faultTitle(names)}
+      aria-label={t.faultTitle(names)}
+      aria-controls="printer-state"
+      onclick={onShowState}
+      transition:fly={{ x: -6, duration: duration("base"), easing: easeOut }}
+    >
+      <span class="fault-icon" aria-hidden="true"><Icon name="pause" size={10} /></span>
+      {#key faults.join()}
+        <span class="fault-text" in:fade={{ duration: duration("fast") }}>
+          {t.faultChip(p.faults[faults[0]], faults.length - 1)}
+        </span>
+      {/key}
+    </button>
+  {/if}
+
   <span class="spacer"></span>
 
   {#if hasBackend}
@@ -130,6 +164,19 @@
     <span class="rule" aria-hidden="true"></span>
   {/if}
 
+  {#if hasBackend}
+    <button
+      type="button"
+      class="icon-btn"
+      aria-pressed={stateOpen}
+      aria-controls="printer-state"
+      title={stateOpen ? t.hideState : t.showState}
+      aria-label={stateOpen ? t.hideState : t.showState}
+      onclick={onToggleState}
+    >
+      <Icon name="panelLeft" />
+    </button>
+  {/if}
   <button
     type="button"
     class="icon-btn"
@@ -296,6 +343,43 @@
     min-width: var(--space-2);
   }
 
+  /* Simulated fault chip -------------------------------------------------- */
+  .fault {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1-5);
+    flex: none;
+    height: 26px;
+    padding: 0 var(--space-3) 0 var(--space-1);
+    border: 1px solid var(--fault-border);
+    border-radius: var(--radius-pill);
+    background: var(--fault-soft);
+    color: var(--fault);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out);
+  }
+  .fault:hover {
+    background: color-mix(in srgb, var(--fault-soft), var(--fault) 8%);
+    box-shadow: 0 0 12px -4px var(--fault-glow);
+  }
+  .fault-icon {
+    display: grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--fault);
+    color: var(--bg-surface);
+  }
+  .fault-icon :global(.icon) {
+    stroke-width: 2.25;
+  }
+
   /* Connections --------------------------------------------------------- */
   .connections {
     display: flex;
@@ -345,6 +429,13 @@
     height: 20px;
     background: var(--border);
     flex: none;
+  }
+
+  /* Narrow windows: the chip keeps its icon and the first fault only. */
+  @media (max-width: 760px) {
+    .connections .count {
+      display: none;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

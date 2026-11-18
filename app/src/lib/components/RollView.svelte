@@ -1,9 +1,11 @@
 <!--
-  Central "desk" with the paper roll. A toolbar (paper width, cash drawer,
-  receipt count, clear) sits on top. With no receipts the idle state explains
-  how to print; otherwise receipts stack in arrival order above a printer slot
-  at the bottom, the newest feeding out of it while it prints. The view
-  follows new output only while the user is at the bottom (like the log).
+  Central "desk" with the paper roll. A toolbar (paper width, receipt count,
+  clear) sits on top. With no receipts the idle state explains how to print;
+  otherwise receipts stack in arrival order above a printer slot at the
+  bottom, the newest feeding out of it while it prints. Data discarded while
+  an error state is simulated shows as a quiet notice in the same flow, and
+  the slot (LED, label) shows the fault. The view follows new output only
+  while the user is at the bottom (like the log).
 
   Scale: the canvas bitmap has one pixel per printer dot and is enlarged
   without smoothing. All receipts share one zoom, computed for 80 mm paper,
@@ -19,35 +21,33 @@
   import { flip } from "svelte/animate";
   import CodePreview, { type InspectedCode } from "./CodePreview.svelte";
   import { fade, fly } from "svelte/transition";
-  import type { DrawerKicked, Paper } from "../backend";
+  import { activeFaults, type Paper, type PrinterStatus } from "../backend";
   import type { SessionStats } from "../commandLog.svelte";
   import { formatBytes, formatCount } from "../format";
   import { messages } from "../messages";
   import { duration, easeOut } from "../motion";
-  import type { Roll, RollItem } from "../roll.svelte";
-  import type { PrinterStatus } from "../status";
-  import DrawerButton from "./DrawerButton.svelte";
+  import { isNotice, type Roll, type RollEntry, type RollItem } from "../roll.svelte";
+  import type { EndpointStatus } from "../status";
   import Icon from "./Icon.svelte";
   import IdleState from "./IdleState.svelte";
   import PaperSelect from "./PaperSelect.svelte";
   import ReceiptSheet, { type Edge } from "./ReceiptSheet.svelte";
+  import SuppressedNotice from "./SuppressedNotice.svelte";
 
   let {
     status,
+    printer,
     stats,
     roll,
     paper,
     onPaperChange,
-    drawer,
-    onCloseDrawer,
   }: {
-    status: PrinterStatus;
+    status: EndpointStatus;
+    printer: PrinterStatus;
     stats: SessionStats;
     roll: Roll;
     paper: Paper;
     onPaperChange: (paper: Paper) => Promise<void>;
-    drawer: { open: boolean; kicks: number; last: DrawerKicked | null };
-    onCloseDrawer: () => void;
   } = $props();
 
   const t = messages.roll;
@@ -59,9 +59,10 @@
   const STICKY_THRESHOLD_PX = 32;
 
   const hasBackend = $derived(status.kind !== "disconnected");
-  const items: RollItem[] = $derived([...roll.completed, ...roll.live]);
+  const items: RollEntry[] = $derived([...roll.completed, ...roll.live]);
   const empty = $derived(items.length === 0);
   const printing = $derived(roll.live.length);
+  const faults = $derived(activeFaults(printer));
 
   // Zoom ----------------------------------------------------------------------
   let rollWidth = $state(800);
@@ -171,16 +172,34 @@
     if (item.live) return "feed";
     return item.receipt.cut === "full" ? "full" : item.receipt.cut === "partial" ? "partial" : "soft";
   }
+  // Notices are not paper: edges look through them to the receipt before.
   function topEdgeOf(index: number): Edge {
-    const previous = items[index - 1];
-    if (!previous) return "straight";
+    let previous: RollEntry | undefined;
+    for (let i = index - 1; i >= 0 && !previous; i--) if (!isNotice(items[i])) previous = items[i];
+    if (!previous || isNotice(previous)) return "straight";
     const edge = bottomEdgeOf(previous);
     return edge === "full" || edge === "partial" ? edge : "straight";
   }
+  function hasNextSheet(index: number): boolean {
+    const next = items[index + 1];
+    return next !== undefined && !isNotice(next);
+  }
 
-  const slotLabel = $derived(
-    status.kind !== "listening" ? t.slotOffline : printing > 0 ? t.slotPrinting(printing) : t.slotReady,
+  const slotState = $derived(
+    status.kind !== "listening" ? "idle" : faults.length > 0 ? "fault" : printing > 0 ? "printing" : "ready",
   );
+  const slotLabel = $derived.by(() => {
+    switch (slotState) {
+      case "idle":
+        return t.slotOffline;
+      case "fault":
+        return t.slotFault(messages.printer.faults[faults[0]], faults.length - 1);
+      case "printing":
+        return t.slotPrinting(printing);
+      default:
+        return t.slotReady;
+    }
+  });
 </script>
 
 <main
@@ -195,13 +214,11 @@
         <Icon name="receipt" size={15} />
         <span class="heading-text">{t.toolbarLabel}</span>
       </span>
-      {#if roll.completed.length > 0}
-        <span class="count" in:fade={{ duration: duration("fast") }}>{t.receiptCount(roll.completed.length)}</span>
+      {#if roll.receiptCount > 0}
+        <span class="count" in:fade={{ duration: duration("fast") }}>{t.receiptCount(roll.receiptCount)}</span>
       {/if}
       <span class="spacer"></span>
       <PaperSelect {paper} onChange={onPaperChange} />
-      <span class="rule" aria-hidden="true"></span>
-      <DrawerButton open={drawer.open} kicks={drawer.kicks} lastKick={drawer.last} onClose={onCloseDrawer} />
       <span class="rule" aria-hidden="true"></span>
       <button
         type="button"
@@ -217,7 +234,11 @@
   {/if}
 
   {#if empty}
-    <IdleState {status} {stats} />
+    <IdleState
+      {status}
+      {stats}
+      fault={faults.length > 0 ? messages.printer.list(faults.map((f) => messages.printer.faults[f])) : null}
+    />
   {:else}
     <!-- The listeners only observe scroll intent; the roll stays a focusable,
          keyboard-scrollable region. -->
@@ -240,34 +261,45 @@
         {#if roll.dropped > 0}
           <p class="dropped">{t.dropped(roll.dropped)}</p>
         {/if}
-        {#each items as item, index (item.key)}
+        {#each items as entry, index (entry.key)}
           <div
             class="item"
-            style:--paper-left="{paperLeft(item.receipt.width)}px"
+            class:notice-item={isNotice(entry)}
+            style:--paper-left={isNotice(entry) ? undefined : `${paperLeft(entry.receipt.width)}px`}
             animate:flip={{ duration: duration("slow"), easing: easeOut }}
           >
-            <ReceiptSheet
-              {item}
-              zoom={scale.zoom}
-              topEdge={topEdgeOf(index)}
-              inSlot={item.live && index === items.length - 1}
-              hasNext={index < items.length - 1}
-              onInspect={(image, source) => (inspected = { image, source })}
-            />
+            {#if isNotice(entry)}
+              <SuppressedNotice notice={entry} />
+            {:else}
+              <ReceiptSheet
+                item={entry}
+                zoom={scale.zoom}
+                topEdge={topEdgeOf(index)}
+                inSlot={entry.live && index === items.length - 1}
+                hasNext={hasNextSheet(index)}
+                onInspect={(image, source) => (inspected = { image, source })}
+              />
+            {/if}
           </div>
         {/each}
       </div>
 
-      <div class="printer" data-state={printing > 0 ? "printing" : status.kind === "listening" ? "ready" : "idle"}>
+      <div class="printer" data-state={slotState}>
         <div class="mouth" aria-hidden="true"></div>
         <div class="lip">
           <span class="led" aria-hidden="true"></span>
           <span class="state" role="status">{slotLabel}</span>
           <span class="lip-spacer"></span>
-          <span class="lip-stats" aria-hidden="true">
-            <span>{formatCount(stats.commands)} cmd</span>
-            <span>{formatBytes(stats.bytes)}</span>
-          </span>
+          {#if slotState === "fault"}
+            <span class="lip-halted" in:fade={{ duration: duration("fast") }}>
+              <Icon name="pause" size={10} />{t.slotHalted}
+            </span>
+          {:else}
+            <span class="lip-stats" aria-hidden="true">
+              <span>{formatCount(stats.commands)} cmd</span>
+              <span>{formatBytes(stats.bytes)}</span>
+            </span>
+          {/if}
         </div>
       </div>
     </div>
@@ -312,7 +344,7 @@
     align-items: center;
     gap: var(--space-2);
     height: 44px;
-    padding: 0 var(--space-2) 0 var(--space-4);
+    padding: 0 var(--space-3) 0 var(--space-4);
     border-bottom: 1px solid var(--border);
     background: color-mix(in srgb, var(--bg-surface) 82%, transparent);
     backdrop-filter: blur(10px);
@@ -375,7 +407,7 @@
     width: 100%;
   }
   /* May be negative when the paper is wider than the padded stack. */
-  .item > :global(*) {
+  .item:not(.notice-item) > :global(*) {
     margin-left: var(--paper-left, 0);
   }
   .dropped {
@@ -469,6 +501,43 @@
   [data-state="printing"] .state {
     color: var(--accent);
   }
+  /* Simulated fault: a steady --fault LED (blinking like a real error LED),
+     the fault named on the lip and a faint hatch over the throat. */
+  [data-state="fault"] .led {
+    background: var(--fault);
+    box-shadow: 0 0 0 3px var(--fault-soft), 0 0 10px var(--fault-glow);
+    animation: blink 1.6s steps(1, end) infinite;
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0.35;
+    }
+  }
+  [data-state="fault"] .state {
+    color: var(--fault);
+  }
+  [data-state="fault"] .mouth {
+    background:
+      repeating-linear-gradient(135deg, var(--fault-soft) 0 6px, transparent 6px 12px),
+      linear-gradient(to bottom, transparent, rgb(0 0 0 / 0.14));
+  }
+  [data-state="fault"] .lip {
+    border-color: var(--fault-border);
+  }
+  .lip-halted {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 0 var(--space-2) 0 var(--space-1-5);
+    border: 1px solid var(--fault-border);
+    border-radius: var(--radius-pill);
+    background: var(--fault-soft);
+    color: var(--fault);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    line-height: 18px;
+    white-space: nowrap;
+  }
   .lip-spacer {
     flex: 1;
   }
@@ -523,7 +592,8 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    [data-state="printing"] .led {
+    [data-state="printing"] .led,
+    [data-state="fault"] .led {
       animation: none;
     }
   }
