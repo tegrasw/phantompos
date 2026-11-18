@@ -14,8 +14,6 @@ specification.
 - Proprietary commands from Bematech, Elgin and Daruma.
 - Receipt history preserved between runs.
 - Automatic application updates.
-- Automatic fallback to another port when 9100 is in use. Rejected for v1: the app must
-  never change ports silently; stage 6 offers an explicit action instead.
 - Drawing other graphics commands: `ESC *`, `GS ( L` / `GS 8 L`, `GS *` / `GS /`,
   `FS p` / `FS q` (today they are consumed and logged as unsupported).
 - Other 2D symbols (PDF417, MaxiCode, DataMatrix, Aztec) and GS1-128, GS1 DataBar and
