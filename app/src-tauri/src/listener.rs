@@ -1,15 +1,28 @@
 //! Raw TCP listener for the virtual printer.
 //!
 //! Accepts any number of simultaneous connections. Each connection owns a
-//! `phantompos-core` [`Parser`] and [`ReceiptBuilder`]: every chunk read from
-//! the socket is fed to them, and the decoded commands, receipts and drawer
-//! kicks go to an [`EventSink`]. Interpreting ESC/POS is the job of
-//! `phantompos-core`; this module only routes the builder's [`Effect`]s.
+//! `phantompos-core` [`Session`] (parser, receipt builder, status replies):
+//! every chunk read from the socket is fed to it with the current simulated
+//! [`PrinterStatus`], and the decoded commands, receipts, drawer kicks and
+//! replies go to an [`EventSink`] (replies are first written back to the
+//! socket). Interpreting ESC/POS is the job of `phantompos-core`; this module
+//! only routes the session's [`SessionEvent`]s.
 //!
-//! Event order per read: `commands:received`, then `receipt:completed` /
-//! `drawer:kicked` in stream order, then `receipt:updated` if the receipt in
-//! progress changed (at most one per read). On disconnect: the flushed
-//! commands, the pending receipt (if any) and `connection:changed`.
+//! Event order per read: `commands:received`, `print:suppressed` (if data
+//! was discarded in an error state), then `receipt:completed` /
+//! `drawer:kicked` (+ `printer:status` when the drawer opened) in stream
+//! order, then one `status:sent` per reply written, then `receipt:updated`
+//! if the receipt in progress changed (at most one per read). On
+//! disconnect: the flushed commands, the pending receipt (if any) and
+//! `connection:changed`.
+//!
+//! The simulated state is global ([`ListenerState::set_printer_status`], drawer
+//! kicks). Every change is published on a [`watch`] channel; each connection
+//! task wakes up and sends its Automatic Status Back if the client enabled
+//! it for an item that changed. Replies are written in the connection task,
+//! each bounded by [`REPLY_WRITE_TIMEOUT`]: a client that never reads its
+//! replies is disconnected instead of stalling its task forever (other
+//! connections have their own tasks and are never affected).
 //!
 //! `receipt:updated` carries the whole receipt in progress, images included
 //! (base64 bitmaps), so it is throttled per connection: the first change is
@@ -29,12 +42,14 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use std::time::Duration;
 
 use phantompos_core::{
-    DecodedCommand, DrawerKick, Effect, PaperProfile, Parser, ParserConfig, Receipt,
-    ReceiptBuilder, ReceiptConfig,
+    DecodedCommand, DrawerKick, PaperProfile, ParserConfig, PrinterStatus, PrinterStatusPatch,
+    Receipt, ReceiptConfig, Reply, Session, SessionEvent, SessionOutput, StatusReply,
+    SuppressReason,
 };
 use serde::Serialize;
-use tokio::io::AsyncReadExt;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
+use tokio::sync::watch;
 use tokio::task::JoinSet;
 use tokio::time::Instant;
 
@@ -47,6 +62,11 @@ const READ_BUFFER_SIZE: usize = 4096;
 
 /// Minimum time between two `receipt:updated` events of one connection.
 const UPDATE_INTERVAL: Duration = Duration::from_millis(50);
+
+/// Longest time writing one reply may take. Replies are 1-4 bytes, so a write
+/// only waits when the client has not read for so long that both socket
+/// buffers are full; the connection is then closed.
+const REPLY_WRITE_TIMEOUT: Duration = Duration::from_secs(2);
 
 /// Pause after a failed `accept` so a persistent error (e.g. too many open
 /// files) does not turn the accept loop into a busy loop.
@@ -141,6 +161,30 @@ pub struct DrawerKicked {
     pub off_ms: u32,
 }
 
+/// Payload of the `status:sent` event: a reply written to a socket.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StatusSent {
+    pub connection_id: u64,
+    pub peer: String,
+    /// The request answered (`"DLE EOT 1"`, `"GS r 2"`), or `"ASB"` for
+    /// Automatic Status Back.
+    pub request: String,
+    pub reply: StatusReply,
+}
+
+/// Payload of the `print:suppressed` event: bytes of one read (or of the
+/// disconnect flush) that were not printed because of an error state.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PrintSuppressed {
+    pub connection_id: u64,
+    pub peer: String,
+    /// `coverOpen`, then `paperOut`, then `offline` when several are active.
+    pub reason: SuppressReason,
+    pub bytes: u64,
+}
+
 /// Return value of the `get_state` command.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -149,8 +193,8 @@ pub struct StateSnapshot {
     pub connections: ConnectionsSnapshot,
     /// Paper for receipts started from now on.
     pub paper: PaperProfile,
-    /// Set by a drawer kick, cleared by the `close_drawer` command.
-    pub drawer_open: bool,
+    /// Simulated printer state.
+    pub status: PrinterStatus,
 }
 
 /// Something that happened in the listener and must reach the UI.
@@ -162,11 +206,14 @@ pub enum ListenerEvent {
     ReceiptUpdated(ReceiptUpdated),
     ReceiptCompleted(ReceiptCompleted),
     DrawerKicked(DrawerKicked),
+    PrinterStatus(PrinterStatus),
+    StatusSent(StatusSent),
+    PrintSuppressed(PrintSuppressed),
 }
 
 /// Receives listener events. Implementations must not block for long: status,
-/// connection, receipt-completed and drawer events are emitted while the state
-/// lock is held, so that the order of events always matches the order of
+/// connection, receipt-completed, drawer and printer-status events are emitted
+/// while the state lock is held, so that the order of events always matches the order of
 /// state changes (and receipt ids reach the UI in increasing order).
 pub trait EventSink: Send + Sync + 'static {
     fn emit(&self, event: ListenerEvent);
@@ -192,6 +239,8 @@ pub struct ListenerState {
     settings: ListenerSettings,
     inner: Mutex<Inner>,
     next_connection_id: AtomicU64,
+    /// Publishes every change of the simulated state to the connections.
+    status_tx: watch::Sender<PrinterStatus>,
 }
 
 #[derive(Debug)]
@@ -199,7 +248,8 @@ struct Inner {
     status: ListenerStatus,
     peers: BTreeMap<u64, SocketAddr>,
     paper: PaperProfile,
-    drawer_open: bool,
+    /// Simulated printer state.
+    printer: PrinterStatus,
     /// Id of the next completed receipt.
     next_receipt_id: u64,
 }
@@ -224,10 +274,11 @@ impl ListenerState {
                 },
                 peers: BTreeMap::new(),
                 paper: PaperProfile::default(),
-                drawer_open: false,
+                printer: PrinterStatus::default(),
                 next_receipt_id: 1,
             }),
             next_connection_id: AtomicU64::new(1),
+            status_tx: watch::Sender::new(PrinterStatus::default()),
         }
     }
 
@@ -241,8 +292,46 @@ impl ListenerState {
             listener: inner.status.clone(),
             connections: inner.connections(),
             paper: inner.paper,
-            drawer_open: inner.drawer_open,
+            status: inner.printer,
         }
+    }
+
+    /// Current simulated printer state.
+    pub fn printer_status(&self) -> PrinterStatus {
+        self.lock().printer
+    }
+
+    /// Merges `patch` into the simulated state and returns the new state.
+    /// A change is published to the connections (ASB) and emitted as
+    /// `printer:status`.
+    pub fn set_printer_status(
+        &self,
+        patch: PrinterStatusPatch,
+        sink: &dyn EventSink,
+    ) -> PrinterStatus {
+        let mut inner = self.lock();
+        let status = inner.printer.merged(patch);
+        Self::store_printer_status(&mut inner, status, &self.status_tx, sink);
+        status
+    }
+
+    fn store_printer_status(
+        inner: &mut Inner,
+        status: PrinterStatus,
+        status_tx: &watch::Sender<PrinterStatus>,
+        sink: &dyn EventSink,
+    ) {
+        if inner.printer == status {
+            return;
+        }
+        inner.printer = status;
+        status_tx.send_replace(status);
+        sink.emit(ListenerEvent::PrinterStatus(status));
+    }
+
+    /// Receives every change of the simulated state.
+    fn subscribe(&self) -> watch::Receiver<PrinterStatus> {
+        self.status_tx.subscribe()
     }
 
     /// Paper for receipts started from now on.
@@ -254,11 +343,6 @@ impl ListenerState {
     /// in progress keep theirs.
     pub fn set_paper(&self, paper: PaperProfile) {
         self.lock().paper = paper;
-    }
-
-    /// Marks the cash drawer as closed (the user closed it in the UI).
-    pub fn close_drawer(&self) {
-        self.lock().drawer_open = false;
     }
 
     fn complete_receipt(
@@ -281,7 +365,6 @@ impl ListenerState {
 
     fn kick_drawer(&self, connection_id: u64, peer: &str, kick: DrawerKick, sink: &dyn EventSink) {
         let mut inner = self.lock();
-        inner.drawer_open = true;
         sink.emit(ListenerEvent::DrawerKicked(DrawerKicked {
             connection_id,
             peer: peer.to_owned(),
@@ -289,6 +372,11 @@ impl ListenerState {
             on_ms: kick.on_ms,
             off_ms: kick.off_ms,
         }));
+        let opened = PrinterStatus {
+            drawer_open: true,
+            ..inner.printer
+        };
+        Self::store_printer_status(&mut inner, opened, &self.status_tx, sink);
     }
 
     /// The state stays consistent even if a holder panicked, so a poisoned
@@ -382,20 +470,19 @@ pub async fn run(state: Arc<ListenerState>, sink: Arc<dyn EventSink>) {
     }
 }
 
-/// Per-connection state: the parser, the receipt builder and what is needed
-/// to report their output.
+/// Per-connection state: the core session and what is needed to report its
+/// output.
 ///
 /// Dropping it ends the connection, whether the task returned (EOF, read
-/// error) or was aborted (listener shutdown): the parser is finished and its
-/// remaining commands are emitted first, then the pending receipt is
-/// completed, then the connection is removed from the shared state. So the
-/// last `commands:received` and `receipt:completed` of a connection always
-/// precede the `connection:changed` that reports it gone.
+/// error, failed reply) or was aborted (listener shutdown): the session is
+/// finished and its remaining commands are emitted first, then the pending
+/// receipt is completed, then the connection is removed from the shared
+/// state. So the last `commands:received` and `receipt:completed` of a
+/// connection always precede the `connection:changed` that reports it gone.
 struct Connection {
     id: u64,
     peer: String,
-    parser: Parser,
-    builder: ReceiptBuilder,
+    session: Session,
     state: Arc<ListenerState>,
     sink: Arc<dyn EventSink>,
     /// Snapshot waiting for the end of the update interval.
@@ -406,15 +493,18 @@ struct Connection {
 
 impl Connection {
     fn new(id: u64, peer: String, state: Arc<ListenerState>, sink: Arc<dyn EventSink>) -> Self {
-        let builder = ReceiptBuilder::new(ReceiptConfig {
-            paper: state.paper(),
-            ..ReceiptConfig::default()
-        });
+        let session = Session::new(
+            ParserConfig::default(),
+            ReceiptConfig {
+                paper: state.paper(),
+                ..ReceiptConfig::default()
+            },
+            state.printer_status(),
+        );
         Self {
             id,
             peer,
-            parser: Parser::new(ParserConfig::default()),
-            builder,
+            session,
             state,
             sink,
             pending_update: None,
@@ -422,49 +512,79 @@ impl Connection {
         }
     }
 
-    /// Applies a batch of commands to the receipt builder and emits, in
-    /// order: the commands, the effects, and the in-progress receipt if it
-    /// changed.
-    fn process(&mut self, commands: Vec<DecodedCommand>) {
-        if commands.is_empty() {
-            return;
-        }
-        // The paper setting is read here; the builder applies it only to
-        // receipts that have not started yet.
-        self.builder.set_paper(self.state.paper());
-        let effects = self.builder.apply_all(&commands);
-        self.sink.emit(ListenerEvent::Commands(CommandsReceived {
-            connection_id: self.id,
-            peer: self.peer.clone(),
+    /// Emits a batch's commands and events, in order, and returns the
+    /// replies to write to the socket.
+    fn process(&mut self, output: SessionOutput) -> Vec<Reply> {
+        let SessionOutput {
             commands,
-        }));
-        for effect in effects {
-            match effect {
-                Effect::ReceiptCompleted(receipt) => {
+            events,
+            suppressed,
+        } = output;
+        if !commands.is_empty() {
+            self.sink.emit(ListenerEvent::Commands(CommandsReceived {
+                connection_id: self.id,
+                peer: self.peer.clone(),
+                commands,
+            }));
+        }
+        if let Some(suppressed) = suppressed {
+            self.sink
+                .emit(ListenerEvent::PrintSuppressed(PrintSuppressed {
+                    connection_id: self.id,
+                    peer: self.peer.clone(),
+                    reason: suppressed.reason,
+                    bytes: suppressed.bytes,
+                }));
+        }
+        let mut replies = Vec::new();
+        for event in events {
+            match event {
+                SessionEvent::ReceiptCompleted(receipt) => {
                     // A snapshot of this receipt is obsolete now.
                     self.pending_update = None;
                     self.state
                         .complete_receipt(self.id, &self.peer, receipt, self.sink.as_ref());
                 }
-                Effect::DrawerKick(kick) => {
+                SessionEvent::DrawerKick(kick) => {
                     self.state
                         .kick_drawer(self.id, &self.peer, kick, self.sink.as_ref());
                 }
+                SessionEvent::Reply(reply) => replies.push(reply),
             }
         }
+        replies
     }
 
-    /// Parses one chunk and emits its commands and effects. The receipt in
-    /// progress is reported separately by [`queue_update`](Self::queue_update).
-    fn feed(&mut self, chunk: &[u8]) {
-        let commands = self.parser.feed(chunk);
-        self.process(commands);
+    /// Parses one chunk, emits its commands and effects, and returns the
+    /// replies to write. The receipt in progress is reported separately by
+    /// [`queue_update`](Self::queue_update).
+    fn feed(&mut self, chunk: &[u8]) -> Vec<Reply> {
+        // The paper setting is read here; the builder applies it only to
+        // receipts that have not started yet.
+        self.session.set_paper(self.state.paper());
+        let output = self.session.feed(chunk, self.state.printer_status());
+        self.process(output)
+    }
+
+    /// The shared state changed: the ASB status to send, if any.
+    fn status_changed(&mut self, status: PrinterStatus) -> Option<Reply> {
+        self.session.status_changed(status)
+    }
+
+    /// Reports a reply that was written to the socket.
+    fn reply_sent(&self, reply: Reply) {
+        self.sink.emit(ListenerEvent::StatusSent(StatusSent {
+            connection_id: self.id,
+            peer: self.peer.clone(),
+            request: reply.request,
+            reply: reply.reply,
+        }));
     }
 
     /// Takes the in-progress receipt if it changed, and sends it now or when
     /// the update interval ends.
     fn queue_update(&mut self, now: Instant) {
-        if let Some(receipt) = self.builder.take_update() {
+        if let Some(receipt) = self.session.take_update() {
             self.pending_update = Some(receipt);
         }
         if self.update_due(now).is_some_and(|due| due <= now) {
@@ -499,14 +619,44 @@ impl Connection {
 
 impl Drop for Connection {
     fn drop(&mut self) {
-        let tail = self.parser.finish();
-        self.process(tail);
-        if let Some(receipt) = self.builder.finish() {
-            self.state
-                .complete_receipt(self.id, &self.peer, receipt, self.sink.as_ref());
-        }
+        let output = self.session.finish(self.state.printer_status());
+        // Replies produced now (an ASB catching up with the state) cannot be
+        // written any more; they are dropped without a `status:sent`.
+        let _ = self.process(output);
         self.state.remove_connection(self.id, self.sink.as_ref());
     }
+}
+
+/// Writes `replies` in order, reporting each one after it was written.
+/// Returns false when the socket failed or the client stopped reading for
+/// [`REPLY_WRITE_TIMEOUT`]; the connection must then be closed.
+async fn write_replies(
+    stream: &mut TcpStream,
+    connection: &Connection,
+    replies: Vec<Reply>,
+) -> bool {
+    for reply in replies {
+        let written =
+            tokio::time::timeout(REPLY_WRITE_TIMEOUT, stream.write_all(&reply.reply.bytes)).await;
+        match written {
+            Ok(Ok(())) => connection.reply_sent(reply),
+            Ok(Err(error)) => {
+                eprintln!(
+                    "phantompos: connection {} from {}: reply not sent: {error}",
+                    connection.id, connection.peer
+                );
+                return false;
+            }
+            Err(_) => {
+                eprintln!(
+                    "phantompos: connection {} from {}: client is not reading replies; closing",
+                    connection.id, connection.peer
+                );
+                return false;
+            }
+        }
+    }
+    true
 }
 
 async fn serve_connection(
@@ -516,8 +666,10 @@ async fn serve_connection(
     sink: Arc<dyn EventSink>,
 ) {
     let id = state.add_connection(peer, sink.as_ref());
+    let mut status_rx = state.subscribe();
     let mut connection = Connection::new(id, peer.to_string(), state, sink);
     let mut buffer = vec![0_u8; READ_BUFFER_SIZE];
+    let mut watching = true;
 
     loop {
         let due = connection.update_due(Instant::now());
@@ -529,7 +681,10 @@ async fn serve_connection(
                     let Some(chunk) = buffer.get(..read) else {
                         break;
                     };
-                    connection.feed(chunk);
+                    let replies = connection.feed(chunk);
+                    if !write_replies(&mut stream, &connection, replies).await {
+                        break;
+                    }
                     connection.queue_update(Instant::now());
                 }
                 Err(error) if error.kind() == io::ErrorKind::Interrupted => {}
@@ -540,6 +695,19 @@ async fn serve_connection(
                     );
                     break;
                 }
+            },
+            // The simulated state changed (UI or a drawer kick anywhere).
+            changed = status_rx.changed(), if watching => match changed {
+                Ok(()) => {
+                    let status = *status_rx.borrow_and_update();
+                    if let Some(reply) = connection.status_changed(status)
+                        && !write_replies(&mut stream, &connection, vec![reply]).await
+                    {
+                        break;
+                    }
+                }
+                // The state is gone (app shutting down): stop watching.
+                Err(_) => watching = false,
             },
             // `read` is cancel safe, so racing it with the timer loses nothing.
             () = tokio::time::sleep_until(due.unwrap_or_else(Instant::now)), if due.is_some() => {
@@ -552,8 +720,7 @@ async fn serve_connection(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use phantompos_core::{Command, UnknownReason, parse};
-    use tokio::io::AsyncWriteExt;
+    use phantompos_core::{Command, ReceiptBuilder, UnknownReason, parse, status_reply};
     use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender, unbounded_channel};
     use tokio::task::JoinHandle;
     use tokio::time::timeout;
@@ -588,7 +755,10 @@ mod tests {
             match next_event(events).await {
                 ListenerEvent::ReceiptUpdated(_)
                 | ListenerEvent::ReceiptCompleted(_)
-                | ListenerEvent::DrawerKicked(_) => {}
+                | ListenerEvent::DrawerKicked(_)
+                | ListenerEvent::PrinterStatus(_)
+                | ListenerEvent::StatusSent(_)
+                | ListenerEvent::PrintSuppressed(_) => {}
                 other => return other,
             }
         }
@@ -691,13 +861,13 @@ mod tests {
         let state = ListenerState::new(ListenerSettings::default());
         assert_eq!(
             json(&state.snapshot()),
-            r#"{"listener":{"state":"stopped","address":"127.0.0.1","port":9100},"connections":{"active":0,"peers":[]},"paper":"80mm","drawerOpen":false}"#
+            r#"{"listener":{"state":"stopped","address":"127.0.0.1","port":9100},"connections":{"active":0,"peers":[]},"paper":"80mm","status":{"paperOut":false,"coverOpen":false,"offline":false,"drawerOpen":false}}"#
         );
         state.set_paper(PaperProfile::Mm58);
-        state.lock().drawer_open = true;
+        state.lock().printer.drawer_open = true;
         assert_eq!(
             json(&state.snapshot()),
-            r#"{"listener":{"state":"stopped","address":"127.0.0.1","port":9100},"connections":{"active":0,"peers":[]},"paper":"58mm","drawerOpen":true}"#
+            r#"{"listener":{"state":"stopped","address":"127.0.0.1","port":9100},"connections":{"active":0,"peers":[]},"paper":"58mm","status":{"paperOut":false,"coverOpen":false,"offline":false,"drawerOpen":true}}"#
         );
     }
 
@@ -750,6 +920,37 @@ mod tests {
             json(&kicked),
             r#"{"connectionId":3,"peer":"127.0.0.1:5000","pin":5,"onMs":100,"offMs":200}"#
         );
+        let sent = StatusSent {
+            connection_id: 3,
+            peer: "127.0.0.1:5000".into(),
+            request: "DLE EOT 1".into(),
+            reply: phantompos_core::status_reply(
+                &parse_default(b"\x10\x04\x01")[0].command,
+                &PrinterStatus {
+                    cover_open: true,
+                    ..PrinterStatus::default()
+                },
+            )
+            .expect("DLE EOT 1 is answered"),
+        };
+        assert_eq!(
+            json(&sent),
+            r#"{"connectionId":3,"peer":"127.0.0.1:5000","request":"DLE EOT 1","reply":{"kind":"realTime","bytes":[26],"flags":["offline","drawerLow"]}}"#
+        );
+        let suppressed = PrintSuppressed {
+            connection_id: 3,
+            peer: "127.0.0.1:5000".into(),
+            reason: SuppressReason::PaperOut,
+            bytes: 12,
+        };
+        assert_eq!(
+            json(&suppressed),
+            r#"{"connectionId":3,"peer":"127.0.0.1:5000","reason":"paperOut","bytes":12}"#
+        );
+        assert_eq!(
+            json(&PrinterStatus::default()),
+            r#"{"paperOut":false,"coverOpen":false,"offline":false,"drawerOpen":false}"#
+        );
     }
 
     async fn connect(running: &mut Running) -> (TcpStream, String) {
@@ -773,6 +974,9 @@ mod tests {
             ListenerEvent::ReceiptUpdated(_) => "updated",
             ListenerEvent::ReceiptCompleted(_) => "completed",
             ListenerEvent::DrawerKicked(_) => "drawer",
+            ListenerEvent::PrinterStatus(_) => "printer",
+            ListenerEvent::StatusSent(_) => "sent",
+            ListenerEvent::PrintSuppressed(_) => "suppressed",
         }
     }
 
@@ -893,7 +1097,7 @@ mod tests {
     async fn drawer_kick_opens_the_drawer() {
         let mut running = start().await;
         let (mut client, addr) = connect(&mut running).await;
-        assert!(!running.state.snapshot().drawer_open);
+        assert!(!running.state.snapshot().status.drawer_open);
 
         // Pin 5, t1 = 50 (100 ms), t2 = 100 (200 ms); then an invalid pin.
         client
@@ -908,9 +1112,44 @@ mod tests {
             }
             other => panic!("expected drawer:kicked, got {other:?}"),
         }
-        assert!(running.state.snapshot().drawer_open);
-        running.state.close_drawer();
-        assert!(!running.state.snapshot().drawer_open);
+        match next_event(&mut running.events).await {
+            ListenerEvent::PrinterStatus(status) => assert!(status.drawer_open),
+            other => panic!("expected printer:status, got {other:?}"),
+        }
+        assert!(running.state.snapshot().status.drawer_open);
+
+        // GS r 2 reports the drawer kick-out connector pin 3 HIGH.
+        client.write_all(b"\x1dr\x02").await.expect("write");
+        assert_eq!(read_reply(&mut client, 1).await, [0x01]);
+        assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+        match next_event(&mut running.events).await {
+            ListenerEvent::StatusSent(sent) => {
+                assert_eq!(sent.request, "GS r 2");
+                assert_eq!(sent.reply.bytes, [0x01]);
+            }
+            other => panic!("expected status:sent, got {other:?}"),
+        }
+
+        // The user closes the drawer: GS r 2 reports LOW again.
+        let (ui, mut ui_events) = unbounded_channel();
+        running.state.set_printer_status(
+            PrinterStatusPatch {
+                drawer_open: Some(false),
+                ..PrinterStatusPatch::default()
+            },
+            &ui,
+        );
+        assert!(matches!(
+            ui_events.try_recv(),
+            Ok(ListenerEvent::PrinterStatus(PrinterStatus {
+                drawer_open: false,
+                ..
+            }))
+        ));
+        client.write_all(b"\x1dr\x02").await.expect("write");
+        assert_eq!(read_reply(&mut client, 1).await, [0x00]);
+        assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+        assert_eq!(kind(&next_event(&mut running.events).await), "sent");
 
         // The invalid pin produced nothing; the disconnect has no receipt.
         drop(client);
@@ -976,7 +1215,7 @@ mod tests {
             b"\x1b@Caf\x82 ",
             b"total\n\x1b",
             b"E\x01bold\x1b",
-            b"E\x00\x1da\x1d!\x11big\n",
+            b"E\x00\x1dZ\x1d!\x11big\n",
         ];
         let mut stream = Vec::new();
         let mut batches = Vec::new();
@@ -1330,6 +1569,353 @@ mod tests {
             .skip_while(|&k| k == "updated")
             .collect();
         assert_eq!(kinds, ["commands", "completed", "connections"]);
+        running.task.abort();
+    }
+
+    // ---- Stage 5: status ------------------------------------------------
+
+    /// Reads exactly `len` reply bytes from the client socket.
+    async fn read_reply(client: &mut TcpStream, len: usize) -> Vec<u8> {
+        let mut buf = vec![0_u8; len];
+        timeout(TIMEOUT, client.read_exact(&mut buf))
+            .await
+            .expect("timed out waiting for a reply")
+            .expect("reply read");
+        buf
+    }
+
+    /// Asserts that nothing arrives on the client socket for a while.
+    async fn assert_no_reply(client: &mut TcpStream) {
+        let mut buf = [0_u8; 16];
+        match timeout(Duration::from_millis(250), client.read(&mut buf)).await {
+            Err(_) => {}
+            Ok(result) => panic!("unexpected data from the printer: {result:?} {buf:?}"),
+        }
+    }
+
+    /// Sets the simulated state as the UI does (events to a throwaway sink).
+    fn set_state(state: &ListenerState, status: PrinterStatus) -> PrinterStatus {
+        let (ui, _events) = unbounded_channel();
+        state.set_printer_status(
+            PrinterStatusPatch {
+                paper_out: Some(status.paper_out),
+                cover_open: Some(status.cover_open),
+                offline: Some(status.offline),
+                drawer_open: Some(status.drawer_open),
+            },
+            &ui,
+        )
+    }
+
+    /// Next event of the given kind, skipping the others.
+    async fn next_of(events: &mut UnboundedReceiver<ListenerEvent>, wanted: &str) -> ListenerEvent {
+        loop {
+            let event = next_event(events).await;
+            if kind(&event) == wanted {
+                return event;
+            }
+        }
+    }
+
+    fn all_states() -> Vec<PrinterStatus> {
+        (0..16_u8)
+            .map(|bits| PrinterStatus {
+                paper_out: bits & 1 != 0,
+                cover_open: bits & 2 != 0,
+                offline: bits & 4 != 0,
+                drawer_open: bits & 8 != 0,
+            })
+            .collect()
+    }
+
+    #[tokio::test]
+    async fn status_replies_match_core_in_every_state() {
+        let mut running = start().await;
+        let (mut client, addr) = connect(&mut running).await;
+        // Every answered request; GS r 1/49 and 2/50, DLE DC4 7 1 (4 bytes).
+        let requests: &[u8] = b"\x10\x04\x01\x10\x04\x02\x10\x04\x03\x10\x04\x04\
+            \x1dr\x01\x1dr1\x1dr\x02\x1dr2\x10\x14\x07\x01";
+        let commands = parse_default(requests);
+        for status in all_states() {
+            assert_eq!(set_state(&running.state, status), status);
+            let expected: Vec<StatusReply> = commands
+                .iter()
+                .map(|c| status_reply(&c.command, &status).expect("answered"))
+                .collect();
+            let expected_bytes: Vec<u8> = expected.iter().flat_map(|r| r.bytes.clone()).collect();
+            client.write_all(requests).await.expect("write");
+            assert_eq!(
+                read_reply(&mut client, expected_bytes.len()).await,
+                expected_bytes,
+                "{status:?}"
+            );
+            assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+            for reply in expected {
+                match next_event(&mut running.events).await {
+                    ListenerEvent::StatusSent(sent) => {
+                        assert_eq!(sent.peer, addr);
+                        assert_eq!(sent.reply, reply);
+                    }
+                    other => panic!("expected status:sent, got {other:?}"),
+                }
+            }
+        }
+        running.task.abort();
+    }
+
+    #[tokio::test]
+    async fn asb_reaches_only_the_connection_that_enabled_it() {
+        let mut running = start().await;
+        let (mut asb, asb_addr) = connect(&mut running).await;
+        let (mut other, _) = connect(&mut running).await;
+
+        // Enabling sends the current status at once.
+        asb.write_all(b"\x1da\x02").await.expect("write");
+        assert_eq!(read_reply(&mut asb, 4).await, [0x10, 0, 0, 0]);
+        assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+        match next_event(&mut running.events).await {
+            ListenerEvent::StatusSent(sent) => {
+                assert_eq!(sent.request, "ASB");
+                assert_eq!(sent.peer, asb_addr);
+                assert_eq!(sent.reply.kind, phantompos_core::ReplyKind::Automatic);
+            }
+            other => panic!("expected status:sent, got {other:?}"),
+        }
+
+        // A change of an enabled item: 4 bytes to that connection only.
+        set_state(
+            &running.state,
+            PrinterStatus {
+                cover_open: true,
+                ..PrinterStatus::default()
+            },
+        );
+        assert_eq!(read_reply(&mut asb, 4).await, [0x38, 0, 0, 0]);
+        assert!(matches!(
+            next_of(&mut running.events, "sent").await,
+            ListenerEvent::StatusSent(StatusSent { request, .. }) if request == "ASB"
+        ));
+        assert_no_reply(&mut other).await;
+
+        // The drawer item is not enabled: no ASB for a drawer change.
+        set_state(
+            &running.state,
+            PrinterStatus {
+                cover_open: true,
+                drawer_open: true,
+                ..PrinterStatus::default()
+            },
+        );
+        assert_no_reply(&mut asb).await;
+
+        // Disabled: nothing more.
+        asb.write_all(b"\x1da\x00").await.expect("write");
+        assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+        set_state(&running.state, PrinterStatus::default());
+        assert_no_reply(&mut asb).await;
+        assert_no_reply(&mut other).await;
+        running.task.abort();
+    }
+
+    #[tokio::test]
+    async fn drawer_kick_sends_asb_to_every_connection_that_enabled_the_drawer() {
+        let mut running = start().await;
+        let (mut kicker, _) = connect(&mut running).await;
+        let (mut watcher, _) = connect(&mut running).await;
+        for client in [&mut kicker, &mut watcher] {
+            client.write_all(b"\x1da\x01").await.expect("write");
+            assert_eq!(read_reply(client, 4).await, [0x10, 0, 0, 0]);
+        }
+        kicker
+            .write_all(b"\x10\x14\x01\x00\x01")
+            .await
+            .expect("write");
+        // Exactly one ASB each (the kicker's own session saw it first).
+        assert_eq!(read_reply(&mut kicker, 4).await, [0x14, 0, 0, 0]);
+        assert_eq!(read_reply(&mut watcher, 4).await, [0x14, 0, 0, 0]);
+        assert_no_reply(&mut kicker).await;
+        assert_no_reply(&mut watcher).await;
+        assert!(running.state.snapshot().status.drawer_open);
+        running.task.abort();
+    }
+
+    #[tokio::test]
+    async fn error_state_discards_data_and_printing_resumes_after_recovery() {
+        let mut running = start().await;
+        let (mut client, addr) = connect(&mut running).await;
+
+        client.write_all(b"before\n").await.expect("write");
+        assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+        assert_eq!(kind(&next_event(&mut running.events).await), "updated");
+
+        set_state(
+            &running.state,
+            PrinterStatus {
+                paper_out: true,
+                cover_open: true,
+                ..PrinterStatus::default()
+            },
+        );
+        // Text, a cut and a drawer kick: logged, suppressed, nothing else;
+        // the status request in the same read is still answered.
+        client
+            .write_all(b"lost\n\x1dV\x00\x1bp\x00\x01\x01\x10\x04\x02")
+            .await
+            .expect("write");
+        assert_eq!(read_reply(&mut client, 1).await, [0x36]);
+        let events: Vec<_> = [
+            next_event(&mut running.events).await,
+            next_event(&mut running.events).await,
+            next_event(&mut running.events).await,
+        ]
+        .into();
+        assert_eq!(
+            events.iter().map(kind).collect::<Vec<_>>(),
+            ["commands", "suppressed", "sent"]
+        );
+        let ListenerEvent::PrintSuppressed(suppressed) = &events[1] else {
+            panic!("expected print:suppressed");
+        };
+        assert_eq!(suppressed.peer, addr);
+        assert_eq!(suppressed.reason, SuppressReason::CoverOpen);
+        assert_eq!(suppressed.bytes, 5 + 3 + 5);
+        assert!(!running.state.snapshot().status.drawer_open);
+
+        // Recovery: the receipt started before the error goes on.
+        set_state(&running.state, PrinterStatus::default());
+        client.write_all(b"after\n\x1dV\x00").await.expect("write");
+        assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+        match next_event(&mut running.events).await {
+            ListenerEvent::ReceiptCompleted(completed) => {
+                assert_eq!(completed.receipt.elements.len(), 2, "before + after");
+            }
+            other => panic!("expected receipt:completed, got {other:?}"),
+        }
+        drop(client);
+        let tail = events_until_disconnect(&mut running.events).await;
+        assert_eq!(tail.iter().map(kind).collect::<Vec<_>>(), ["connections"]);
+        running.task.abort();
+    }
+
+    #[tokio::test]
+    async fn disconnect_in_an_error_state_still_completes_the_receipt() {
+        let mut running = start().await;
+        let (mut client, _) = connect(&mut running).await;
+        client.write_all(b"kept\n").await.expect("write");
+        assert_eq!(kind(&next_event(&mut running.events).await), "commands");
+        assert_eq!(kind(&next_event(&mut running.events).await), "updated");
+        set_state(
+            &running.state,
+            PrinterStatus {
+                offline: true,
+                ..PrinterStatus::default()
+            },
+        );
+        client.write_all(b"dropped").await.expect("write");
+        drop(client);
+        let tail = events_until_disconnect(&mut running.events).await;
+        assert_eq!(
+            tail.iter().map(kind).collect::<Vec<_>>(),
+            ["commands", "suppressed", "completed", "connections"]
+        );
+        let ListenerEvent::ReceiptCompleted(completed) = &tail[2] else {
+            panic!("expected receipt:completed");
+        };
+        assert_eq!(completed.receipt.elements.len(), 1);
+        running.task.abort();
+    }
+
+    #[test]
+    fn set_printer_status_merges_and_emits_only_changes() {
+        let state = ListenerState::new(ListenerSettings::default());
+        let (ui, mut events) = unbounded_channel();
+        let cover = state.set_printer_status(
+            PrinterStatusPatch {
+                cover_open: Some(true),
+                ..PrinterStatusPatch::default()
+            },
+            &ui,
+        );
+        assert_eq!(
+            cover,
+            PrinterStatus {
+                cover_open: true,
+                ..PrinterStatus::default()
+            }
+        );
+        let both = state.set_printer_status(
+            serde_json::from_str(r#"{"paperOut":true}"#).expect("patch"),
+            &ui,
+        );
+        assert!(both.cover_open && both.paper_out && !both.offline && !both.drawer_open);
+        // No change: no event.
+        state.set_printer_status(
+            serde_json::from_str(r#"{"paperOut":true}"#).expect("patch"),
+            &ui,
+        );
+        let emitted: Vec<_> = std::iter::from_fn(|| events.try_recv().ok()).collect();
+        assert_eq!(
+            emitted,
+            vec![
+                ListenerEvent::PrinterStatus(cover),
+                ListenerEvent::PrinterStatus(both)
+            ]
+        );
+        assert_eq!(state.snapshot().status, both);
+        assert_eq!(
+            json(&state.snapshot()),
+            r#"{"listener":{"state":"stopped","address":"127.0.0.1","port":9100},"connections":{"active":0,"peers":[]},"paper":"80mm","status":{"paperOut":true,"coverOpen":true,"offline":false,"drawerOpen":false}}"#
+        );
+    }
+
+    #[tokio::test]
+    async fn a_client_that_never_reads_does_not_stall_others() {
+        let mut running = start().await;
+        // Small receive buffer so the replies back up quickly.
+        let socket = tokio::net::TcpSocket::new_v4().expect("socket");
+        socket.set_recv_buffer_size(4096).expect("buffer size");
+        let mut flooder = socket
+            .connect(SocketAddr::from((Ipv4Addr::LOCALHOST, running.port)))
+            .await
+            .expect("connect");
+        let flooder_addr = flooder.local_addr().expect("address").to_string();
+        assert_eq!(next_connections(&mut running.events).await.active, 1);
+        let (mut printer, printer_addr) = connect(&mut running).await;
+
+        // 4-byte replies to 4-byte requests, never read. The writer stops
+        // when the printer stops reading; the error after the close ends it.
+        let flood = tokio::spawn(async move {
+            let chunk = b"\x10\x14\x07\x01".repeat(16 * 1024);
+            for _ in 0..64 {
+                if flooder.write_all(&chunk).await.is_err() {
+                    break;
+                }
+            }
+            flooder
+        });
+        tokio::time::sleep(Duration::from_millis(300)).await;
+
+        printer.write_all(b"hello\n\x1dV\x00").await.expect("write");
+        let mut printed = false;
+        loop {
+            match next_event(&mut running.events).await {
+                ListenerEvent::ReceiptCompleted(completed) if completed.peer == printer_addr => {
+                    printed = true;
+                }
+                ListenerEvent::Connections(snapshot) => {
+                    // The flooder was disconnected; the printer is still there.
+                    assert_eq!(snapshot.peers, vec![printer_addr.clone()]);
+                    assert!(!snapshot.peers.contains(&flooder_addr));
+                    break;
+                }
+                _ => {}
+            }
+        }
+        assert!(
+            printed,
+            "the receipt was not printed while the flooder was stalled"
+        );
+        drop(timeout(TIMEOUT, flood).await.expect("flood writer ends"));
         running.task.abort();
     }
 }

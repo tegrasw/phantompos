@@ -4,7 +4,7 @@ mod listener;
 
 use std::sync::Arc;
 
-use phantompos_core::{CoreError, PaperProfile};
+use phantompos_core::{CoreError, PaperProfile, PrinterStatus, PrinterStatusPatch};
 use serde::{Serialize, Serializer};
 use tauri::{AppHandle, Emitter, Manager, State};
 
@@ -18,6 +18,9 @@ mod events {
     pub const RECEIPT_UPDATED: &str = "receipt:updated";
     pub const RECEIPT_COMPLETED: &str = "receipt:completed";
     pub const DRAWER_KICKED: &str = "drawer:kicked";
+    pub const PRINTER_STATUS: &str = "printer:status";
+    pub const STATUS_SENT: &str = "status:sent";
+    pub const PRINT_SUPPRESSED: &str = "print:suppressed";
 }
 
 /// Error returned by commands to the UI. Serialized as its message (the
@@ -50,6 +53,11 @@ impl EventSink for AppEventSink {
                 self.0.emit(events::RECEIPT_COMPLETED, completed)
             }
             ListenerEvent::DrawerKicked(kicked) => self.0.emit(events::DRAWER_KICKED, kicked),
+            ListenerEvent::PrinterStatus(status) => self.0.emit(events::PRINTER_STATUS, status),
+            ListenerEvent::StatusSent(sent) => self.0.emit(events::STATUS_SENT, sent),
+            ListenerEvent::PrintSuppressed(suppressed) => {
+                self.0.emit(events::PRINT_SUPPRESSED, suppressed)
+            }
         };
         if let Err(error) = result {
             eprintln!("phantompos: failed to emit event: {error}");
@@ -57,8 +65,8 @@ impl EventSink for AppEventSink {
     }
 }
 
-/// Current listener status, connections, paper and drawer state, so the UI
-/// can sync on mount regardless of which events it missed.
+/// Current listener status, connections, paper and simulated printer state,
+/// so the UI can sync on mount regardless of which events it missed.
 #[tauri::command]
 fn get_state(state: State<'_, Arc<ListenerState>>) -> StateSnapshot {
     state.snapshot()
@@ -76,10 +84,17 @@ fn set_paper(
     Ok(paper)
 }
 
-/// Marks the cash drawer as closed.
+/// Changes the simulated printer state. `status` is a partial object: any of
+/// `paperOut`, `coverOpen`, `offline` and `drawerOpen` (booleans) replaces
+/// the current value; an unknown field rejects the call. Returns the whole
+/// new state; a change is also emitted as `printer:status`.
 #[tauri::command]
-fn close_drawer(state: State<'_, Arc<ListenerState>>) {
-    state.close_drawer();
+fn set_printer_status(
+    app: AppHandle,
+    state: State<'_, Arc<ListenerState>>,
+    status: PrinterStatusPatch,
+) -> PrinterStatus {
+    state.set_printer_status(status, &AppEventSink(app))
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -92,7 +107,11 @@ pub fn run() {
             tauri::async_runtime::spawn(listener::run(state, sink));
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_state, set_paper, close_drawer])
+        .invoke_handler(tauri::generate_handler![
+            get_state,
+            set_paper,
+            set_printer_status
+        ])
         .run(tauri::generate_context!());
 
     if let Err(error) = result {

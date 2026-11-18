@@ -5,7 +5,7 @@ fn main() {
         tauri_build::Attributes::new().app_manifest(tauri_build::AppManifest::new().commands(&[
             "get_state",
             "set_paper",
-            "close_drawer",
+            "set_printer_status",
         ]));
 
     if let Err(error) = tauri_build::try_build(attributes) {
