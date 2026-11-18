@@ -33,7 +33,14 @@
     | "refresh"
     | "shield"
     | "download"
-    | "laptop";
+    | "laptop"
+    | "external"
+    | "code"
+    | "flag"
+    | "scale"
+    | "package"
+    | "search"
+    | "info";
 </script>
 
 <script lang="ts">
@@ -157,6 +164,29 @@
   {:else if name === "receipt"}
     <path d="M3.75 2.25h8.5v11.5l-1.4-1-1.42 1-1.43-1-1.42 1-1.43-1-1.4 1z" />
     <path d="M6 5.5h4M6 8h4" />
+  {:else if name === "external"}
+    <!-- Arrow leaving a box: opens outside the app. -->
+    <path d="M9.25 2.75h4v4M13.25 2.75 7.5 8.5" />
+    <path d="M11.75 9.5v2.75a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1H6.5" />
+  {:else if name === "code"}
+    <path d="M5.25 4.75 2 8l3.25 3.25M10.75 4.75 14 8l-3.25 3.25M9.25 3 6.75 13" />
+  {:else if name === "flag"}
+    <path d="M3.25 14.25V2.5" />
+    <path d="M3.25 2.75h8.5l-1.75 3.25 1.75 3.25h-8.5" />
+  {:else if name === "scale"}
+    <!-- Balance scale: licenses and legal notices. -->
+    <path d="M8 2.25v11.5M5 13.75h6M3.25 4.25h9.5" />
+    <path d="M3.25 4.25 1.5 8.5a1.9 1.9 0 0 0 3.5 0zM12.75 4.25 11 8.5a1.9 1.9 0 0 0 3.5 0z" />
+  {:else if name === "package"}
+    <path d="M8 1.75l5.75 3.1v6.3L8 14.25l-5.75-3.1v-6.3z" />
+    <path d="M2.25 4.85 8 8l5.75-3.15M8 8v6.25M5.1 3.3l5.8 3.15" />
+  {:else if name === "search"}
+    <circle cx="7" cy="7" r="4.25" />
+    <path d="m10.25 10.25 3.5 3.5" />
+  {:else if name === "info"}
+    <circle cx="8" cy="8" r="6.25" />
+    <path d="M8 7.25v3.75" />
+    <path d="M8 4.9v.1" stroke-width="1.75" />
   {/if}
 </svg>
 

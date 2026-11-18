@@ -71,6 +71,13 @@ export const PORT_MAX = 65535;
 export type ExportResult = { saved: true; path: string } | { saved: false };
 export type ExportFormat = "png" | "bin";
 
+/**
+ * The external pages the About section opens (`open_link`). The backend maps
+ * each id to a fixed address and opens it in the system browser; the webview
+ * never passes a URL.
+ */
+export type ExternalLink = "website" | "repository" | "issues" | "license";
+
 /** Payload of `connection:changed`. */
 export interface ConnectionsStatus {
   active: number;
@@ -305,6 +312,7 @@ export const COMMANDS = {
   retryListener: "retry_listener",
   exportReceipt: "export_receipt",
   clearReceipts: "clear_receipts",
+  openLink: "open_link",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -348,6 +356,11 @@ export function clearReceipts(): Promise<void> {
   return invoke<void>(COMMANDS.clearReceipts);
 }
 
+/** Opens one of the fixed About links in the system browser; rejects with a message. */
+export function openLink(link: ExternalLink): Promise<void> {
+  return invoke<void>(COMMANDS.openLink, { link });
+}
+
 /** Changes some simulated states; resolves with the whole new state. */
 export function setPrinterStatus(status: Partial<PrinterStatus>): Promise<PrinterStatus> {
   return invoke<PrinterStatus>(COMMANDS.setPrinterStatus, { status });
@@ -377,6 +390,7 @@ export interface BackendSession {
   retryListener(): Promise<void>;
   exportReceipt(id: number, format: ExportFormat, png?: Uint8Array): Promise<ExportResult>;
   clearReceipts(): Promise<void>;
+  openLink(link: ExternalLink): Promise<void>;
   /** Synchronous cleanup, safe to call at any time. */
   disconnect(): void;
 }
@@ -446,6 +460,7 @@ export const connectBackend: BackendConnector = (handlers) => {
     retryListener,
     exportReceipt,
     clearReceipts,
+    openLink,
     disconnect: () => {
       disposed = true;
       for (const unlisten of unlisteners.splice(0)) unlisten();

@@ -11,6 +11,7 @@
     type ConnectionsStatus,
     type DrawerKicked,
     type ExportFormat,
+    type ExternalLink,
     type ListenerStatus,
     type Paper,
     type PrinterFault,
@@ -250,6 +251,11 @@
     if (printer.drawerOpen) void changePrinter({ drawerOpen: false }, i18n.t.drawer.closeFailed);
   }
 
+  async function openLink(link: ExternalLink): Promise<void> {
+    if (!session) throw new Error("No backend");
+    await session.openLink(link);
+  }
+
   onMount(() => {
     let disposed = false;
     const attach = (connect: BackendConnector): void => {
@@ -352,6 +358,7 @@
     {status}
     {controls}
     onChange={changeSettings}
+    onOpenLink={openLink}
     onClose={() => (settingsOpen = false)}
   />
 {/if}

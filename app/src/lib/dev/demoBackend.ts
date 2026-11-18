@@ -40,6 +40,8 @@
 //   &status=paperOut,coverOpen,offline   initial simulated error states
 //   &failstatus      set_printer_status always fails (tests the rollback)
 //   &devpanel=0      hide the floating demo controls (for screenshots)
+//   &nolinks         open_link does not open a tab (the URL is kept in
+//                    `phantomDemo.lastLink`); &linkfail makes it reject
 //
 // The same actions are scriptable from the console via `window.phantomDemo`.
 // `export_receipt` downloads the file in the browser (so the PNG can be
@@ -53,6 +55,7 @@ import type {
   DecodedCommand,
   ExportFormat,
   ExportResult,
+  ExternalLink,
   ListenerState,
   ListenerStatus,
   Paper,
@@ -581,6 +584,7 @@ export const connectDemo: BackendConnector = (handlers) => {
   /** Receipt id → its own bytes (for the `.bin` export). */
   const receiptBytes = new Map<number, number[]>();
   let lastExport: DemoExport | null = null;
+  let lastLink: string | null = null;
   const initialFaults = (params.get("status") ?? "").split(",");
   let printer: PrinterStatus = {
     paperOut: initialFaults.includes("paperOut"),
@@ -893,10 +897,17 @@ export const connectDemo: BackendConnector = (handlers) => {
     network: () => applySettings({ networkMode: "network" }),
     local: () => applySettings({ networkMode: "local" }),
   };
-  (window as unknown as { phantomDemo: typeof api & { readonly lastExport: DemoExport | null } }).phantomDemo = {
+  (
+    window as unknown as {
+      phantomDemo: typeof api & { readonly lastExport: DemoExport | null; readonly lastLink: string | null };
+    }
+  ).phantomDemo = {
     ...api,
     get lastExport() {
       return lastExport;
+    },
+    get lastLink() {
+      return lastLink;
     },
   };
 
@@ -995,6 +1006,20 @@ export const connectDemo: BackendConnector = (handlers) => {
     },
     async clearReceipts(): Promise<void> {
       receiptBytes.clear();
+    },
+    async openLink(link: ExternalLink): Promise<void> {
+      await delay(80);
+      // Mirrors app/src-tauri/src/links.rs.
+      const urls: Record<ExternalLink, string> = {
+        website: "https://tegra.app",
+        repository: "https://github.com/tegrasw/phantompos",
+        issues: "https://github.com/tegrasw/phantompos/issues",
+        license: "https://github.com/tegrasw/phantompos/blob/main/LICENSE",
+      };
+      const url = Object.prototype.hasOwnProperty.call(urls, link) ? urls[link] : undefined;
+      if (!url || params.has("linkfail")) throw `demo: couldn't open link ${String(link)}`;
+      lastLink = url;
+      if (!params.has("nolinks")) window.open(url, "_blank", "noopener,noreferrer");
     },
     async setPrinterStatus(patch: Partial<PrinterStatus>): Promise<PrinterStatus> {
       await delay(90);

@@ -3,8 +3,10 @@ import process from "node:process";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vite";
 
-// The UI shows the version in the settings' about line (no Tauri API call).
+// The About view shows the version and the app's own license (the repo's
+// LICENSE, outside the Vite root, so it is read here rather than imported).
 const { version } = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")) as { version: string };
+const license = readFileSync(new URL("../LICENSE", import.meta.url), "utf8").replace(/\r\n?/g, "\n").trim();
 
 // Set by the Tauri CLI when developing on a physical mobile device.
 const host = process.env.TAURI_DEV_HOST;
@@ -16,6 +18,7 @@ export default defineConfig({
 
   define: {
     __APP_VERSION__: JSON.stringify(version),
+    __APP_LICENSE__: JSON.stringify(license),
   },
 
   // Keep Rust compiler output visible in the `tauri dev` terminal.
