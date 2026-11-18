@@ -1,0 +1,31 @@
+# cargo-about configuration for the third-party licenses shipped with the app
+# (scripts/generate-licenses.mjs). Docs:
+# https://embarkstudios.github.io/cargo-about/cli/generate/config.html
+
+# Licenses the dependency tree needs, in order of preference: for a choice
+# such as "MIT OR Apache-2.0" the first one listed here is the one we use.
+# Add a license only when a new dependency requires it.
+accepted = [
+    "MIT",
+    "Apache-2.0",
+    "BSD-3-Clause",
+    "Zlib",
+    "Unicode-3.0",
+    "MPL-2.0",
+]
+
+# Every target a release installer is built for (release.yml), so the list
+# covers the crates of each platform.
+targets = [
+    "aarch64-apple-darwin",
+    "x86_64-apple-darwin",
+    "x86_64-pc-windows-msvc",
+    "x86_64-unknown-linux-gnu",
+]
+
+# Build scripts and tests are not shipped.
+ignore-build-dependencies = true
+ignore-dev-dependencies = true
+
+# The workspace crates (phantompos, phantompos-core) are ours: MIT, see LICENSE.
+private = { ignore = true }
