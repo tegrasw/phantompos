@@ -110,6 +110,14 @@ cd app
 pnpm tauri build
 ```
 
+Regenerate the third-party licenses shown in the app after a dependency
+change (needs `cargo-about` 0.9.3; see [scripts/README.md](scripts/README.md)):
+
+```sh
+node scripts/generate-licenses.mjs          # rewrite app/src/assets/third-party-licenses.json
+node scripts/generate-licenses.mjs --check  # fail if it is stale
+```
+
 ## Repository layout
 
 ```
@@ -120,12 +128,27 @@ phantompos/
 │   ├── src-tauri/        # phantompos: Tauri app, TCP listener, state, events
 │   └── src/              # user interface: Svelte + TypeScript + Vite
 ├── docs/                 # backlog and maintainer documentation
+├── scripts/              # maintenance scripts (third-party licenses)
 └── .github/workflows/    # ci.yml (pull requests, main) and release.yml (tags v*)
 ```
 
 Releases are built by GitHub Actions when a `v*` tag is pushed; see
 [docs/release-signing.md](docs/release-signing.md) for the macOS signing setup.
 
+## Credits
+
+PhantomPOS is developed by [Tegra Software](https://tegra.app); author: Renan
+Galeno.
+
+Built with [Tauri](https://tauri.app), [Svelte](https://svelte.dev) and the
+[JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) typeface (SIL Open
+Font License 1.1). The licenses of every third-party component shipped in the
+app are listed in the app under Settings > About > Third-party licenses, and in
+[app/src/assets/third-party-licenses.json](app/src/assets/third-party-licenses.json).
+
+ESC/POS is a trademark of Seiko Epson Corporation. PhantomPOS is not
+affiliated with Epson.
+
 ## License
 
-[MIT](LICENSE). Copyright (c) 2026 Tegra Software.
+[MIT](LICENSE). Copyright (c) 2026 Tegra Software Ltda.

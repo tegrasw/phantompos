@@ -15,6 +15,7 @@ Current stage: **6 (settings and export) done**. All six stages are implemented;
 | `app/src/` | UI: Svelte 5 + TypeScript + Vite. Only `src/lib/backend.ts` talks to Tauri. |
 | `.github/workflows/` | `ci.yml` (PRs and main; skipped for documentation-only changes), `release.yml` (tags `v*`). |
 | `design/icon/` | Logo and icon sources: `AppIcon.icon` (Icon Composer, Liquid Glass), flat masters, `mark.svg`, `build.sh`. |
+| `scripts/`, `about.toml` | `generate-licenses.mjs` builds `app/src/assets/third-party-licenses.json` with cargo-about. |
 | `docs/backlog.md` | Out-of-scope ideas. Never implement them. |
 | `docs/release-signing.md` | Apple secrets needed by `release.yml` and how to obtain them. |
 
@@ -47,6 +48,10 @@ cat core/tests/fixtures/receipt_small.bin | nc 127.0.0.1 9100
 # Rewrite fixture JSON after an intended parser change (review the diff)
 UPDATE_FIXTURES=1 cargo test -p phantompos-core --test fixtures
 
+# Regenerate the third-party license list after changing Cargo.lock, the
+# bundled npm packages or the font (--check verifies it is current)
+node scripts/generate-licenses.mjs
+
 # UI with mock data in a plain browser (dev only, from app/)
 pnpm dev   # then open http://localhost:1420/?demo (also ?demo=gallery, cap, status, portinuse, network, noaddr, tall)
 ```
@@ -64,6 +69,8 @@ pnpm dev   # then open http://localhost:1420/?demo (also ?demo=gallery, cap, sta
 | serde / thiserror | 1.0.229 / 2.0.21 |
 | tauri-plugin-dialog (Rust only, no JS package) | 2.8.4 |
 | if-addrs | 0.15.0 |
+| tauri-plugin-opener (Rust only) | 2.7.3 |
+| cargo-about (dev tool, install with `--features cli`) | 0.9.3 |
 | qrcode (core, default features off) | 0.14.1 |
 | @tauri-apps/api, @tauri-apps/cli | 2.12.5 |
 | Svelte | 5.57.3 |
@@ -96,6 +103,7 @@ All payloads are camelCase JSON. Names are declared once on each side:
 | Command | `update_settings` | Argument `settings`: a partial `Settings` (invalid values reject). Persists, emits `settings:changed`, and restarts only the listener when `port` or `networkMode` changed. `paper` applies to the next receipt, `defaultCodePage` to the next connection. Returns the full settings. |
 | Command | `retry_listener` | No arguments. Binds again with the current settings; the result arrives as `listener:status`. |
 | Command | `export_receipt` | Arguments `id` (from `receipt:completed`), `format: "png" \| "bin"`, `png?: number[]` (PNG file bytes from the UI renderer). The backend opens the native save dialog and writes the file. Returns `{ saved: true, path }` or `{ saved: false }` on cancel. |
+| Command | `open_link` | Argument `link: "website" \| "repository" \| "issues" \| "license"`: an id, never a URL. Rust maps it to a fixed address (`src/links.rs`) and opens the system browser; the webview has no opener permission. |
 | Command | `clear_receipts` | No arguments. Frees the retained raw bytes; the UI calls it on "Clear roll". |
 | Command | `set_printer_status` | Argument `status`: a partial `PrinterStatus`, merged into the current one (unknown fields reject). Returns the full status. |
 
@@ -234,7 +242,11 @@ open design/icon/AppIcon.icon   # edit in Icon Composer
 - Code, comments, commit messages and README in English.
 - No `unwrap`/`expect` on paths that handle network data. Typed errors in `core`.
 - `core` never depends on network, disk, Tokio or Tauri.
-- Every new crate or package needs a justification in the commit description.
+- Every new crate or package needs a justification in the commit description,
+  and may need its license added to `accepted` in `about.toml`; regenerate the
+  third-party list afterwards (the About screen shows it).
+- Copyright holder: "Tegra Software Ltda" (legal name). Credits: Tegra
+  Software, author Renan Galeno, https://tegra.app.
 - Small Conventional Commits, one logical unit each.
 - Parser work is test-first: every new command arrives with its fixture.
 - ESC/POS doubts: the Epson reference wins; document deliberate deviations in code.
