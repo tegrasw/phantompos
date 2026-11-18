@@ -3,7 +3,7 @@
 Virtual ESC/POS thermal printer: a Tauri 2 desktop app that listens on TCP 9100,
 parses ESC/POS and draws the receipt. `SPEC.md` (Portuguese) is the source of
 truth; work proceeds one stage at a time ("Etapas e critérios de aceite").
-Current stage: **3 (roll, cut, drawer) done**; stage 4 (image, QR, barcodes) not started.
+Current stage: **4 (image, QR, barcodes) done**; stage 5 (status) not started.
 
 ## Layout
 
@@ -62,6 +62,7 @@ pnpm dev   # then open http://localhost:1420/?demo (also ?demo=gallery, ?demo=ca
 | tauri / tauri-build | 2.12.6 / 2.7.5 |
 | tokio | 1.54.1 |
 | serde / thiserror | 1.0.229 / 2.0.21 |
+| qrcode (core, default features off) | 0.14.1 |
 | @tauri-apps/api, @tauri-apps/cli | 2.12.5 |
 | Svelte | 5.57.3 |
 | Vite / @sveltejs/vite-plugin-svelte | 8.3.8 / 7.3.1 |
@@ -82,7 +83,7 @@ All payloads are camelCase JSON. Names are declared once on each side:
 | Event | `listener:status` | `{ state: "listening" \| "error" \| "stopped", address, port, message? }` (`message` only on error) |
 | Event | `connection:changed` | `{ active: number, peers: string[] }` |
 | Event | `commands:received` | `{ connectionId: number, peer: string, commands: DecodedCommand[] }`, never empty. `DecodedCommand = { offset, bytes: number[], command: { type, ...params } }`; `offset` counts from the start of the connection stream. Variants and fields: `core/README.md`. Pending text and incomplete sequences are flushed on disconnect, before `connection:changed`. |
-| Event | `receipt:updated` | `{ connectionId, peer, receipt: Receipt }`: full snapshot of that connection's in-progress receipt (`cut: null`). At most one per socket read, only when something new was printed. |
+| Event | `receipt:updated` | `{ connectionId, peer, receipt: Receipt }`: full snapshot of that connection's in-progress receipt (`cut: null`). Only when something new was printed; throttled per connection to one per 50 ms (the first change is sent at once, a pending snapshot is dropped when its receipt completes). |
 | Event | `receipt:completed` | `{ id, connectionId, peer, receipt: Receipt }`: closed by a cut (`cut: "full" \| "partial"`) or by the end of the connection (`cut: null`). `id` is unique and increasing in closing order. |
 | Event | `drawer:kicked` | `{ connectionId, peer, pin: 2 \| 5, onMs, offMs }`. The drawer stays open until `close_drawer`. |
 | Command | `get_state` | `{ listener, connections, paper: "58mm" \| "80mm", drawerOpen: boolean }` |
@@ -92,7 +93,11 @@ All payloads are camelCase JSON. Names are declared once on each side:
 Order per connection: `commands:received` for the batch, then
 `receipt:completed` (in order), then `receipt:updated`. On disconnect: flushed
 commands, `receipt:completed` if content is pending, then `connection:changed`.
-`Receipt` is documented in `core/README.md` (all values in printer dots).
+`Receipt` is documented in `core/README.md` (all values in printer dots). Its
+elements are `line` (text spans) and `image` (`kind`: `raster`, `qrCode` or
+`barcode`; 1-bit rows as base64). QR codes and barcodes are generated in core
+(owner decision, deviating from the SPEC's "JavaScript libraries") and reach
+the UI as bitmaps; barcode HRI text is ordinary `line` elements.
 
 The UI registers its event listeners first and then calls `get_state`.
 Still to come from the SPEC: `set_printer_status`, `update_settings`, `export_receipt`.
@@ -127,6 +132,12 @@ includes visual design work, not just function.
   Receipts are split into 1024-dot tiles that release their bitmap when far
   off-screen. One zoom for all receipts keeps 58 and 80 mm in proportion.
   `renderReceipt()` with `EXPORT_COLORS` gives black on white for PNG export.
+- Image elements are written dot for dot after the text threshold, cached by
+  element and by data string. The zoom prefers a whole number of device pixels
+  per dot and sheets sit on whole device pixels, so codes stay scannable;
+  clicking a QR code or barcode opens a close-up (`CodePreview`).
+- The command log keeps only the first 256 bytes of each command (plus its real
+  length); raw-bytes export in stage 6 must come from the backend.
 - The roll keeps at most 200 receipts.
 - No component or animation libraries; inline SVG icons.
 - The UI renders commands generically from `command.type` and its params, so
@@ -169,6 +180,12 @@ open design/icon/AppIcon.icon   # edit in Icon Composer
 - `tauri icon` knows nothing about `.icon`; `build.sh` runs it twice (one
   master per platform family) and drops the iOS/Android output.
 
+## Owner decisions for later stages
+
+- Stage 6, port in use: besides the manual port setting, the port-in-use error
+  state offers actions ("Use <next free port>" and "Try again"). The app never
+  switches ports on its own: no silent automatic fallback (decided 2026-11-18).
+
 ## Conventions
 
 - Code, comments, commit messages and README in English.
@@ -180,14 +197,24 @@ open design/icon/AppIcon.icon   # edit in Icon Composer
 - ESC/POS doubts: the Epson reference wins; document deliberate deviations in code.
 - Signing happens only in `release.yml`, never in CI.
 
-## Known limitations (stage 3)
+## Known limitations (stage 4)
 
 - Commands received before the webview has registered its listeners (the
   first moments after launch) are not shown; there is no backlog replay yet.
 - Text is emitted when its run ends (next command, 4096 bytes, or
   disconnect), so a client that keeps the socket open sees trailing text late.
-- Later-stage commands (raster, QR, barcode, status) appear as `unknown`, and
-  their parameter bytes as text or control characters.
+- Status commands (`DLE EOT`, `GS r`, `GS a`) appear as `unknown` until stage
+  5; `GS ( k` fn 82 (QR size request) is logged but gets no reply.
+- Other graphics (`ESC *`, `GS ( L`, `GS 8 L`, `GS *`, `GS /`, `FS p`) and 2D
+  symbols other than QR are consumed by length and logged as unsupported, not
+  drawn. GS1 barcodes and CODE128 auto are logged as unsupported.
+- Image or symbol payloads over 1 MiB are consumed but not stored.
+- An image, barcode or QR print that arrives with text pending on the line is
+  ignored, like a cut. Codes wider than the paper are not printed; raster
+  images are clipped. No quiet zones are added.
+- QR model 1 is drawn as model 2; `GS !` does not scale QR codes.
+- `commands:received` carries image bytes as a JSON number array (about 260 KB
+  for a 576x1000 raster).
 - A cut in the middle of a line (buffered text without LF) is ignored, as on
   an Epson printer. `GS V` function C is drawn like function B.
 - Text without its LF is not on the in-progress receipt until an LF, a cut or
