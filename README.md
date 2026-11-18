@@ -15,11 +15,12 @@ PhantomPOS is an open source project by Tegra Software, built with Rust and Taur
 
 Early development. Version 0.1.0 has not been released yet, and no binaries are
 published. The project is being built in stages; stages 1 (skeleton), 2 (text and
-formatting), 3 (roll, cut and drawer), 4 (images and codes) and 5 (status) are done.
+formatting), 3 (roll, cut and drawer), 4 (images and codes), 5 (status) and 6 (settings and
+export) are done.
 
 ## Features
 
-What is implemented today:
+What is implemented:
 
 - A single-window desktop app with light and dark themes.
 - A raw TCP listener on `127.0.0.1:9100`.
@@ -32,14 +33,15 @@ What is implemented today:
   visible between receipts and a cash drawer indicator.
 - Simulated printer states (paper out, cover open, offline, drawer open) with replies
   to the status commands `DLE EOT`, `GS r` and `GS a`.
+- Settings saved between runs: port, local-only or local-network access (with a
+  warning, since raw printing has no authentication), paper width and default code page.
+  If the port is in use, the app offers to use the next free one; it never switches
+  ports on its own.
+- Export of a receipt as PNG and of its raw bytes as a `.bin` file, which works as a
+  test fixture in `core/tests/fixtures/`.
+- Interface in English and Brazilian Portuguese, following the system language.
 - A log of decoded commands, side by side with the raw bytes, highlighting unknown
   sequences.
-
-Planned for v1 (not implemented yet):
-
-- Configurable port, and an opt-in mode that accepts connections from the local network.
-- Export of a receipt as PNG and of the raw bytes as a `.bin` file.
-- Interface in English and Portuguese.
 
 Ideas outside the v1 scope are tracked in [docs/backlog.md](docs/backlog.md).
 

@@ -3,7 +3,7 @@
 Virtual ESC/POS thermal printer: a Tauri 2 desktop app that listens on TCP 9100,
 parses ESC/POS and draws the receipt. `SPEC.md` (Portuguese) is the source of
 truth; work proceeds one stage at a time ("Etapas e critérios de aceite").
-Current stage: **5 (status) done**; stage 6 (settings and export) not started.
+Current stage: **6 (settings and export) done**. All six stages are implemented; what remains is the 0.1.0 release checklist (Apple secrets, a test with real POS receipts).
 
 ## Layout
 
@@ -48,7 +48,7 @@ cat core/tests/fixtures/receipt_small.bin | nc 127.0.0.1 9100
 UPDATE_FIXTURES=1 cargo test -p phantompos-core --test fixtures
 
 # UI with mock data in a plain browser (dev only, from app/)
-pnpm dev   # then open http://localhost:1420/?demo (also ?demo=gallery, ?demo=cap, ?demo=status)
+pnpm dev   # then open http://localhost:1420/?demo (also ?demo=gallery, cap, status, portinuse, network, noaddr, tall)
 ```
 
 `app/dist` must exist before a release compile of the app crate
@@ -62,6 +62,8 @@ pnpm dev   # then open http://localhost:1420/?demo (also ?demo=gallery, ?demo=ca
 | tauri / tauri-build | 2.12.6 / 2.7.5 |
 | tokio | 1.54.1 |
 | serde / thiserror | 1.0.229 / 2.0.21 |
+| tauri-plugin-dialog (Rust only, no JS package) | 2.8.4 |
+| if-addrs | 0.15.0 |
 | qrcode (core, default features off) | 0.14.1 |
 | @tauri-apps/api, @tauri-apps/cli | 2.12.5 |
 | Svelte | 5.57.3 |
@@ -80,7 +82,8 @@ All payloads are camelCase JSON. Names are declared once on each side:
 
 | Kind | Name | Payload |
 | --- | --- | --- |
-| Event | `listener:status` | `{ state: "listening" \| "error" \| "stopped", address, port, message? }` (`message` only on error) |
+| Event | `listener:status` | `{ state: "listening" \| "error" \| "stopped", address, port, addresses: string[], message?, code?: "portInUse" \| "permissionDenied" \| "other", suggestedPort? }`. `address` is the bind address; `addresses` is what to show (`127.0.0.1` in local mode, every non-loopback, non-link-local IPv4 in network mode, possibly empty). `suggestedPort` only on `portInUse`. |
+| Event | `settings:changed` | Full `Settings = { port, networkMode: "local" \| "network", paper: "58mm" \| "80mm", defaultCodePage: "cp437" \| "cp850" \| "cp860" \| "cp858" \| "windows1252" }`. |
 | Event | `connection:changed` | `{ active: number, peers: string[] }` |
 | Event | `commands:received` | `{ connectionId: number, peer: string, commands: DecodedCommand[] }`, never empty. `DecodedCommand = { offset, bytes: number[], command: { type, ...params } }`; `offset` counts from the start of the connection stream. Variants and fields: `core/README.md`. Pending text and incomplete sequences are flushed on disconnect, before `connection:changed`. |
 | Event | `receipt:updated` | `{ connectionId, peer, receipt: Receipt }`: full snapshot of that connection's in-progress receipt (`cut: null`). Only when something new was printed; throttled per connection to one per 50 ms (the first change is sent at once, a pending snapshot is dropped when its receipt completes). |
@@ -89,8 +92,11 @@ All payloads are camelCase JSON. Names are declared once on each side:
 | Event | `printer:status` | Full `PrinterStatus = { paperOut, coverOpen, offline, drawerOpen }`, only when it changes (UI command or drawer kick). |
 | Event | `status:sent` | `{ connectionId, peer, request, reply: { kind: "realTime" \| "transmit" \| "automatic", bytes, flags } }` for every reply written to a socket. `request` is a mnemonic such as `DLE EOT 1`, `GS r 49` or `ASB`; `flags` are decoded from the bytes (vocabulary in `core/README.md`). |
 | Event | `print:suppressed` | `{ connectionId, peer, reason: "coverOpen" \| "paperOut" \| "offline", bytes }`, at most one per socket read while an error state is active (reason priority in that order). |
-| Command | `get_state` | `{ listener, connections, paper: "58mm" \| "80mm", status: PrinterStatus }` |
-| Command | `set_paper` | Argument `paper`. Memory only (default 80 mm); applies to receipts started afterwards. Returns the new paper; an invalid value rejects with a message. Provisional: folds into `update_settings` in stage 6. |
+| Command | `get_state` | `{ listener, connections, settings: Settings, status: PrinterStatus }` |
+| Command | `update_settings` | Argument `settings`: a partial `Settings` (invalid values reject). Persists, emits `settings:changed`, and restarts only the listener when `port` or `networkMode` changed. `paper` applies to the next receipt, `defaultCodePage` to the next connection. Returns the full settings. |
+| Command | `retry_listener` | No arguments. Binds again with the current settings; the result arrives as `listener:status`. |
+| Command | `export_receipt` | Arguments `id` (from `receipt:completed`), `format: "png" \| "bin"`, `png?: number[]` (PNG file bytes from the UI renderer). The backend opens the native save dialog and writes the file. Returns `{ saved: true, path }` or `{ saved: false }` on cancel. |
+| Command | `clear_receipts` | No arguments. Frees the retained raw bytes; the UI calls it on "Clear roll". |
 | Command | `set_printer_status` | Argument `status`: a partial `PrinterStatus`, merged into the current one (unknown fields reject). Returns the full status. |
 
 Order per socket read: `commands:received`, `print:suppressed`, then
@@ -104,7 +110,14 @@ elements are `line` (text spans) and `image` (`kind`: `raster`, `qrCode` or
 the UI as bitmaps; barcode HRI text is ordinary `line` elements.
 
 The UI registers its event listeners first and then calls `get_state`.
-Still to come from the SPEC: `update_settings`, `export_receipt`.
+Settings live in `settings.json` in the app config directory (macOS:
+`~/Library/Application Support/app.tegra.oss.phantompos/`), written atomically
+and loaded leniently (a bad field falls back to its default). A listener
+restart closes the old connections like normal disconnects, then reports
+`stopped`, then `listening` or `error`. Raw bytes are kept for the last 200
+completed receipts (32 MiB total). A `.bin` holds the receipt's own bytes: from
+the end of the previous receipt (or the connection start) through its closing
+cut; `SessionEvent::ReceiptCompleted` carries that end offset.
 
 Status replies are computed in core by pure functions of `PrinterStatus`
 (`core/src/status.rs`); the reply table per command and state is in
@@ -155,6 +168,16 @@ includes visual design work, not just function.
 - Layout: state panel on the left (272 px, collapses to a rail), command log on
   the right. Both can be open only from 912 px of window width; below that,
   opening one collapses the other.
+- Interface in English and Brazilian Portuguese (`app/src/lib/i18n/`): `en.ts`
+  defines the shape and `pt.ts` must match it (type-checked). The first `pt*`
+  or `en*` entry of `navigator.languages` wins; `?lang=pt|en` in dev. ESC/POS
+  mnemonics, code page names and raw enum values stay untranslated; unknown
+  command types and flags fall back to a humanized English identifier.
+- Settings open in a modal from the header gear; enabling network access needs
+  an explicit confirmation inside it. PNG export is a 1-bit PNG built in bands
+  with `CompressionStream` (no height limit); the canvas fallback caps at
+  16,384 rows. `__APP_VERSION__` comes from `app/package.json`: keep it in sync
+  with the Cargo version.
 - The roll keeps at most 200 entries (receipts and "not printed" notices;
   consecutive notices of the same connection and reason coalesce).
 - No component or animation libraries; inline SVG icons.
@@ -200,9 +223,9 @@ open design/icon/AppIcon.icon   # edit in Icon Composer
 
 ## Owner decisions for later stages
 
-- Stage 6, port in use: besides the manual port setting, the port-in-use error
-  state offers actions ("Use <next free port>" and "Try again"). The app never
-  switches ports on its own: no silent automatic fallback (decided 2026-11-18).
+- Port in use: the error state offers actions ("Use <next free port>" and
+  "Try again"). The app never switches ports on its own: no silent automatic
+  fallback (decided 2026-11-18, implemented in stage 6).
 
 ## Conventions
 
@@ -215,7 +238,7 @@ open design/icon/AppIcon.icon   # edit in Icon Composer
 - ESC/POS doubts: the Epson reference wins; document deliberate deviations in code.
 - Signing happens only in `release.yml`, never in CI.
 
-## Known limitations (stage 5)
+## Known limitations (stage 6)
 
 - Commands received before the webview has registered its listeners (the
   first moments after launch) are not shown; there is no backlog replay yet.
@@ -245,6 +268,10 @@ open design/icon/AppIcon.icon   # edit in Icon Composer
   the disconnect.
 - Vertical box-drawing lines only connect when line spacing is at most the
   cell height (`ESC 3 24`), as on a real printer.
-- Port and bind address are fixed at `127.0.0.1:9100` until stage 6. Flutter
-  DevTools also defaults to port 9100; if it is running, the header shows the
-  port-in-use error.
+- Flutter DevTools also defaults to port 9100; if it is running, the app shows
+  the port-in-use error with its actions. On macOS, network mode may still bind
+  `0.0.0.0:9100` while another program holds `127.0.0.1:9100` (`SO_REUSEADDR`):
+  local connections then reach the other program.
+- A `.bin` export does not include state inherited from an earlier receipt on
+  the same connection (styles, code page), so it may not replay identically.
+- The suggested port may be taken again before the user accepts it.
