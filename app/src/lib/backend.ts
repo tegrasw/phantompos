@@ -102,11 +102,36 @@ export interface LineElement {
   spans: Span[];
 }
 
+/** What produced an image element; unknown kinds are drawn the same way. */
+export type ImageKind = "raster" | "qrCode" | "barcode";
+
 /**
- * Something printed on the paper. Later stages add images and codes; the UI
- * ignores element types it does not know.
+ * A 1-bit bitmap on the paper: a raster image (`GS v 0`), a QR code or a
+ * barcode's bars (core generates codes as bitmaps; barcode HRI text arrives as
+ * ordinary line elements).
  */
-export type ReceiptElement = LineElement | { type: string; y?: number };
+export interface ImageElement {
+  type: "image";
+  kind: ImageKind | (string & {});
+  /** Left edge from the paper edge, alignment applied. */
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  /** Dots from `y` to the next element. */
+  advance: number;
+  /**
+   * Base64 (standard alphabet, padded) of packed rows, top to bottom: each
+   * row is ceil(width / 8) bytes, most significant bit first, 1 = black dot.
+   */
+  data: string;
+}
+
+/**
+ * Something printed on the paper. The UI ignores element types it does not
+ * know.
+ */
+export type ReceiptElement = LineElement | ImageElement | { type: string; y?: number };
 
 export interface Receipt {
   paper: Paper;

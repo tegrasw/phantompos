@@ -16,10 +16,13 @@
 // Box drawing and block characters are drawn as dots (see blocks.ts).
 //
 // Anti-aliased pixels are then thresholded: a pixel is ink when at least half
-// of it is covered, otherwise paper. The result has exactly two colours.
+// of it is covered, otherwise paper. Image elements (raster, QR, barcode) are
+// already 1-bit: their dots are written into the thresholded pixels as they
+// are (see images.ts). The result has exactly two colours.
 
-import type { LineElement, Receipt, Span } from "../backend";
+import type { ImageElement, LineElement, Receipt, Span } from "../backend";
 import { drawBlockChar, isBlockChar } from "./blocks";
+import { isImage, overlayImage } from "./images";
 import { RECEIPT_FONT_STACK, receiptFontReady } from "./font";
 
 /** [red, green, blue, alpha], 0-255. */
@@ -78,7 +81,12 @@ export function renderBand(
   ctx.textBaseline = "alphabetic";
 
   const bottom = top + rows;
+  const images: ImageElement[] = [];
   for (const element of receipt.elements) {
+    if (isImage(element)) {
+      if (element.y < bottom && element.y + element.height > top) images.push(element);
+      continue;
+    }
     if (!isLine(element) || element.spans.length === 0) continue;
     const tallest = element.spans.reduce((m, s) => Math.max(m, s.style.heightMultiplier), 1);
     const reach = Math.max(element.height, element.advance) + OVERFLOW_DOTS * tallest;
@@ -86,7 +94,9 @@ export function renderBand(
     drawLine(ctx, element, top);
   }
 
-  threshold(ctx, width, rows, colors);
+  threshold(ctx, width, rows, colors, (pixels) => {
+    for (const image of images) overlayImage(pixels, width, top, rows, image, colors.ink);
+  });
 }
 
 /** Renders the whole receipt on a new canvas (for export). */
@@ -198,8 +208,17 @@ export function rendererReady(): Promise<void> {
   return ready;
 }
 
-/** Reduces the anti-aliased black-on-white drawing to exactly two colours. */
-function threshold(ctx: CanvasRenderingContext2D, width: number, height: number, colors: RenderColors): void {
+/**
+ * Reduces the anti-aliased black-on-white drawing to exactly two colours,
+ * lets `overlay` add exact dots, then writes the pixels back.
+ */
+function threshold(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  colors: RenderColors,
+  overlay: (pixels: Uint8ClampedArray) => void,
+): void {
   const image = ctx.getImageData(0, 0, width, height);
   const data = image.data;
   const [ir, ig, ib, ia] = colors.ink;
@@ -218,5 +237,6 @@ function threshold(ctx: CanvasRenderingContext2D, width: number, height: number,
       data[i + 3] = pa;
     }
   }
+  overlay(data);
   ctx.putImageData(image, 0, 0);
 }

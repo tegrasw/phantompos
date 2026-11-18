@@ -8,12 +8,16 @@
   Scale: the canvas bitmap has one pixel per printer dot and is enlarged
   without smoothing. All receipts share one zoom, computed for 80 mm paper,
   so 58 and 80 mm receipts keep their true relative widths. The zoom is at
-  most one CSS pixel per dot, snapped to whole device pixels per dot when that
-  costs little, and shrinks to fit narrow windows (then smoothed, since
-  dropping dots would lose thin lines).
+  most one CSS pixel per dot and prefers a whole number of device pixels per
+  dot, so 1-bit images (QR modules, barcode bars) keep exact proportions: it
+  rounds up when the paper still fits with a narrow gutter, otherwise down
+  when that costs little. In windows too narrow for one device pixel per dot
+  it shrinks to fit (then smoothed, since dropping dots would lose thin
+  lines); codes stay readable through their close-up (CodePreview).
 -->
 <script lang="ts">
   import { flip } from "svelte/animate";
+  import CodePreview, { type InspectedCode } from "./CodePreview.svelte";
   import { fade, fly } from "svelte/transition";
   import type { DrawerKicked, Paper } from "../backend";
   import type { SessionStats } from "../commandLog.svelte";
@@ -50,6 +54,8 @@
   /** Widest paper, in dots: the zoom is computed for it. */
   const MAX_PAPER_DOTS = 576;
   const MAX_ZOOM = 1;
+  /** Narrowest gutter beside the paper when rounding the zoom up. */
+  const TIGHT_GUTTER = 12;
   const STICKY_THRESHOLD_PX = 32;
 
   const hasBackend = $derived(status.kind !== "disconnected");
@@ -59,6 +65,8 @@
 
   // Zoom ----------------------------------------------------------------------
   let rollWidth = $state(800);
+  /** Width of the scrolling roll (without its scrollbar); 0 while empty. */
+  let scrollWidth = $state(0);
   let dpr = $state(window.devicePixelRatio || 1);
 
   $effect(() => {
@@ -72,15 +80,32 @@
   });
 
   const scale = $derived.by(() => {
-    const gutter = rollWidth < 640 ? 16 : 32;
-    const fit = Math.max(0.25, (rollWidth - 2 * gutter) / MAX_PAPER_DOTS);
+    const width = scrollWidth || rollWidth;
+    const gutter = width < 640 ? 16 : 32;
+    const fit = Math.max(0.25, (width - 2 * gutter) / MAX_PAPER_DOTS);
     let device = Math.min(MAX_ZOOM, fit) * dpr;
-    if (device >= 1) {
-      const snapped = Math.floor(device);
-      if (snapped >= device * 0.8) device = snapped;
+    const up = Math.ceil(device - 1e-6);
+    if (up / dpr <= MAX_ZOOM && (up / dpr) * MAX_PAPER_DOTS <= width - 2 * TIGHT_GUTTER) {
+      device = up;
+    } else if (device >= 1) {
+      const down = Math.floor(device);
+      if (down >= device * 0.8) device = down;
     }
     return { zoom: device / dpr, pixelated: device >= 1 };
   });
+
+  // Centring by flexbox can leave a sheet half a pixel off the device grid,
+  // which resamples every dot even at an integer zoom: place sheets on whole
+  // device pixels instead.
+  let stackWidth = $state(0);
+  const STACK_PAD_X = 16; // keep in sync with .stack padding
+  function paperLeft(dots: number): number {
+    const free = stackWidth - 2 * STACK_PAD_X - dots * scale.zoom;
+    return Math.floor((free / 2) * dpr) / dpr;
+  }
+
+  // Code close-up -------------------------------------------------------------
+  let inspected: InspectedCode | null = $state(null);
 
   // Follow the newest output ------------------------------------------------
   let scroller: HTMLElement | undefined = $state();
@@ -201,6 +226,7 @@
       class="scroll"
       data-scroll-root
       bind:this={scroller}
+      bind:clientWidth={scrollWidth}
       onscroll={onScroll}
       onwheel={onWheel}
       onkeydown={onKeyDown}
@@ -210,18 +236,23 @@
       aria-label={t.rollLabel}
       in:fade={{ duration: duration("base") }}
     >
-      <div class="stack" bind:this={stack}>
+      <div class="stack" bind:this={stack} bind:clientWidth={stackWidth}>
         {#if roll.dropped > 0}
           <p class="dropped">{t.dropped(roll.dropped)}</p>
         {/if}
         {#each items as item, index (item.key)}
-          <div class="item" animate:flip={{ duration: duration("slow"), easing: easeOut }}>
+          <div
+            class="item"
+            style:--paper-left="{paperLeft(item.receipt.width)}px"
+            animate:flip={{ duration: duration("slow"), easing: easeOut }}
+          >
             <ReceiptSheet
               {item}
               zoom={scale.zoom}
               topEdge={topEdgeOf(index)}
               inSlot={item.live && index === items.length - 1}
               hasNext={index < items.length - 1}
+              onInspect={(image, source) => (inspected = { image, source })}
             />
           </div>
         {/each}
@@ -253,6 +284,8 @@
       </button>
     {/if}
   {/if}
+
+  <CodePreview code={inspected} onClose={() => (inspected = null)} />
 </main>
 
 <style>
@@ -338,8 +371,12 @@
   }
   .item {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     width: 100%;
+  }
+  /* May be negative when the paper is wider than the padded stack. */
+  .item > :global(*) {
+    margin-left: var(--paper-left, 0);
   }
   .dropped {
     max-width: 44ch;

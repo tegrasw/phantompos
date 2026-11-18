@@ -102,6 +102,20 @@ export const messages = {
     closeFailed: "Couldn't close the drawer",
   },
 
+  code: {
+    inspect: (kind: string): string => `Inspect ${kind}`,
+    kinds: { qrCode: "QR code", barcode: "barcode", raster: "image" } as Record<string, string>,
+    titles: { qrCode: "QR code", barcode: "Barcode", raster: "Image" } as Record<string, string>,
+    fallbackKind: "image",
+    fallbackTitle: "Image",
+    size: (width: number, height: number): string =>
+      `${width.toLocaleString("en")} \u00D7 ${height.toLocaleString("en")} dots`,
+    scale: (pixels: number): string => `${pixels} px per dot`,
+    source: (id: number | null): string => (id === null ? "Printing" : `Receipt #${id}`),
+    hint: "Exactly as printed, enlarged without smoothing. Point a phone camera at it to scan.",
+    close: "Close",
+  },
+
   log: {
     title: "Commands",
     count: (n: number): string => plural(n, "command", "commands"),
@@ -129,6 +143,16 @@ export const messages = {
     controlTitle: (name: string): string => `Control character ${name}`,
     moreBytes: (n: number): string => `+${plural(n, "byte", "bytes")}`,
     lessBytes: "Show less",
+    /** Shown after the expanded hex of a command too long to keep in full. */
+    notRetained: (n: number): string => `\u2026 ${plural(n, "more byte", "more bytes")}`,
+    notRetainedTitle: "Only the start of long commands is kept in the log",
+    summary: {
+      dots: (width: number, height: number): string =>
+        `${width.toLocaleString("en")} \u00D7 ${height.toLocaleString("en")} dots`,
+      barcode: (symbology: string, data: string | null, invalid: boolean): string =>
+        `${symbology}${data === null ? "" : ` \u201C${data}\u201D`}${invalid ? " (invalid)" : ""}`,
+      storedData: (n: number): string => `${plural(n, "byte", "bytes")} of data`,
+    },
     truncated: (n: number): string =>
       `${plural(n, "older command was", "older commands were")} removed to keep memory in check.`,
   },

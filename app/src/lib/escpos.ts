@@ -3,6 +3,7 @@
 // parser produced into something readable in the command log.
 
 import type { CommandBody, CommandParam } from "./backend";
+import { messages } from "./messages";
 
 const CONTROL_NAMES: readonly string[] = [
   "NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL",
@@ -40,8 +41,11 @@ const PREFIXES = new Set([0x10, 0x1b, 0x1c, 0x1d]); // DLE, ESC, FS, GS
 
 /**
  * Conventional ESC/POS mnemonic for a command's leading bytes, e.g.
- * `1B 45 01` → "ESC E", `1D 21 11` → "GS !", `0A` → "LF", `1D 28 6B …` →
- * "GS ( k", `1D 76 30 …` → "GS v 0". Returns null for printable text.
+ * `1B 45 01` → "ESC E", `1D 21 11` → "GS !", `0A` → "LF". Function-style
+ * commands keep their selector: `1D 28 6B …` → "GS ( k", `1D 28 4C …` →
+ * "GS ( L", `1D 38 4C …` → "GS 8 L", `1D 76 30 …` → "GS v 0". Image and code
+ * commands read naturally from their bytes: "GS k", "GS h", "GS w", "GS H",
+ * "GS f", "ESC *". Returns null for printable text.
  */
 export function mnemonic(bytes: ArrayLike<number>): string | null {
   if (bytes.length === 0) return null;
@@ -55,20 +59,28 @@ export function mnemonic(bytes: ArrayLike<number>): string | null {
       const third = bytes.length > 2 ? bytes[2] & 0xff : -1;
       if (second === 0x28 && third >= 0x21 && third < 0x7f) parts.push(token(third));
       else if (first === 0x1d && second === 0x76 && third === 0x30) parts.push("0");
+      else if (first === 0x1d && second === 0x38 && third === 0x4c) parts.push("L");
     }
     return parts.join(" ");
   }
   return controlName(first) ?? null;
 }
 
-/** "setCharacterSize" → "Set character size"; "feedLines" → "Feed lines". */
+/** Abbreviations that read better in capitals ("Qr print" → "QR print"). */
+const ACRONYMS = /\b(qr|hri|nv|pdf417|upc|ean|itf|gs1)\b/g;
+
+/**
+ * "setCharacterSize" → "Set character size"; "feedLines" → "Feed lines";
+ * "qrPrint" → "QR print".
+ */
 export function humanize(identifier: string): string {
   const words = identifier
     .replace(/[_-]+/g, " ")
     .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
     .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
     .trim()
-    .toLowerCase();
+    .toLowerCase()
+    .replace(ACRONYMS, (word) => word.toUpperCase());
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
@@ -150,4 +162,58 @@ export function textSegments(text: string): TextSegment[] {
   }
   flush();
   return segments;
+}
+
+const SYMBOLOGIES: Record<string, string> = {
+  upcA: "UPC-A",
+  upcE: "UPC-E",
+  ean13: "EAN-13",
+  jan13: "JAN-13",
+  ean8: "EAN-8",
+  jan8: "JAN-8",
+  code39: "CODE39",
+  itf: "ITF",
+  codabar: "CODABAR",
+  nw7: "NW-7",
+  code93: "CODE93",
+  code128: "CODE128",
+  gs1128: "GS1-128",
+  gs1DataBarOmnidirectional: "GS1 DataBar Omnidirectional",
+  gs1DataBarTruncated: "GS1 DataBar Truncated",
+  gs1DataBarLimited: "GS1 DataBar Limited",
+  gs1DataBarExpanded: "GS1 DataBar Expanded",
+  code128Auto: "CODE128 (auto)",
+};
+
+/** "ean13" → "EAN-13"; unknown names are humanised. */
+export function symbologyName(symbology: string): string {
+  return SYMBOLOGIES[symbology] ?? SYMBOLOGIES[symbology.toLowerCase()] ?? humanize(symbology);
+}
+
+const IMAGE_TYPE = /image|raster|graphic/i;
+
+/**
+ * A friendlier one-line reading of some commands' parameters (images and
+ * codes), plus the parameter keys it already covers. Everything else is shown
+ * generically. Parameter names are matched loosely so a renamed field simply
+ * falls back to the generic display.
+ */
+export function commandSummary(command: CommandBody): { summary: string | null; skip: string[] } {
+  const { type } = command;
+  const width = command.width;
+  const height = command.height;
+  if (IMAGE_TYPE.test(type) && typeof width === "number" && typeof height === "number") {
+    return { summary: messages.log.summary.dots(width, height), skip: ["width", "height"] };
+  }
+  if (/barcode/i.test(type) && typeof command.symbology === "string") {
+    const data = typeof command.data === "string" ? command.data : null;
+    return {
+      summary: messages.log.summary.barcode(symbologyName(command.symbology), data, command.valid === false),
+      skip: ["symbology", "data", "valid"],
+    };
+  }
+  if (/^qr/i.test(type) && /store|data/i.test(type) && typeof command.length === "number") {
+    return { summary: messages.log.summary.storedData(command.length), skip: ["length"] };
+  }
+  return { summary: null, skip: [] };
 }

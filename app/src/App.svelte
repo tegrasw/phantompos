@@ -52,7 +52,9 @@
   let logOpen = $state(readStored(STORE_OPEN) !== "false");
   let logWidth = $state(
     Number(readStored(STORE_WIDTH)) ||
-      Math.round(Math.min(680, Math.max(460, window.innerWidth * 0.5))),
+      // 46 %: at the default 1200 px window an 80 mm receipt keeps one CSS
+      // pixel per dot beside the log (crisp codes, see RollView).
+      Math.round(Math.min(680, Math.max(460, window.innerWidth * 0.46))),
   );
   const panelMax = $derived(Math.max(PANEL_MIN, viewportWidth - ROLL_MIN));
   /** Below this width the log stacks bytes under each command. */

@@ -8,6 +8,7 @@ import type {
   Alignment,
   CommandBody,
   Cut,
+  ImageElement,
   LineElement,
   Paper,
   Receipt,
@@ -15,6 +16,18 @@ import type {
   SpanStyle,
   UnderlineMode,
 } from "../backend";
+import { toBase64, type DemoBitmap } from "./demoImages";
+
+/** What an image command prints (the demo has no core to decode its bytes). */
+export interface DemoImage {
+  kind: ImageElement["kind"];
+  bitmap: DemoBitmap;
+  /** Barcode human-readable text, printed below in font A. */
+  hri?: string;
+}
+
+/** Image commands → their bitmap. Keyed by the command object. */
+export const demoImages = new WeakMap<CommandBody, DemoImage>();
 
 const FONTS = { a: { width: 12, height: 24, baseline: 21 }, b: { width: 9, height: 17, baseline: 16 } };
 const DEFAULT_SPACING = 30;
@@ -49,7 +62,7 @@ export class DemoLayout {
   /** Span baselines while pending (core keeps them in `Span::y`). */
   #cursor = 0;
   #hasData = false;
-  #elements: LineElement[] = [];
+  #elements: (LineElement | ImageElement)[] = [];
   #y = 0;
 
   constructor(paper: Paper) {
@@ -66,6 +79,11 @@ export class DemoLayout {
 
   apply(command: CommandBody): void {
     const s = this.#state;
+    const image = demoImages.get(command);
+    if (image) {
+      this.#image(image);
+      return;
+    }
     switch (command.type) {
       case "text":
         for (const ch of String(command.text ?? "")) this.#put(ch);
@@ -195,6 +213,23 @@ export class DemoLayout {
     this.#spans = [];
     this.#cursor = 0;
     this.#hasData = false;
+  }
+
+  #image({ kind, bitmap, hri }: DemoImage): void {
+    if (this.#hasData) this.#printAndFeed(this.#state.spacing);
+    const free = Math.max(0, this.width - bitmap.width);
+    const align = this.#state.align;
+    const x = align === "center" ? Math.floor(free / 2) : align === "right" ? free : 0;
+    const { width, height } = bitmap;
+    this.#elements.push({ type: "image", kind, x, y: this.#y, width, height, advance: height, data: toBase64(bitmap.bits) });
+    this.#y += height;
+    if (hri) {
+      const saved = { ...this.#state };
+      Object.assign(this.#state, { font: "a", bold: false, underline: "off", reverse: false, wm: 1, hm: 1 });
+      for (const ch of hri) this.#put(ch);
+      this.#printAndFeed(this.#state.spacing);
+      this.#state = saved;
+    }
   }
 
   #push(line: Omit<LineElement, "type">): void {

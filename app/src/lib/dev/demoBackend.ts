@@ -6,8 +6,10 @@
 // Query parameters:
 //   ?demo            listening; prints a sequence of receipts live: 80 mm with
 //                    a full cut and a drawer kick, 58 mm box drawing with a
-//                    partial cut, then two connections printing at once
-//                    (one ends without a cut)
+//                    partial cut, two connections printing at once (one ends
+//                    without a cut), then a receipt with a raster logo, a QR
+//                    code and an EAN-13, and a 576 x 576 raster "photo" (a
+//                    41 KB command)
 //   ?demo=gallery    the same receipts printed quickly, a ruler test, then a
 //                    receipt that stops half-way and stays "printing"
 //   ?demo=cap        prints 205 small receipts (exercises the retention cap)
@@ -31,7 +33,16 @@ import type {
   ListenerStatus,
   Paper,
 } from "../backend";
-import { DemoLayout } from "./demoLayout";
+import {
+  ean13,
+  ean13Bitmap,
+  logoBitmap,
+  posterBitmap,
+  QR_TEXT,
+  qrBitmap,
+  type DemoBitmap,
+} from "./demoImages";
+import { DemoLayout, demoImages, type DemoImage } from "./demoLayout";
 
 // Code page bytes for the characters the demo uses (CP860 accents, CP437
 // box drawing, shades and symbols). Demo data only.
@@ -116,6 +127,53 @@ class Stream {
   }
   cut(mode: "full" | "partial"): this {
     return this.add([0x1d, 0x56, mode === "full" ? 0x41 : 0x42, 0x00], { type: "cut", mode, function: "b", feed: 0 });
+  }
+  /** Adds a command that prints `image` (see demoImages in demoLayout). */
+  #print(bytes: number[], command: CommandBody, image: DemoImage): this {
+    demoImages.set(command, image);
+    return this.add(bytes, command);
+  }
+  /** `GS v 0`, normal mode. */
+  raster(bitmap: DemoBitmap): this {
+    const stride = Math.ceil(bitmap.width / 8);
+    const header = [0x1d, 0x76, 0x30, 0x00, stride & 0xff, stride >> 8, bitmap.height & 0xff, bitmap.height >> 8];
+    return this.#print(
+      header.concat(Array.from(bitmap.bits)),
+      {
+        type: "rasterImage",
+        mode: "normal",
+        width: bitmap.width,
+        height: bitmap.height,
+        bytesExpected: bitmap.bits.length,
+      },
+      { kind: "raster", bitmap },
+    );
+  }
+  /** `GS ( k`: model 2, module size, error correction M, store, print. */
+  qr(text: string, moduleDots: number): this {
+    const gsk = (fn: number, params: number[]): number[] => {
+      const length = params.length + 2;
+      return [0x1d, 0x28, 0x6b, length & 0xff, length >> 8, 0x31, fn, ...params];
+    };
+    const data = encode(text);
+    return this.add(gsk(0x41, [0x32, 0x00]), { type: "setQrModel", model: "model2" })
+      .add(gsk(0x43, [moduleDots]), { type: "setQrModuleSize", size: moduleDots })
+      .add(gsk(0x45, [0x31]), { type: "setQrErrorCorrection", level: "m" })
+      .add(gsk(0x50, [0x30, ...data]), { type: "qrStoreData", length: data.length, valid: true })
+      .#print(gsk(0x51, [0x30]), { type: "qrPrint" }, { kind: "qrCode", bitmap: qrBitmap(moduleDots) });
+  }
+  /** `GS h`, `GS w`, `GS H`, `GS f`, then `GS k` function B (EAN-13). */
+  ean13(digits12: string, moduleDots = 2, height = 80): this {
+    const code = ean13(digits12);
+    return this.add([0x1d, 0x68, height], { type: "setBarcodeHeight", dots: height })
+      .add([0x1d, 0x77, moduleDots], { type: "setBarcodeWidth", module: moduleDots })
+      .add([0x1d, 0x48, 0x02], { type: "setHriPosition", position: "below" })
+      .add([0x1d, 0x66, 0x00], { type: "setHriFont", font: "a" })
+      .#print(
+        [0x1d, 0x6b, 0x43, code.length, ...encode(code)],
+        { type: "barcode", symbology: "ean13", function: "b", data: code, valid: true, problem: null },
+        { kind: "barcode", bitmap: ean13Bitmap(code, moduleDots, height), hri: code },
+      );
   }
   kick(pin: 2 | 5 = 2): this {
     return this.add([0x1b, 0x70, pin === 2 ? 0 : 1, 0x32, 0x64], { type: "drawerKick", pin, onMs: 100, offMs: 200 });
@@ -309,6 +367,61 @@ function ruler(columns: number, s = new Stream()): Stream {
     .cut("full");
 }
 
+/** 80 mm: raster logo, QR code and EAN-13 (stage 4 acceptance sample). */
+function codesReceipt(s = new Stream()): Stream {
+  const rule = "-".repeat(48);
+  return s
+    .init()
+    .codePage(3, "cp860")
+    .align("center")
+    .raster(logoBitmap(144))
+    .feedDots(12)
+    .size(2, 2)
+    .bold(true)
+    .line("PHANTOM CAFÉ")
+    .size(1, 1)
+    .bold(false)
+    .line("Av. Paulista, 1000 - São Paulo")
+    .feedDots(16)
+    .align("left")
+    .line(rule)
+    .columns("Espresso duplo", "2 x 7,50   15,00")
+    .columns("Croissant de amêndoas", "1 x 12,90   12,90")
+    .line(rule)
+    .size(1, 2)
+    .bold(true)
+    .columns("TOTAL", "R$ 27,90")
+    .size(1, 1)
+    .bold(false)
+    .align("center")
+    .feedDots(24)
+    .line("Código do projeto:")
+    .feedDots(24)
+    .qr(QR_TEXT, 6)
+    .feedDots(24)
+    .font("b")
+    .line("github.com/tegrasw/phantompos")
+    .font("a")
+    .feedDots(24)
+    .ean13("789123456789")
+    .feed(3)
+    .cut("full");
+}
+
+/** A 576 x 576 dithered raster: a 41 KB command for the log. */
+function posterSlip(s = new Stream()): Stream {
+  return s
+    .init()
+    .align("center")
+    .raster(posterBitmap(576, 576))
+    .feedDots(12)
+    .font("b")
+    .line("GS v 0 · 576 x 576 dots · 41,480 bytes")
+    .font("a")
+    .feed(2)
+    .cut("partial");
+}
+
 function unknownSamples(): DecodedCommand[] {
   const s = new Stream();
   s.add([0x1b, 0x1d, 0x61, 0x01], { type: "unknown", reason: "Unrecognised command" })
@@ -327,7 +440,7 @@ function byLine(commands: DecodedCommand[]): DecodedCommand[][] {
   let current: DecodedCommand[] = [];
   for (const command of commands) {
     current.push(command);
-    if (["lineFeed", "feedLines", "feedDots", "cut"].includes(command.command.type)) {
+    if (["lineFeed", "feedLines", "feedDots", "cut", "rasterImage", "qrPrint", "barcode"].includes(command.command.type)) {
       batches.push(current);
       current = [];
     }
@@ -456,6 +569,10 @@ export const connectDemo: BackendConnector = (handlers) => {
       print(kitchenOrder().commands, { paper: "80mm", gapMs: gapMs * 1.3 }),
       delay(gapMs * 3).then(() => print(noteSlip().commands, { paper: "58mm", gapMs })),
     ]);
+    await delay(gapMs * 4);
+    await print(codesReceipt().commands, { paper: "80mm", gapMs: gapMs * 2 });
+    await delay(gapMs * 4);
+    await print(posterSlip().commands, { paper: "80mm", gapMs });
   }
 
   const api = {
@@ -465,6 +582,9 @@ export const connectDemo: BackendConnector = (handlers) => {
     noCut: () => print(noteSlip().commands),
     parallel: () => Promise.all([print(kitchenOrder().commands), print(noteSlip().commands, { gapMs: 110 })]),
     ruler: () => print(ruler(paper === "58mm" ? 32 : 48).commands),
+    codes: () => print(codesReceipt().commands),
+    poster: () => print(posterSlip().commands),
+    slowCodes: () => print(codesReceipt().commands, { gapMs: 600 }),
     slow: () => print(bakery().commands, { gapMs: 600 }),
     kick: async () => {
       const { id, peer } = open();
@@ -498,6 +618,9 @@ export const connectDemo: BackendConnector = (handlers) => {
         await print(ruler(32).commands, { paper: "58mm", gapMs: 5 });
         await print(noteSlip().commands, { paper: "58mm", gapMs: 5 });
         await print(kitchenOrder().commands, { paper: "80mm", gapMs: 5 });
+        await print(codesReceipt().commands, { paper: "80mm", gapMs: 5 });
+        await print(codesReceipt().commands, { paper: "58mm", gapMs: 5 });
+        await print(posterSlip().commands, { paper: "80mm", gapMs: 5 });
         await print(bakery(new Stream(), "partial").commands, { paper: "80mm", gapMs: 60, holdAfter: 12 });
       } else if (scenario === "cap") {
         // Completed receipts only (no live phase), as fast as possible.

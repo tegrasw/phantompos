@@ -190,6 +190,9 @@
                 {#each rowLines(row) as line, i (i)}
                   <span class="hex-line">{line}</span>
                 {/each}
+                {#if expanded.has(row.key) && row.byteLength > row.bytes.length}
+                  <span class="hex-rest" title={t.notRetainedTitle}>{t.notRetained(row.byteLength - row.bytes.length)}</span>
+                {/if}
                 {#if row.hiddenBytes > 0}
                   <button type="button" class="more" onclick={() => toggleExpanded(row.key)}>
                     {expanded.has(row.key) ? t.lessBytes : t.moreBytes(row.hiddenBytes)}
@@ -223,6 +226,7 @@
                   <span class="mn">{row.mnemonic ?? ""}</span>
                   <span class="body">
                     <span class="name">{row.label}</span>
+                    {#if row.summary}<span class="gist">{row.summary}</span>{/if}
                     {#each row.params as param (param.key)}
                       <span class="param"><span class="k">{param.key}</span> <span class="v">{param.value}</span></span>
                     {/each}
@@ -458,6 +462,11 @@
   .more:hover {
     background: var(--accent-soft);
   }
+  .hex-rest {
+    color: var(--text-tertiary);
+    font-size: var(--text-2xs);
+    line-height: 16px;
+  }
 
   .decoded {
     display: grid;
@@ -497,6 +506,20 @@
     display: inline-block;
     margin-right: var(--space-0-5);
     vertical-align: -1px;
+  }
+  .gist {
+    padding: 0 var(--space-1-5);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    background: var(--bg-sunken);
+    color: var(--text);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    line-height: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
   .param {
     color: var(--text-tertiary);

@@ -4,7 +4,9 @@
   serrated tear at a full cut, the same with an uncut tab at a partial cut, a
   soft end when the connection closed without a cut, and a straight edge
   running into the printer slot while it is still printing. The bitmap itself
-  is drawn by ReceiptTiles (canvas, one pixel per printer dot).
+  is drawn by ReceiptTiles (canvas, one pixel per printer dot). QR codes and
+  barcodes get a transparent button on top that opens a close-up
+  (CodePreview), so a code stays scannable even when the roll is scaled down.
 -->
 <script lang="ts" module>
   /** How one edge of a sheet looks. */
@@ -13,10 +15,13 @@
 
 <script lang="ts">
   import { onMount } from "svelte";
+  import type { ImageElement } from "../backend";
   import { formatClock } from "../format";
   import { messages } from "../messages";
+  import { isCode, isImage } from "../receipt/images";
   import { ReceiptTiles } from "../receipt/tiles";
   import type { RollItem } from "../roll.svelte";
+  import Icon from "./Icon.svelte";
 
   let {
     item,
@@ -24,6 +29,7 @@
     topEdge,
     inSlot,
     hasNext,
+    onInspect,
   }: {
     item: RollItem;
     /** CSS pixels per printer dot. */
@@ -33,6 +39,8 @@
     inSlot: boolean;
     /** A receipt follows (a partial cut's tab connects to it). */
     hasNext: boolean;
+    /** Opens the close-up of a QR code or barcode. */
+    onInspect?: (image: ImageElement, source: string) => void;
   } = $props();
 
   const t = messages.roll;
@@ -52,6 +60,9 @@
   );
   const paperName = $derived(messages.paper.names[receipt.paper] ?? receipt.paper);
   const time = $derived(formatClock(item.completedAt ?? item.startedAt));
+  const codes = $derived(receipt.elements.filter(isImage).filter(isCode));
+  const source = $derived(messages.code.source(item.id));
+  const kindName = (image: ImageElement): string => messages.code.kinds[image.kind] ?? messages.code.fallbackKind;
 
   onMount(() => {
     if (!sheet) return;
@@ -119,6 +130,25 @@
       role="img"
       aria-label={t.receiptLabel(item.id, paperName, item.live ? t.printing : cutLabel)}
     ></div>
+    {#if codes.length > 0 && onInspect}
+      <div class="codes">
+        {#each codes as code, i (i)}
+          <button
+            type="button"
+            class="code"
+            style:left="{code.x * zoom}px"
+            style:top="{code.y * zoom}px"
+            style:width="{code.width * zoom}px"
+            style:height="{code.height * zoom}px"
+            aria-label={messages.code.inspect(kindName(code))}
+            title={messages.code.inspect(kindName(code))}
+            onclick={() => onInspect?.(code, source)}
+          >
+            <span class="badge" aria-hidden="true"><Icon name="zoom" size={12} /></span>
+          </button>
+        {/each}
+      </div>
+    {/if}
     {#if bottomEdge === "partial" && hasNext}
       <div class="bridge" aria-hidden="true"></div>
     {/if}
@@ -285,6 +315,65 @@
     left: 0;
     display: block;
     image-rendering: var(--receipt-rendering, pixelated);
+  }
+
+  /* Code close-up buttons ------------------------------------------------ */
+  .codes {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .code {
+    position: absolute;
+    padding: 0;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    cursor: zoom-in;
+    pointer-events: auto;
+  }
+  .code::before {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border-radius: 6px;
+    box-shadow:
+      0 0 0 1.5px var(--paper-accent),
+      0 0 0 5px color-mix(in srgb, var(--paper-accent) 14%, transparent);
+    opacity: 0;
+    transition: opacity var(--dur-fast) var(--ease-out);
+  }
+  .code:focus-visible {
+    outline: none;
+  }
+  .badge {
+    position: absolute;
+    top: -11px;
+    right: -11px;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--paper-accent);
+    color: #fff;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.25);
+    opacity: 0;
+    transform: scale(0.6);
+    transition:
+      opacity var(--dur-fast) var(--ease-out),
+      transform var(--dur-base) var(--ease-out);
+  }
+  .code:hover::before,
+  .code:focus-visible::before,
+  .code:hover .badge,
+  .code:focus-visible .badge {
+    opacity: 1;
+  }
+  .code:hover .badge,
+  .code:focus-visible .badge {
+    transform: none;
   }
 
   /* Partial cut: the uncut tab still joins this receipt to the next. */

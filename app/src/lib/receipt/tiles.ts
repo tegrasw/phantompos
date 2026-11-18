@@ -6,7 +6,8 @@
 // when they come back. While a receipt is printing, only the tiles from the
 // first changed line down are redrawn, at most once per animation frame.
 
-import type { Receipt } from "../backend";
+import type { Receipt, ReceiptElement } from "../backend";
+import { isImage } from "./images";
 import { renderBand, rendererReady } from "./render";
 
 export const TILE_DOTS = 1024;
@@ -145,7 +146,23 @@ function firstChangedRow(previous: Receipt, next: Receipt): number {
   if (count === 0) return 0;
   if (next.elements.length < count) return 0;
   const last = previous.elements[count - 1];
-  const same = JSON.stringify(last) === JSON.stringify(next.elements[count - 1]);
   const y = typeof last.y === "number" ? last.y : 0;
-  return same ? y : 0;
+  return sameElement(last, next.elements[count - 1]) ? y : 0;
+}
+
+function sameElement(a: ReceiptElement, b: ReceiptElement): boolean {
+  if (a === b) return true;
+  // Images carry tens of kilobytes of base64: compare fields, not JSON.
+  if (isImage(a) && isImage(b)) {
+    return (
+      a.kind === b.kind &&
+      a.x === b.x &&
+      a.y === b.y &&
+      a.width === b.width &&
+      a.height === b.height &&
+      a.advance === b.advance &&
+      a.data === b.data
+    );
+  }
+  return JSON.stringify(a) === JSON.stringify(b);
 }

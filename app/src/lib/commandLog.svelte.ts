@@ -7,9 +7,17 @@
 // bound. Consecutive batches from the same connection extend the same group.
 // Retention is capped by row count and by total bytes; the oldest rows go
 // first. Everything a row needs for display is computed once, on arrival.
+//
+// Huge commands (a raster image or QR data can be tens of kilobytes): a row
+// keeps only the first HEX_RETAINED_BYTES of its bytes, which is also all that
+// expanding the row can show. The log is for reading, not for recovering the
+// stream; the raw-bytes export (stage 6) comes from the backend. The byte cap
+// counts what is retained, so one 50 KB image does not evict 50 KB of other
+// rows; `byteLength` and the statistics keep the real sizes.
 
 import type { CommandsReceived, DecodedCommand } from "./backend";
 import {
+  commandSummary,
   displayParams,
   hexByte,
   humanize,
@@ -25,6 +33,8 @@ export const MAX_BYTES = 2 * 1024 * 1024;
 export const HEX_BYTES_PER_LINE = 8;
 /** Hex shown before a row offers "show all". */
 export const HEX_PREVIEW_BYTES = 32;
+/** Bytes a row keeps (and shows when expanded); the rest is only counted. */
+export const HEX_RETAINED_BYTES = 256;
 /** Flushes larger than this skip the row entrance animation. */
 const ANIMATE_MAX_ROWS = 24;
 const FLUSH_INTERVAL_MS = 16;
@@ -33,7 +43,10 @@ interface RowBase {
   /** Monotonic key for keyed rendering. */
   key: number;
   offset: number;
+  /** The first HEX_RETAINED_BYTES bytes of the command. */
   bytes: number[];
+  /** Length of the whole command in bytes. */
+  byteLength: number;
   /** Hex preview lines (at most HEX_PREVIEW_BYTES bytes). */
   hexPreview: string[];
   /** Bytes not shown in the preview. */
@@ -46,7 +59,14 @@ interface RowBase {
 export type LogRow =
   | (RowBase & { kind: "text"; segments: TextSegment[]; charCount: number })
   | (RowBase & { kind: "unknown"; reason: string | null; params: DisplayParam[] })
-  | (RowBase & { kind: "command"; type: string; label: string; params: DisplayParam[] });
+  | (RowBase & {
+      kind: "command";
+      type: string;
+      label: string;
+      /** Friendly one-line reading of the parameters, e.g. "576 × 120 dots". */
+      summary: string | null;
+      params: DisplayParam[];
+    });
 
 export interface LogGroup {
   key: number;
@@ -89,13 +109,15 @@ export function hexLines(bytes: readonly number[], limit = bytes.length): string
 }
 
 function toRow(decoded: DecodedCommand, key: number, enter: boolean): LogRow {
-  const bytes = decoded.bytes;
+  const all = decoded.bytes;
+  const bytes = all.length > HEX_RETAINED_BYTES ? all.slice(0, HEX_RETAINED_BYTES) : all;
   const base: RowBase = {
     key,
     offset: decoded.offset,
     bytes,
+    byteLength: all.length,
     hexPreview: hexLines(bytes, HEX_PREVIEW_BYTES),
-    hiddenBytes: Math.max(0, bytes.length - HEX_PREVIEW_BYTES),
+    hiddenBytes: Math.max(0, all.length - HEX_PREVIEW_BYTES),
     mnemonic: mnemonic(bytes),
     enter,
   };
@@ -108,12 +130,14 @@ function toRow(decoded: DecodedCommand, key: number, enter: boolean): LogRow {
     const reason = typeof command.reason === "string" ? humanize(command.reason).toLowerCase() : null;
     return { ...base, kind: "unknown", reason, params: displayParams(command, ["reason"]) };
   }
+  const { summary, skip } = commandSummary(command);
   return {
     ...base,
     kind: "command",
     type: command.type,
     label: humanize(command.type),
-    params: displayParams(command),
+    summary,
+    params: displayParams(command, skip),
   };
 }
 
@@ -179,17 +203,20 @@ export class CommandLog {
     const groups = this.groups.slice();
     let rowCount = this.rowCount;
     let bytes = 0;
+    let retained = 0;
     let unknown = 0;
     let lastPeer = this.stats.lastPeer;
 
     for (const batch of batches) {
       const rows: LogRow[] = [];
       let batchBytes = 0;
+      let batchRetained = 0;
       let batchUnknown = 0;
       for (const decoded of batch.commands) {
         const row = toRow(decoded, this.#nextKey++, enter);
         rows.push(row);
-        batchBytes += decoded.bytes.length;
+        batchBytes += row.byteLength;
+        batchRetained += row.bytes.length;
         if (row.kind === "unknown") batchUnknown++;
       }
       this.#seenConnections.add(batch.connectionId);
@@ -216,10 +243,11 @@ export class CommandLog {
       }
       rowCount += rows.length;
       bytes += batchBytes;
+      retained += batchRetained;
       unknown += batchUnknown;
     }
 
-    this.#retainedBytes += bytes;
+    this.#retainedBytes += retained;
     this.ingested += incoming;
     this.stats = {
       commands: this.stats.commands + incoming,
@@ -240,14 +268,16 @@ export class CommandLog {
       const excessRows = rowCount - MAX_ROWS;
       let take = 0;
       let takeBytes = 0;
+      let takeRetained = 0;
       let takeUnknown = 0;
       while (
         take < oldest.rows.length &&
-        (take < excessRows || this.#retainedBytes - takeBytes > MAX_BYTES) &&
+        (take < excessRows || this.#retainedBytes - takeRetained > MAX_BYTES) &&
         rowCount - take > 1
       ) {
         const row = oldest.rows[take];
-        takeBytes += row.bytes.length;
+        takeBytes += row.byteLength;
+        takeRetained += row.bytes.length;
         if (row.kind === "unknown") takeUnknown++;
         take++;
       }
@@ -262,7 +292,7 @@ export class CommandLog {
         };
       rowCount -= take;
       dropped += take;
-      this.#retainedBytes -= takeBytes;
+      this.#retainedBytes -= takeRetained;
     }
 
     this.groups = groups;

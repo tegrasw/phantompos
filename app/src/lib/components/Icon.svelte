@@ -18,7 +18,9 @@
     | "x"
     | "drawer"
     | "drawerOpen"
-    | "receipt";
+    | "receipt"
+    | "zoom"
+    | "scan";
 </script>
 
 <script lang="ts">
@@ -84,6 +86,14 @@
     <path d="M3.25 7.25V3.75A1.5 1.5 0 0 1 4.75 2.25h6.5a1.5 1.5 0 0 1 1.5 1.5v3.5" />
     <rect x="1.25" y="7.25" width="13.5" height="6.5" rx="1.5" />
     <path d="M6.25 10.5h3.5" />
+  {:else if name === "zoom"}
+    <!-- Magnifier with a plus: look closer. -->
+    <circle cx="7" cy="7" r="4.25" />
+    <path d="M10.25 10.25l3 3M7 5.25v3.5M5.25 7h3.5" />
+  {:else if name === "scan"}
+    <!-- Viewfinder corners around a code. -->
+    <path d="M2.25 5.25v-1.5a1.5 1.5 0 0 1 1.5-1.5h1.5M10.75 2.25h1.5a1.5 1.5 0 0 1 1.5 1.5v1.5M13.75 10.75v1.5a1.5 1.5 0 0 1-1.5 1.5h-1.5M5.25 13.75h-1.5a1.5 1.5 0 0 1-1.5-1.5v-1.5" />
+    <path d="M5.25 5.25h2v2h-2zM8.75 8.75h2v2h-2zM8.75 5.25h2M5.25 10.75h2" />
   {:else if name === "receipt"}
     <path d="M3.75 2.25h8.5v11.5l-1.4-1-1.42 1-1.43-1-1.42 1-1.43-1-1.4 1z" />
     <path d="M6 5.5h4M6 8h4" />
