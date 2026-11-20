@@ -15,10 +15,9 @@ PhantomPOS is an open source project by Tegra Software, built with Rust and Taur
 
 ## Status
 
-Feature-complete for version 0.1.0: everything planned for the first version is
-implemented and covered by tests. The 0.1.0 release itself is being prepared, so no
-installers are published yet; until then, build from source as described under
-[Development](#development).
+Version 0.1.0 is the first public release: everything planned for the first version
+is implemented and covered by tests. Installers for Windows, macOS and Linux are under
+[Downloads](#downloads).
 
 ## Features
 
@@ -83,8 +82,8 @@ Ideas outside the v1 scope are tracked in [docs/backlog.md](docs/backlog.md).
 
 ## Downloads
 
-Once version 0.1.0 is released, installers will be published on the
-[GitHub Releases](https://github.com/tegrasw/phantompos/releases) page:
+Installers for the latest version are on the
+[GitHub Releases](https://github.com/tegrasw/phantompos/releases/latest) page:
 
 | System | Package |
 | --- | --- |
@@ -93,7 +92,8 @@ Once version 0.1.0 is released, installers will be published on the
 | Linux | AppImage and `.deb` |
 
 The Windows installer is not code-signed, so Windows SmartScreen shows a warning the
-first time it runs. The Linux `.deb` requires WebKitGTK 4.1.
+first time it runs. The Linux `.deb` requires WebKitGTK 4.1. To build from source
+instead, see [Development](#development).
 
 ## Development
 
